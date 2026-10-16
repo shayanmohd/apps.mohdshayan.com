@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rucksack privacy policy</title>
+<link rel="stylesheet" href="assets/rucksack/fonts/fonts.css">
+<style>
+  :root { color-scheme: light dark; --bg:#F1E7D2; --fg:#2B2823; --muted:#625B4A; --hair:#D3C4A4; --accent:#2F5D50; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#F1E7D2; --fg:#2B2823; --muted:#625B4A; --hair:#D3C4A4; --accent:#2F5D50; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0 auto; padding: 64px 24px 120px; max-width: 40rem;
+    font-family: Alegreya, 'Iowan Old Style', Georgia, serif; font-size: 17px; line-height: 1.6;
+    background: var(--bg); color: var(--fg); }
+  h1 { font-size: 2rem; letter-spacing: -0.015em; margin: 0 0 6px; font-weight: 600; }
+  h2 { font-size: 1.05rem; margin: 44px 0 8px; font-weight: 600; }
+  .meta { color: var(--muted); margin: 0 0 44px; font-size: 15px; }
+  p, li { color: var(--fg); }
+  .muted { color: var(--muted); }
+  ul { padding-left: 1.1rem; }
+  li { margin-bottom: 6px; }
+  a { color: var(--accent); }
+  hr { border: 0; border-top: 1px solid var(--hair); margin: 48px 0; }
+  .lead { font-size: 19px; }
+</style>
+</head>
+<body>
+<h1>Rucksack privacy policy</h1>
+<p class="meta">Last updated 05 September 2026</p>
+
+<p class="lead">Rucksack reads one number from your phone, the step counter, and keeps it here. It has no internet permission, so it could not send that number anywhere even if it wanted to.</p>
+
+<h2>What is collected</h2>
+<p><b>Nothing.</b> Rucksack does not collect, transmit, sell or share any personal information. There is no account, no sign-in, and no server that belongs to us.</p>
+
+<h2>Where your data lives</h2>
+<p>Everything Rucksack knows lives in this device&#x27;s private app storage: the daily step counts it has read, the kilometres they converted to, the camps you have made, the people you have met and the name you gave your wanderer. None of it is uploaded, and there is no account to attach it to. The app can write the whole record out as plain text or JSON whenever you ask, which is the only way any of it leaves the phone.</p>
+
+<h2>Network</h2>
+<p>Rucksack does not request the INTERNET permission. It cannot send your data anywhere, because Android will not let it open a network connection at all. This is verifiable in the app's manifest on the Play listing.</p>
+
+<h2>Permissions</h2>
+<ul><li><b>ACTIVITY_RECOGNITION</b>. To read the step counter that is built into the phone. That counter is the only measurement Rucksack takes, and the app never asks when or where the steps happened. You can decline it and write your step count in by hand instead</li><li><b>VIBRATE</b>. One short pulse when you reach a waypoint, meet somebody on the road or finish a piece of gear. It can be turned off in the step ledger, and nothing else in the app buzzes</li></ul>
+
+<h2>Children</h2>
+<p>Rucksack is not directed at children under 13 and collects nothing from anyone, of any age.</p>
+
+<h2>Analytics, ads and tracking</h2>
+<p>There are none. Rucksack contains no advertising SDK, no analytics SDK, and no crash reporter.
+It does not use an advertising ID.</p>
+
+<h2>Your rights</h2>
+<p>Because nothing is collected or transmitted, there is nothing held about you to access, correct or
+delete on a server. Uninstalling the app removes its data from your device. Any in-app export gives
+you a copy of your own content in an open format.</p>
+<h2>It never asks for location</h2><p>Rucksack does not declare the fine or coarse location permission and does not use GPS. It does not know which country you are in, let alone which street. The distance you travel across the map is arithmetic on a step count, nothing more.</p><h2>The weather in the app is not your weather</h2><p>The rain, mist and frost at your camp belong to Elsewhere, not to the place you are standing. It is worked out from the date and the region your wanderer is in, which is precisely why the app needs neither a forecast service nor your position.</p><h2>What the step counter can and cannot tell it</h2><p>Android&#x27;s step counter reports one number: how many steps the phone has counted since it last started up. Rucksack reads that number when you open the app, works out how much is new since the last reading, and adds it to today. It cannot see a route, a speed, a time of day or an activity type, because the sensor does not report any of those things. If the phone restarts, the steps taken between the restart and the next time you open the app are simply lost, and the app says so in the ledger rather than guessing.</p><h2>It is not backed up to the cloud</h2><p>The app declares allowBackup=&quot;false&quot;, so Android does not copy your journey into Google Drive and does not carry it across in a device-to-device transfer. Moving a crossing to a new phone is the JSON export, which you do on purpose.</p><h2>No account and nothing for sale</h2><p>There is no sign-up, no email address and no profile. Nothing in the app is for sale, so there is no payment processor and no purchase history either. The journey belongs to the phone it was walked on.</p>
+<h2>Changes</h2>
+<p>If this policy changes, the updated version will be published at this address with a new date.</p>
+
+<h2>Contact</h2>
+<p>SocialSure Private Limited. Questions: <a href="mailto:shayanm2002@gmail.com">shayanm2002@gmail.com</a>. Project page: <a href="https://shayanmohd.github.io/rucksack/">https://shayanmohd.github.io/rucksack/</a></p>
+
+<hr>
+<p class="muted">Rucksack is published by SocialSure Private Limited.</p>
+</body>
+</html>

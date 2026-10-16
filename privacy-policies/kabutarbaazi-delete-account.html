@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Delete your account - KabutarBaazi</title><link rel="stylesheet" href="assets/kabutarbaazi/style.css"></head><body>
+<div class="wrap">
+<header><div class="mark"></div><strong>KabutarBaazi</strong></header>
+<h1>Delete your account</h1>
+
+<p>The fastest way is inside the app: <strong>Settings &rarr; Delete my account</strong>. That
+removes everything straight away.</p>
+
+<p>If you cannot open the app, fill in this form. We verify the request against the phone number
+on the account and delete it within 30 days.</p>
+
+<div class="card">
+  <h2 style="margin-top:0">What deletion removes</h2>
+  <p>Your profile and username, your phone number, every ad, reel, community post and comment you
+  made, all your conversations and messages, and every photo and video you uploaded.</p>
+  <h2>What is kept</h2>
+  <p>Reports filed <strong>against</strong> your account are kept for 12 months with only a
+  username snapshot, so that deleting an account cannot erase evidence of abuse. Nothing kept
+  identifies you beyond that username.</p>
+</div>
+
+<form id="f" class="card">
+  <label for="u">Your username</label>
+  <input id="u" name="u" required placeholder="e.g. imranq" autocomplete="off">
+  <label for="p">Phone number on the account</label>
+  <input id="p" name="p" placeholder="+91…" inputmode="tel" autocomplete="off">
+  <label for="n">Anything else (optional)</label>
+  <textarea id="n" name="n" rows="3"></textarea>
+  <button id="b" type="submit">Request deletion</button>
+  <p id="msg" class="note"></p>
+</form>
+
+<footer>SocialSure Private Limited &middot; <a href="kabutarbaazi-privacy-policy.html">Privacy policy</a></footer>
+</div>
+
+<script>
+// Posts into deletion_requests. That table's only anon-accessible policy is INSERT, so this
+// form can create a request but can never read anybody else's.
+const URL = "https://lhlrhgocjuwmxwbjsbch.supabase.co/rest/v1/deletion_requests";
+const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxobHJoZ29janV3bXh3YmpzYmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4OTk5MzEsImV4cCI6MjEwMzQ3NTkzMX0.s8xAOYtcR3n9yK7FsE0986WOlll9Op6k93rdZE-QO1A";
+document.getElementById('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const b = document.getElementById('b'), msg = document.getElementById('msg');
+  b.disabled = true; msg.textContent = 'Sending…';
+  try {
+    const r = await fetch(URL, {
+      method: 'POST',
+      headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY,
+                 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        username: document.getElementById('u').value.trim().toLowerCase(),
+        phone_e164: document.getElementById('p').value.trim() || null,
+        note: document.getElementById('n').value.trim() || null
+      })
+    });
+    if (!r.ok) throw new Error(r.status);
+    msg.textContent = 'Request received. Your account will be deleted within 30 days.';
+  } catch (err) {
+    b.disabled = false;
+    msg.textContent = 'Could not send. Please email shayanm2002@gmail.com instead.';
+  }
+});
+</script>
+</body></html>

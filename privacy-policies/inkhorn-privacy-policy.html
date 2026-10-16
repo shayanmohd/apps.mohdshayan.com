@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inkhorn Privacy Policy</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0 auto; padding: 48px 24px 96px; max-width: 40rem;
+    font: 17px/1.6 Georgia, "Times New Roman", serif;
+    background: #E9EEE8; color: #1C2233; }
+  h1 { font-size: 2rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 36px 0 8px; }
+  .meta { color: #4F5A6E; margin: 0 0 32px; }
+  a { color: #1F7466; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #131A1B; color: #E2E8E1; }
+    .meta { color: #9AA8A3; } a { color: #62B8A8; }
+  }
+</style>
+</head>
+<body>
+<h1>Inkhorn Privacy Policy</h1>
+<p class="meta">Last updated 14 September 2026</p>
+
+<p>Inkhorn is a game published by SocialSure Private Limited. This policy explains what the game does with your information.</p>
+
+<h2>Data we collect</h2>
+<p>None. Inkhorn collects no personal data, no usage analytics, no crash reports and no identifiers. The app has no internet permission and there is no server.</p>
+
+<h2>What stays on your phone</h2>
+<p>Your game is saved on your phone: the state of your workshop, the ledger, the choices you made, the chronicles you finished and the endings you found, plus your settings (theme, chapter notes, haptics). Android's own backup and device transfer may carry this save to a new phone, as it does for any app; that is the operating system's feature and nothing is sent to us.</p>
+<p>To delete it, clear Inkhorn's storage in your phone's app settings, or uninstall the game.</p>
+
+<h2>Save files</h2>
+<p>Send save file, in Settings, writes your save as a JSON file and opens the share sheet. The file goes only where you send it. Load save file reads a save file you choose and replaces the current game on this phone.</p>
+
+<h2>Permissions</h2>
+<ul>
+<li>POST_NOTIFICATIONS: one optional note when a chapter finishes while the game is closed. Inkhorn asks once, in context, and plays the same if you say no. You can turn chapter notes off in Settings at any time.</li>
+</ul>
+<p>The WorkManager library, which schedules that one note, adds WAKE_LOCK, RECEIVE_BOOT_COMPLETED, FOREGROUND_SERVICE and ACCESS_NETWORK_STATE to the manifest. Inkhorn uses none of them to collect or send anything.</p>
+<p>The AndroidX Core library adds com.mohdshayan.inkhorn.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION, a private permission that only Inkhorn itself holds. It keeps other apps from sending messages to Inkhorn's internal receivers and grants access to nothing on your phone.</p>
+
+<h2>Third parties</h2>
+<p>Inkhorn contains no advertising, no analytics and no third-party SDKs that collect data. After you finish chapter three it may ask the Google Play app to show its rating prompt once; that prompt is Google Play's own and is covered by Google's privacy policy.</p>
+
+<h2>Children</h2>
+<p>Inkhorn is made for players aged 16 and over. Because it collects no data at all, it collects no data from children.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, the updated version will be posted at this address and the date above will change.</p>
+
+<h2>Contact</h2>
+<p>Questions about this policy can be sent to SocialSure Private Limited through the developer contact details on the Google Play listing.</p>
+</body>
+</html>

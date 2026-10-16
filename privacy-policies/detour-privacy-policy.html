@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detour privacy policy</title>
+<link rel="stylesheet" href="assets/detour/fonts/fonts.css">
+<style>
+  :root { color-scheme: light dark; --bg:#F4ECDD; --fg:#1B1E17; --muted:#5C5F50; --hair:#D9CEB5; --accent:#B8420E; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#15160F; --fg:#EDE5D5; --muted:#A9A492; --hair:#33342B; --accent:#F0904F; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0 auto; padding: 64px 24px 120px; max-width: 40rem;
+    font-family: Fraunces, Iowan Old Style, Georgia, serif; font-size: 17px; line-height: 1.6;
+    background: var(--bg); color: var(--fg); }
+  h1 { font-size: 2rem; letter-spacing: -0.015em; margin: 0 0 6px; font-weight: 600; }
+  h2 { font-size: 1.05rem; margin: 44px 0 8px; font-weight: 600; }
+  .meta { color: var(--muted); margin: 0 0 44px; font-size: 15px; }
+  p, li { color: var(--fg); }
+  .muted { color: var(--muted); }
+  ul { padding-left: 1.1rem; }
+  li { margin-bottom: 6px; }
+  a { color: var(--accent); }
+  hr { border: 0; border-top: 1px solid var(--hair); margin: 48px 0; }
+  .lead { font-size: 19px; }
+</style>
+</head>
+<body>
+<h1>Detour privacy policy</h1>
+<p class="meta">Last updated 07 September 2026</p>
+
+<p class="lead">Detour collects nothing. This page explains what that means in practice.</p>
+
+<h2>What is collected</h2>
+<p><b>Nothing.</b> Detour does not collect, transmit, sell or share any personal information. There is no account, no sign-in, and no server that belongs to us.</p>
+
+<h2>Where your data lives</h2>
+<p>Your walks, the trail of each one, the grid of ground you have covered, your starred quest cards and your preferences are written to this device&#x27;s private app storage. They are never uploaded, because the app cannot open a network connection at all. Uninstalling the app deletes them, so there is a one tap export to a JSON file or a plain text journal at any time, a way to put an exported copy back, and an erase button that removes everything at once.</p>
+
+<h2>Network</h2>
+<p>Detour does not request the INTERNET permission. It cannot send your data anywhere, because Android will not let it open a network connection at all. This is verifiable in the app's manifest on the Play listing.</p>
+
+<h2>Permissions</h2>
+<ul><li><b>ACCESS_FINE_LOCATION</b>. to read where you are while a walk is open on your screen, so the app can tell that you walked a bearing, draw your trail and score which ground is new to you</li><li><b>ACCESS_COARSE_LOCATION</b>. declared alongside the precise permission because Android grants them together; if only approximate location is allowed, the fix is far too coarse to measure a walk and Detour says so on screen</li><li><b>VIBRATE</b>. the short haptic pulse that announces a new bearing, so you can keep your eyes on the street instead of the screen</li></ul>
+
+<h2>Children</h2>
+<p>Detour is not directed at children under 13 and collects nothing from anyone, of any age.</p>
+
+<h2>Analytics, ads and tracking</h2>
+<p>There are none. Detour contains no advertising SDK, no analytics SDK, and no crash reporter.
+It does not use an advertising ID.</p>
+
+<h2>Your rights</h2>
+<p>Because nothing is collected or transmitted, there is nothing held about you to access, correct or
+delete on a server. Uninstalling the app removes its data from your device. Any in-app export gives
+you a copy of your own content in an open format.</p>
+<h2>Location, specifically</h2><p>Location is read only while a walk is running and the app is on screen. Detour does not request background location and cannot receive a position when it is not in the foreground; if your phone sleeps mid walk the trail simply pauses. Positions are used on the device to measure distance, draw the trail, and mark which forty metre squares you have stood in. No position, trail or square is transmitted anywhere. If only approximate location is allowed, the fix is far too coarse to measure a walk with. Detour shows how rough it is, keeps waiting for a better one, and offers to hand you bearings you walk by eye instead, which reads no position at all.</p><h2>Walking without location</h2><p>If you refuse the permission, or the fix never arrives, Detour offers to hand you bearings and distances that you walk by eye and confirm by tapping. In that mode no position is read at all, and the walk is drawn from the bearings you were given rather than the route you took.</p><h2>What the app cannot do</h2><p>Detour has no street map and no routing engine. It cannot know that a bearing runs into a canal, a motorway or a locked gate, and it does not know which streets are lit or busy. It suggests directions on public ground; the judgement about whether a street is safe to walk stays yours.</p>
+<h2>Changes</h2>
+<p>If this policy changes, the updated version will be published at this address with a new date.</p>
+
+<h2>Contact</h2>
+<p>SocialSure Private Limited. Questions: <a href="mailto:shayanm2002@gmail.com">shayanm2002@gmail.com</a>. Project page: <a href="https://shayanmohd.github.io/detour/">https://shayanmohd.github.io/detour/</a></p>
+
+<hr>
+<p class="muted">Detour is published by SocialSure Private Limited.</p>
+</body>
+</html>
