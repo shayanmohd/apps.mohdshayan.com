@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Doorway</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════ ONBOARDING ══════ -->
+<section class="screen" id="onboard" hidden aria-label="Welcome to Doorway">
+  <div class="ob-body">
+    <div class="ob-mark" id="obMark" aria-hidden="true"></div>
+    <div id="obTrack" class="ob-track">
+      <article class="ob-card">
+        <h1>Can I get in?</h1>
+        <p>The one question a map will not answer. Doorway is where you keep the answer, for every place you have actually been.</p>
+      </article>
+      <article class="ob-card">
+        <h1>Ninety seconds, at the table.</h1>
+        <p>A survey is a short run of concrete questions: steps at the door, how wide the opening is, grab bars, how loud it was. Skip anything you did not see. Partial answers still count.</p>
+      </article>
+      <article class="ob-card">
+        <h1>Read it through your own needs.</h1>
+        <p>Set your thresholds once and every place is judged against them, with the reasons written out and the date the facts were last seen.</p>
+      </article>
+    </div>
+  </div>
+  <div class="ob-foot">
+    <div class="ob-dots" id="obDots" aria-hidden="true"></div>
+    <button class="btn primary wide" id="obNext">Next</button>
+  </div>
+</section>
+
+<!-- ══════ LENS SETUP ══════ -->
+<section class="screen" id="lensSetup" hidden aria-label="Set up your lens">
+  <header class="topbar">
+    <div class="tb-title">
+      <h1 id="lensSetupH">What decides your day?</h1>
+      <p class="tb-sub">Pick what applies. You can change any of it later, or skip it entirely.</p>
+    </div>
+  </header>
+  <div class="scroller" id="lensModules"></div>
+  <div class="foot-bar">
+    <button class="btn ghost" id="lensSkip">Skip for now</button>
+    <button class="btn primary" id="lensDone">Use this lens</button>
+  </div>
+</section>
+
+<!-- ══════ PLACES ══════ -->
+<section class="view" id="v-places" hidden>
+  <header class="topbar">
+    <div class="tb-title">
+      <h1>Places</h1>
+      <p class="tb-sub" id="placesSub">No places yet</p>
+    </div>
+    <button class="btn small primary" id="surveyNewBtn" aria-label="Survey a place">Survey</button>
+  </header>
+  <div class="filterbar">
+    <label class="srch" id="srchBox">
+      <span class="vh">Search places</span>
+      <input type="search" id="placeSearch" placeholder="Search by name or street" autocomplete="off">
+    </label>
+    <div class="chips scrollx" id="filterChips" role="group" aria-label="Filters"></div>
+    <div class="sortrow">
+      <div class="chips" id="sortChips" role="group" aria-label="Sort order"></div>
+    </div>
+    <div class="georow" id="geoRow">
+      <button class="link" id="geoBtn">Use my position</button>
+      <p class="note" id="geoNote" hidden></p>
+    </div>
+  </div>
+  <div class="scroller">
+    <div id="placeList" class="stack"></div>
+    <div class="empty" id="placesEmpty" hidden>
+      <div class="empty-art" id="placesEmptyArt" aria-hidden="true"></div>
+      <p class="empty-h">Nothing surveyed yet.</p>
+      <p class="empty-p">Start with the sample high street to see how a place reads once it has been surveyed, or survey the next place you go to. Ninety seconds, and it is yours for good.</p>
+      <div class="btnrow">
+        <button class="btn primary" id="sampleBtn">Load the sample high street</button>
+        <button class="btn" id="surveyNewBtn2">Survey a place</button>
+      </div>
+    </div>
+    <p class="note" id="placesFoot" hidden></p>
+  </div>
+</section>
+
+<!-- ══════ LISTS ══════ -->
+<section class="view" id="v-lists" hidden>
+  <header class="topbar">
+    <div class="tb-title">
+      <h1>Lists</h1>
+      <p class="tb-sub">Places grouped the way you actually use them.</p>
+    </div>
+    <button class="btn small" id="newListBtn">New list</button>
+  </header>
+  <div class="scroller">
+    <div id="listIndex" class="stack"></div>
+    <div class="empty" id="listsEmpty" hidden>
+      <div class="empty-art" id="listsEmptyArt" aria-hidden="true"></div>
+      <p class="empty-h">No lists yet.</p>
+      <p class="empty-p">A list is for the things you plan by: places that work on a bad day, somewhere to take the family, the three cafes near work. Lists can be sent to a friend as a file.</p>
+      <div class="btnrow"><button class="btn primary" id="newListBtn2">New list</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ CHECK ══════ -->
+<section class="view" id="v-check" hidden>
+  <header class="topbar">
+    <div class="tb-title">
+      <h1>Check</h1>
+      <p class="tb-sub">What has aged, and what your lens still needs.</p>
+    </div>
+  </header>
+  <div class="scroller">
+    <div id="checkBody"></div>
+  </div>
+</section>
+
+<!-- ══════ YOU ══════ -->
+<section class="view" id="v-you" hidden>
+  <header class="topbar">
+    <div class="tb-title">
+      <h1>You</h1>
+      <p class="tb-sub" id="youSub"></p>
+    </div>
+  </header>
+  <div class="scroller">
+    <div id="youBody"></div>
+  </div>
+</section>
+
+<!-- ══════ TABS ══════ -->
+<nav id="tabs" hidden aria-label="Main">
+  <button class="tab" data-view="places" data-icon="place" aria-current="page"><span>Places</span></button>
+  <button class="tab" data-view="lists" data-icon="lists"><span>Lists</span></button>
+  <button class="tab" data-view="check" data-icon="clock"><span>Check</span></button>
+  <button class="tab" data-view="you" data-icon="you"><span>You</span></button>
+</nav>
+
+<!-- ══════ PLACE SHEET ══════ -->
+<div class="sheet" id="sh-place" hidden role="dialog" aria-modal="true" aria-labelledby="placeName">
+  <header class="sheet-head">
+    <button class="icon-btn" data-close aria-label="Back to the list"><span class="ico" data-icon="back"></span></button>
+    <p class="sheet-title" id="placeHeadTitle">Place</p>
+    <button class="icon-btn" id="placeMoreBtn" aria-label="More about this place"><span class="ico" data-icon="more"></span></button>
+  </header>
+  <div class="sheet-body" id="placeBody"></div>
+  <div class="foot-bar" id="placeFoot">
+    <button class="btn" id="stillBtn">Still accurate</button>
+    <button class="btn primary" id="addDetailBtn">Add detail</button>
+  </div>
+</div>
+
+<!-- ══════ SURVEY SHEET ══════ -->
+<div class="sheet" id="sh-survey" hidden role="dialog" aria-modal="true" aria-labelledby="surveyTitle">
+  <header class="sheet-head">
+    <button class="icon-btn" data-close aria-label="Close the survey"><span class="ico" data-icon="close"></span></button>
+    <p class="sheet-title" id="surveyTitle">Survey</p>
+    <span class="sheet-count" id="surveyClock" aria-hidden="true"></span>
+  </header>
+  <div class="steps" id="surveySteps" aria-hidden="true"></div>
+  <div class="sheet-body" id="surveyBody"></div>
+  <div class="foot-bar">
+    <button class="btn ghost" id="surveyBack">Back</button>
+    <button class="btn" id="surveySkip">Skip</button>
+    <button class="btn primary" id="surveyNext">Next</button>
+  </div>
+</div>
+
+<!-- ══════ CAMERA SHEET ══════ -->
+<div class="sheet" id="sh-camera" hidden role="dialog" aria-modal="true" aria-label="Take a photograph">
+  <header class="sheet-head">
+    <button class="icon-btn" data-close aria-label="Cancel the photograph"><span class="ico" data-icon="close"></span></button>
+    <p class="sheet-title" id="camTitle">The way in</p>
+    <button class="icon-btn" id="camFlip" aria-label="Switch camera"><span class="ico" data-icon="flip"></span></button>
+  </header>
+  <div class="cam-stage" id="camStage">
+    <video id="camVideo" playsinline muted></video>
+    <canvas id="camShot" hidden></canvas>
+    <div class="cam-guide" id="camGuide" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div class="cam-off" id="camOff" hidden><p id="camOffMsg"></p></div>
+  </div>
+  <p class="cam-hint" id="camHint">Stand back far enough to show the whole doorway and the ground in front of it.</p>
+  <div class="foot-bar cam-foot" id="camFootShoot">
+    <label class="btn ghost filelabel">Add from gallery
+      <input type="file" id="camFile" accept="image/*" class="vh">
+    </label>
+    <button class="shutter" id="camShoot" aria-label="Take the photograph"></button>
+    <span class="spacer"></span>
+  </div>
+  <div class="foot-bar cam-foot" id="camFootReview" hidden>
+    <button class="btn ghost" id="camRetake">Retake</button>
+    <button class="btn" id="camBlur" aria-pressed="false">Blur brush</button>
+    <button class="btn primary" id="camKeep">Use photo</button>
+  </div>
+</div>
+
+<!-- ══════ SMALL SHEETS ══════ -->
+<div class="sheet short" id="sh-lists" hidden role="dialog" aria-modal="true" aria-label="Add to a list">
+  <header class="sheet-head">
+    <button class="icon-btn" data-close aria-label="Close"><span class="ico" data-icon="close"></span></button>
+    <p class="sheet-title">Add to a list</p>
+    <span class="icon-btn spacer"></span>
+  </header>
+  <div class="sheet-body" id="listPickBody"></div>
+</div>
+
+<div class="sheet short" id="sh-share" hidden role="dialog" aria-modal="true" aria-label="Share places">
+  <header class="sheet-head">
+    <button class="icon-btn" data-close aria-label="Close"><span class="ico" data-icon="close"></span></button>
+    <p class="sheet-title">Send a pack</p>
+    <span class="icon-btn spacer"></span>
+  </header>
+  <div class="sheet-body" id="shareBody"></div>
+</div>
+
+<div class="sheet short" id="sh-import" hidden role="dialog" aria-modal="true" aria-label="Add a pack">
+  <header class="sheet-head">
+    <button class="icon-btn" data-close aria-label="Close"><span class="ico" data-icon="close"></span></button>
+    <p class="sheet-title">Add a pack</p>
+    <span class="icon-btn spacer"></span>
+  </header>
+  <div class="sheet-body" id="importBody"></div>
+</div>
+
+<div class="sheet" id="sh-lens" hidden role="dialog" aria-modal="true" aria-label="Your lens">
+  <header class="sheet-head">
+    <button class="icon-btn" data-close aria-label="Close"><span class="ico" data-icon="back"></span></button>
+    <p class="sheet-title">Your lens</p>
+    <span class="icon-btn spacer"></span>
+  </header>
+  <div class="sheet-body" id="lensBody"></div>
+  <div class="foot-bar"><button class="btn primary wide" id="lensSave">Done</button></div>
+</div>
+
+<!-- ══════ MODAL, TOAST ══════ -->
+<div class="modal" id="confirm" hidden role="dialog" aria-modal="true" aria-labelledby="confirmH">
+  <div class="modal-panel">
+    <p class="modal-h" id="confirmH"></p>
+    <p class="modal-p" id="confirmP"></p>
+    <div class="btnrow end">
+      <button class="btn small ghost" id="confirmNo">Cancel</button>
+      <button class="btn small danger-solid" id="confirmYes">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<p id="toast" class="toast" role="status" aria-live="polite" hidden></p>
+
+<script src="js/icons.js"></script>
+<script src="js/store.js"></script>
+<script src="js/lens.js"></script>
+<script src="js/photos.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/diagram.js"></script>
+<script src="js/sample.js"></script>
+<script src="js/share.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

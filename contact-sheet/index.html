@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact Sheet. Thirty-six chances, no take-backs.</title>
+<meta name="description" content="A camera app with 36 exposures, no preview, no deleting, and a roll that develops at eight the next morning. Six film stocks with real response curves, grain and halation, all computed on your phone. Free, offline, no account.">
+<meta property="og:title" content="Contact Sheet. Thirty-six chances, no take-backs.">
+<meta property="og:description" content="Thirty-six frames, no preview, and a contact sheet waiting for you in the morning.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="shots/01-camera.png">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --bg: #121010; --bg2: #1A1613; --fg: #F5EEE2; --fg2: #ABA091; --fg3: #8C8374;
+    --hair: #2E2A23; --leak: #E4552B; --accent: #F2A62B; --wash: rgba(242,166,43,.10);
+    --sans: Archivo, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans);
+         font-size: 17px; line-height: 1.62; -webkit-font-smoothing: antialiased;
+         font-variant-numeric: tabular-nums; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  img { display: block; max-width: 100%; }
+  .shot { width: 100%; height: auto; border: 1px solid var(--hair); border-radius: 4px; }
+  h1, h2, h3 { font-weight: 600; letter-spacing: -.02em; }
+  .eyebrow { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; font-weight: 700;
+             color: var(--accent); margin: 0 0 16px; }
+  .cta { display: inline-block; background: var(--accent); color: #171310; text-decoration: none;
+         padding: 15px 28px; border-radius: 3px; font-size: 13px; font-weight: 700;
+         letter-spacing: .12em; text-transform: uppercase; border: 1px solid var(--accent); }
+  .cta:active { transform: translateY(1px); }
+  .cta.line { background: transparent; color: var(--fg); border-color: var(--hair); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 82px; }
+  .mark { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 600;
+          letter-spacing: .01em; }
+  .mark svg { width: 24px; height: 28px; display: block; }
+  nav .links a { color: var(--fg2); text-decoration: none; font-size: 13px; letter-spacing: .1em;
+                 text-transform: uppercase; margin-left: 24px; font-weight: 600; }
+  nav .links a:hover { color: var(--fg); }
+
+  /* 1 hero: asymmetric split */
+  .hero { display: grid; grid-template-columns: 1.16fr .84fr; gap: 64px; align-items: center;
+          padding: 44px 0 104px; }
+  .hero h1 { font-size: clamp(40px, 5.2vw, 60px); line-height: 1.02; margin: 0 0 24px; }
+  .hero .sub { font-size: 20px; color: var(--fg2); margin: 0 0 34px; max-width: 36ch; }
+  .hero .row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .hero .note { font-size: 14px; color: var(--fg3); margin: 20px 0 0; }
+  .hero .shot { max-width: 340px; margin-left: auto; }
+
+  /* 2 covenant: hairline band, four numbered rules across */
+  .covenant { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 92px 0; }
+  .covenant p.big { font-size: clamp(26px, 3.6vw, 40px); line-height: 1.22; margin: 0 auto 60px;
+                    max-width: 20ch; text-align: center; }
+  .rules { display: grid; grid-template-columns: repeat(4, 1fr); gap: 34px; }
+  .rules div { border-top: 2px solid var(--accent); padding-top: 16px; }
+  .rules b { display: block; font-size: 15px; margin-bottom: 6px; }
+  .rules p { margin: 0; font-size: 15px; color: var(--fg2); }
+
+  /* 3 morning: reversed split, screenshot leading */
+  .morning { display: grid; grid-template-columns: .92fr 1.08fr; gap: 66px; align-items: center;
+             padding: 104px 0; }
+  .morning .shot { max-width: 340px; }
+  .morning h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.12; margin: 0 0 20px; }
+  .morning p { color: var(--fg2); margin: 0 0 18px; }
+  .morning .clock { display: flex; gap: 0; margin-top: 34px; border-top: 1px solid var(--hair); }
+  .morning .clock div { flex: 1; padding: 18px 16px 0 0; }
+  .morning .clock span { display: block; font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+                         color: var(--fg3); font-weight: 700; }
+  .morning .clock b { display: block; font-size: 15px; font-weight: 500; margin-top: 4px; }
+
+  /* 4 gallery: three up */
+  .gallery { padding: 0 0 104px; }
+  .gallery h2 { font-size: clamp(26px, 3.2vw, 36px); margin: 0 0 14px; }
+  .gallery .lead { color: var(--fg2); max-width: 56ch; margin: 0 0 48px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; align-items: start; }
+  figure { margin: 0; }
+  figcaption { color: var(--fg2); font-size: 15px; margin-top: 16px; }
+  figcaption b { color: var(--fg); font-weight: 600; }
+
+  /* 5 the shelf: boxes drawn the way the app draws them */
+  .shelf-sec { border-top: 1px solid var(--hair); padding: 96px 0; }
+  .shelf-sec h2 { font-size: clamp(26px, 3.2vw, 36px); margin: 0 0 14px; }
+  .shelf-sec .lead { color: var(--fg2); max-width: 58ch; margin: 0 0 46px; }
+  .boxes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; }
+  .box { position: relative; aspect-ratio: 3 / 4; border-radius: 3px; overflow: hidden;
+         background: var(--paper); color: var(--ink); padding: 10%;
+         display: flex; flex-direction: column; justify-content: space-between;
+         box-shadow: 0 10px 22px rgba(0,0,0,.5); font-stretch: 88%; }
+  .box .n { font-size: 13px; font-weight: 700; line-height: 1.02; text-transform: uppercase; position: relative; z-index: 2; }
+  .box .i { font-size: 30px; font-weight: 700; line-height: .85; letter-spacing: -.03em; position: relative; z-index: 2; font-stretch: 78%; }
+  .box .band { position: absolute; z-index: 1; }
+  .box.band .band { left: 0; right: 0; top: 0; height: 34%; background: var(--accentbox); }
+  .box.band .n { color: var(--paper); }
+  .box.split .band { left: -30%; right: -30%; bottom: -46%; height: 78%; background: var(--accentbox); transform: rotate(-13deg); }
+  .box.plate .band { left: 5%; right: 5%; top: 5%; bottom: 5%; border: 1px solid var(--accentbox); }
+  .box.plate .n, .box.plate .i { color: var(--accentbox); }
+  .box.kraft .band { left: 4%; right: 4%; top: 4%; bottom: 4%; border: 1.5px dashed var(--accentbox); }
+  .box.kraft .i { color: var(--accentbox); }
+  .boxes figcaption { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; margin-top: 12px;
+                      color: var(--fg3); font-weight: 700; line-height: 1.35; }
+
+  /* 6 pipeline: key and value rows, no cards */
+  .pipeline { padding: 96px 0; border-top: 1px solid var(--hair); }
+  .pipeline h2 { font-size: clamp(26px, 3.2vw, 36px); margin: 0 0 34px; max-width: 22ch; }
+  .pipeline .row { display: grid; grid-template-columns: 14rem 1fr; gap: 36px; padding: 24px 0;
+                   border-bottom: 1px solid var(--hair); align-items: start; }
+  .pipeline .row:first-of-type { border-top: 1px solid var(--hair); }
+  .pipeline .k { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent);
+                 font-weight: 700; }
+  .pipeline .v { margin: 0; color: var(--fg2); }
+
+  /* 7 facts */
+  .facts { padding: 90px 0; border-top: 1px solid var(--hair); }
+  .factgrid { display: grid; grid-template-columns: repeat(2, 1fr); column-gap: 60px; }
+  .factgrid div { padding: 20px 0; border-bottom: 1px solid var(--hair); }
+  .factgrid dt { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--fg3);
+                 font-weight: 700; margin-bottom: 6px; }
+  .factgrid dd { margin: 0; font-size: 16px; }
+
+  /* 8 close */
+  .close { text-align: center; padding: 20px 0 118px; }
+  .close p { font-size: clamp(24px, 3vw, 34px); max-width: 18ch; margin: 0 auto 32px; line-height: 1.22; }
+  .close .small { font-size: 14px; color: var(--fg3); max-width: 46ch; margin: 26px auto 0; }
+
+  footer { border-top: 1px solid var(--hair); padding: 34px 0 70px; color: var(--fg3); font-size: 14px; }
+  footer .r { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer a { color: var(--fg2); text-decoration: none; margin-right: 22px; }
+  footer a:hover { color: var(--fg); }
+
+  .reveal { opacity: 0; transform: translateY(12px); transition: opacity .55s ease, transform .55s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+  @media (max-width: 940px) {
+    .hero, .morning { grid-template-columns: 1fr; gap: 44px; }
+    .hero .shot, .morning .shot { max-width: 300px; margin: 0 auto; }
+    .rules, .strip { grid-template-columns: 1fr; gap: 30px; }
+    .strip { max-width: 330px; margin: 0 auto; gap: 44px; }
+    .boxes { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .pipeline .row, .factgrid { grid-template-columns: 1fr; gap: 8px; }
+    .covenant, .morning, .pipeline, .facts, .shelf-sec { padding: 72px 0; }
+    nav .links a { margin-left: 16px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark">
+      <svg viewBox="30 26 48 56" aria-hidden="true">
+        <defs>
+          <radialGradient id="navleak" gradientUnits="userSpaceOnUse" cx="67" cy="34.3" r="31">
+            <stop offset="0" stop-color="#FFFDF4"/><stop offset="0.14" stop-color="#FBC748"/>
+            <stop offset="0.36" stop-color="#F4901F"/><stop offset="0.56" stop-color="#E4552B"/>
+            <stop offset="0.78" stop-color="#3A1709"/><stop offset="1" stop-color="#0C0A09"/>
+          </radialGradient>
+        </defs>
+        <rect x="35" y="30.5" width="38" height="47" rx="1.5" fill="#2B241B"/>
+        <rect x="40.97" y="34.3" width="26.06" height="39.4" rx="0.8" fill="url(#navleak)"/>
+        <g fill="#0A0908">
+          <rect x="36.92" y="35.8" width="2.15" height="3.03" rx="0.5"/><rect x="36.92" y="40.95" width="2.15" height="3.03" rx="0.5"/>
+          <rect x="36.92" y="46.11" width="2.15" height="3.03" rx="0.5"/><rect x="36.92" y="51.27" width="2.15" height="3.03" rx="0.5"/>
+          <rect x="36.92" y="56.42" width="2.15" height="3.03" rx="0.5"/><rect x="36.92" y="61.58" width="2.15" height="3.03" rx="0.5"/>
+          <rect x="36.92" y="66.73" width="2.15" height="3.03" rx="0.5"/><rect x="36.92" y="71.89" width="2.15" height="3.03" rx="0.5"/>
+          <rect x="68.94" y="35.8" width="2.15" height="3.03" rx="0.5"/><rect x="68.94" y="40.95" width="2.15" height="3.03" rx="0.5"/>
+          <rect x="68.94" y="46.11" width="2.15" height="3.03" rx="0.5"/><rect x="68.94" y="51.27" width="2.15" height="3.03" rx="0.5"/>
+          <rect x="68.94" y="56.42" width="2.15" height="3.03" rx="0.5"/><rect x="68.94" y="61.58" width="2.15" height="3.03" rx="0.5"/>
+          <rect x="68.94" y="66.73" width="2.15" height="3.03" rx="0.5"/><rect x="68.94" y="71.89" width="2.15" height="3.03" rx="0.5"/>
+        </g>
+      </svg>
+      Contact Sheet
+    </span>
+    <span class="links">
+      <a href="#morning">The morning</a>
+      <a href="#stocks">Stocks</a>
+      <a href="play/">Try it</a>
+      <a href="/privacy-policies/contact-sheet-privacy-policy.html">Privacy</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Thirty-six chances.<br>No take-backs.</h1>
+      <p class="sub">A camera with a roll in it. No preview, no deleting, no gallery to fall into. Your
+        pictures come back developed at eight the next morning, all thirty-six at once, on a contact sheet.</p>
+      <div class="row">
+        <a class="cta" href="play/">Try it in your browser</a>
+      </div>
+      <p class="note">Free and complete. No account, no purchases, no ads, and no internet permission.</p>
+    </div>
+    <img class="shot" src="shots/01-camera.png" alt="The camera screen: a viewfinder with the film stock and fourteen frames left printed above it.">
+  </header>
+</div>
+
+<section class="covenant">
+  <div class="wrap">
+    <p class="big">Photography used to be anticipation. This is an app about wanting a picture again.</p>
+    <div class="rules">
+      <div><b>Thirty-six exposures</b><p>When they are gone, the roll is gone. Frames are never given back, and no setting anywhere changes that.</p></div>
+      <div><b>No preview</b><p>After the shutter there is nothing to look at. Not a thumbnail, not a gallery. Only a counter going down.</p></div>
+      <div><b>Tomorrow at eight</b><p>A finished roll goes to the lab and comes back the next morning. The counter shuts at eight in the evening, like a real one, and a roll handed in after that waits for the morning after next.</p></div>
+      <div><b>Then you look</b><p>Six strips of six at true 135 pitch, a loupe under your thumb, and a grease pencil for the ones worth keeping.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="morning" id="morning">
+    <img class="shot" src="shots/02-sheet.png" alt="A developed contact sheet: thirty-six frames in six strips with frame numbers, several circled in orange.">
+    <div>
+      <p class="eyebrow">The morning after</p>
+      <h2>The whole roll arrives at once, and you have opinions about it.</h2>
+      <p>Thirty-six frames laid out together is a completely different thing from thirty-six photographs
+        scrolled one at a time. You see the run of them. You see the four you shot of the same doorway and
+        which one was right. You see the frame you had forgotten taking.</p>
+      <p>Development runs on your phone while you wait, frame by frame, and it takes about as long as
+        making coffee. Then the sheet is yours: circle the keepers, save any frame at full size, save the
+        whole sheet as one picture for the group chat.</p>
+      <div class="clock">
+        <div><span>19:40</span><b>Frame 36</b></div>
+        <div><span>19:41</span><b>Rewind</b></div>
+        <div><span>08:00</span><b>Developed</b></div>
+        <div><span>08:04</span><b>Circled</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="gallery">
+    <h2>A sheet is meant to be looked at closely.</h2>
+    <p class="lead">Thirty-six frames on one screen are small on purpose. That is what a loupe is for, and
+      it is the best gesture in the app.</p>
+    <div class="strip">
+      <figure>
+        <img class="shot" src="shots/03-loupe.png" alt="A round magnifier hovering over one frame of the contact sheet, showing its grain.">
+        <figcaption><b>The loupe.</b> Press and hold anywhere on the sheet and it glides with your thumb, reading the full frame underneath, grain and all.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="shots/04-frame.png" alt="One frame open full screen with a hand drawn orange circle marking it as a keeper.">
+        <figcaption><b>The grease pencil.</b> Marking a keeper draws a circle by hand, the way it was done on paper. Nothing is deleted, ever.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="shots/06-archive.png" alt="The archive of sheets, with one roll still at the lab and a countdown to the morning.">
+        <figcaption><b>The wait.</b> A roll at the lab shows what is on it, when it comes back and how long that is. There is nothing to see until then, and that is the point.</figcaption>
+      </figure>
+    </div>
+  </section>
+</div>
+
+<section class="shelf-sec" id="stocks">
+  <div class="wrap">
+    <h2>Six stocks. All of them, from the first day.</h2>
+    <p class="lead">A stock here is not a filter laid over the top. It is a response curve for each colour
+      channel, a grain structure, a halation threshold and a list of quirks it owns up to on the box. Turn
+      any box over to read its spec sheet.</p>
+    <div class="boxes">
+      <figure>
+        <div class="box band" style="--paper:#E4DDCC;--ink:#16211F;--accentbox:#2F6B63">
+          <div class="band"></div><div class="n">Meridian</div><div class="i">100</div></div>
+        <figcaption>Colour as it was</figcaption>
+      </figure>
+      <figure>
+        <div class="box split" style="--paper:#D8402C;--ink:#FFF3D6;--accentbox:#F2B430">
+          <div class="band"></div><div class="n">Corner Store</div><div class="i">400</div></div>
+        <figcaption>Warm, cheap, unreliable</figcaption>
+      </figure>
+      <figure>
+        <div class="box plate" style="--paper:#14171B;--ink:#D9F26B;--accentbox:#D9F26B">
+          <div class="band"></div><div class="n">Nightbus</div><div class="i">1600</div></div>
+        <figcaption>For the last train home</figcaption>
+      </figure>
+      <figure>
+        <div class="box band" style="--paper:#C9C6BE;--ink:#131313;--accentbox:#131313">
+          <div class="band"></div><div class="n">Gullwing B&amp;W</div><div class="i">125</div></div>
+        <figcaption>Silver, nothing else</figcaption>
+      </figure>
+      <figure>
+        <div class="box split" style="--paper:#1B4FA8;--ink:#FFFFFF;--accentbox:#FFCF3F">
+          <div class="band"></div><div class="n">Riviera</div><div class="i">50</div></div>
+        <figcaption>Bring sunglasses</figcaption>
+      </figure>
+      <figure>
+        <div class="box kraft" style="--paper:#B9AC90;--ink:#2A2418;--accentbox:#7C2D2D">
+          <div class="band"></div><div class="n">Statik</div><div class="i">200</div></div>
+        <figcaption>Expired, no promises</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="pipeline">
+    <h2>What actually happens between the shutter and the sheet.</h2>
+    <div class="row"><span class="k">Exposure</span><p class="v">The frame is taken from the live stream at the geometry of a 135 negative, held upright, and written straight to the app's own storage. Nothing shows it to you.</p></div>
+    <div class="row"><span class="k">Lab instructions</span><p class="v">When you hand the roll in you can ask for a push or a pull. You choose blind, before you have seen a single frame, which is the only way it was ever done.</p></div>
+    <div class="row"><span class="k">Response curve</span><p class="v">Each colour channel gets its own curve: shadow lift, gamma, and a shoulder where the highlights give way instead of clipping. Black and white gets the old panchromatic weighting, so reds go a shade darker than your eye expects.</p></div>
+    <div class="row"><span class="k">Grain</span><p class="v">Synthesised at the frame's own resolution rather than laid on as a texture, clumped by the stock's roughness, and weighted to the midtones where the silver actually sits.</p></div>
+    <div class="row"><span class="k">Halation</span><p class="v">Everything above the stock's threshold blooms and bleeds a red edge into the dark beside it. Nightbus 1600 does this generously. Riviera 50 barely at all.</p></div>
+    <div class="row"><span class="k">Quirks</span><p class="v">Corner Store 400 fogs frames one and thirty-six from the cassette mouth, and about one frame in ten comes back a stop under. Statik drifts colour frame to frame from its own seed. The box says so.</p></div>
+  </section>
+
+  <section class="facts">
+    <dl class="factgrid">
+      <div><dt>Price</dt><dd>Free. No purchases, no subscription, no ads, no trial.</dd></div>
+      <div><dt>Account</dt><dd>None. The app never asks who you are.</dd></div>
+      <div><dt>Network</dt><dd>The app does not request the internet permission, so it cannot open a connection at all.</dd></div>
+      <div><dt>Permissions</dt><dd>Camera, vibrate, notifications. That is the whole list.</dd></div>
+      <div><dt>Where photos live</dt><dd>This device, in the app's own storage. Save any developed frame at full size whenever you like.</dd></div>
+      <div><dt>What is missing</dt><dd>No feed, no followers, no likes, no shared rolls, no cloud. Photography.</dd></div>
+    </dl>
+  </section>
+
+  <section class="close">
+    <p>Load a roll. Then go and use your eyes.</p>
+    <a class="cta" href="play/">Try it in your browser</a>
+    <p class="small">The browser version is the same app the phone runs, so it needs camera access to take
+      a frame. Everything stays in your browser.</p>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap r">
+    <span>Contact Sheet by SocialSure Private Limited.</span>
+    <span>
+      <a href="play/">Try it</a>
+      <a href="/privacy-policies/contact-sheet-privacy-policy.html">Privacy policy</a>
+      <a href="mailto:shayanm2002@gmail.com">Contact</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.12 });
+  document.querySelectorAll('section, figure, .hero > *').forEach(el => { el.classList.add('reveal'); io.observe(el); });
+</script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Umbra, an offline sky almanac for Android</title>
+<meta name="description" content="Umbra works out what your sky is doing tonight, scores whether it is worth going outside, and tells you when. It computes everything on the phone, with no network permission.">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --bg: #070B15; --surface: #0D1321; --surface-2: #141B2D; --hair: #1F2A40;
+    --fg: #EAF0FA; --muted: #A3B0C7; --dim: #7E8CA6; --accent: #FFB454; --ink: #1B1204;
+    --font: "Space Grotesk", -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; color: var(--fg); font-family: var(--font);
+         background: radial-gradient(90% 40% at 50% 0%, #10193A 0%, var(--bg) 70%) no-repeat, var(--bg);
+         font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+         font-feature-settings: "tnum" 1; }
+  /* height: auto, or the width and height attributes on the screenshots hold them at 1920px
+     tall while max-width squeezes them to a phone column, and every one comes out stretched. */
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* 1. hero */
+  header.hero { padding: 96px 0 72px; text-align: center; border-bottom: 1px solid var(--hair); }
+  .mark { width: 148px; height: 148px; margin: 0 auto 18px; overflow: visible; }
+  h1 { font-size: clamp(52px, 12vw, 92px); line-height: .95; letter-spacing: -0.045em;
+       margin: 0 0 18px; font-weight: 500; }
+  .promise { font-size: clamp(21px, 3.4vw, 27px); line-height: 1.3; letter-spacing: -0.02em;
+             margin: 0 auto 14px; max-width: 22ch; }
+  .sub { color: var(--muted); max-width: 46ch; margin: 0 auto 34px; }
+  .cta { display: inline-block; background: var(--accent); color: var(--ink); text-decoration: none;
+         font-weight: 500; padding: 15px 30px; border-radius: 999px; font-size: 17px; }
+  .cta:active { opacity: .85; }
+  .under { color: var(--dim); font-size: 14px; margin-top: 16px; }
+
+  /* 2. split */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center;
+           padding: 78px 0; border-bottom: 1px solid var(--hair); }
+  .split.flip .shot { order: -1; }
+  .split .shot { display: flex; justify-content: center; }
+  .split .shot img { max-width: 268px; border-radius: 20px; border: 1px solid var(--hair);
+                     box-shadow: 0 30px 60px -30px rgba(2, 4, 12, .9); }
+  h2 { font-size: clamp(30px, 5vw, 42px); line-height: 1.1; letter-spacing: -0.03em;
+       margin: 0 0 18px; font-weight: 500; }
+  .split p { color: var(--muted); margin: 0 0 14px; }
+  .split p strong { color: var(--fg); font-weight: 500; }
+  .eyebrow { font-size: 13px; letter-spacing: .16em; text-transform: uppercase;
+             color: var(--accent); margin: 0 0 14px; }
+
+  /* 3. the parts */
+  .parts { padding: 96px 0; border-bottom: 1px solid var(--hair); }
+  .partgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 56px; margin-top: 40px; }
+  .part { padding: 26px 0; border-top: 1px solid var(--hair); display: grid;
+          grid-template-columns: 34px 1fr; gap: 16px; }
+  .part b { color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
+  .part h3 { margin: 0 0 4px; font-size: 19px; font-weight: 500; letter-spacing: -0.01em; }
+  .part p { margin: 0; color: var(--muted); font-size: 15.5px; }
+
+  /* 4. the ledger */
+  .ledger { padding: 96px 0; border-bottom: 1px solid var(--hair); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 36px; }
+  .cols h3 { font-size: 15px; letter-spacing: .12em; text-transform: uppercase;
+             color: var(--muted); font-weight: 500; margin: 0 0 18px; }
+  .cols ul { list-style: none; margin: 0; padding: 0; }
+  .cols li { padding: 13px 0 13px 30px; border-bottom: 1px solid var(--hair); position: relative;
+             font-size: 16px; }
+  .cols li::before { content: ''; position: absolute; left: 4px; top: 21px; width: 12px; height: 1.5px;
+                     background: var(--accent); }
+  .cols .no li::before { background: var(--dim); }
+  .cols .no li { color: var(--muted); }
+
+  /* 5. gallery */
+  .gallery { padding: 96px 0 84px; border-bottom: 1px solid var(--hair); }
+  .rail { display: flex; gap: 20px; overflow-x: auto; padding: 34px 0 14px;
+          scroll-snap-type: x mandatory; }
+  .rail figure { margin: 0; flex: 0 0 236px; scroll-snap-align: start; }
+  .rail img { border-radius: 18px; border: 1px solid var(--hair); }
+  .rail figcaption { color: var(--dim); font-size: 14px; margin-top: 12px; }
+
+  /* 6. the rule */
+  .rule { padding: 104px 0; text-align: center; border-bottom: 1px solid var(--hair); }
+  .rule blockquote { margin: 0 auto; max-width: 24ch; font-size: clamp(28px, 5.2vw, 44px);
+                     line-height: 1.15; letter-spacing: -0.03em; }
+  .rule p { color: var(--muted); max-width: 52ch; margin: 26px auto 0; }
+
+  /* 7. close */
+  .close { padding: 96px 0; text-align: center; }
+  .close h2 { margin-bottom: 22px; }
+  .close p { color: var(--muted); max-width: 44ch; margin: 0 auto 30px; }
+  footer { border-top: 1px solid var(--hair); padding: 40px 0 72px; color: var(--dim); font-size: 14.5px; }
+  footer .row { display: flex; flex-wrap: wrap; gap: 10px 28px; justify-content: space-between; }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  @media (max-width: 800px) {
+    .split, .partgrid, .cols { grid-template-columns: 1fr; gap: 40px; }
+    .split { padding: 72px 0; gap: 34px; }
+    .split.flip .shot { order: 0; }
+    .split .shot img { max-width: 270px; }
+    .partgrid { gap: 0; margin-top: 26px; }
+    header.hero { padding: 64px 0 56px; }
+    .rail figure { flex-basis: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <svg class="mark" viewBox="18 18 72 72" aria-label="Umbra">
+      <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1C2E62"/>
+      <stop offset="0.5" stop-color="#0D1838"/>
+      <stop offset="1" stop-color="#05091B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFC66E" stop-opacity="0.9"/>
+      <stop offset="0.38" stop-color="#F7A845" stop-opacity="0.38"/>
+      <stop offset="0.72" stop-color="#E8902F" stop-opacity="0.09"/>
+      <stop offset="1" stop-color="#E8902F" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="disc" cx="0.64" cy="0.32" r="0.9">
+      <stop offset="0" stop-color="#22325F"/>
+      <stop offset="0.5" stop-color="#0C1533"/>
+      <stop offset="1" stop-color="#03061A"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#FFF3D2"/>
+      <stop offset="0.42" stop-color="#FFC66E"/>
+      <stop offset="1" stop-color="#E0842A"/>
+    </linearGradient>
+    <filter id="wide" filterUnits="userSpaceOnUse" x="0" y="0" width="108" height="108"><feGaussianBlur stdDeviation="5.5"/></filter>
+    <filter id="soft" filterUnits="userSpaceOnUse" x="0" y="0" width="108" height="108"><feGaussianBlur stdDeviation="1.7"/></filter>
+    <filter id="hair" filterUnits="userSpaceOnUse" x="0" y="0" width="108" height="108"><feGaussianBlur stdDeviation="0.55"/></filter>
+    <filter id="shadow" filterUnits="userSpaceOnUse" x="0" y="0" width="108" height="108">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.4"/>
+      <feOffset dy="2.2" result="o"/>
+      <feFlood flood-color="#02040E" flood-opacity="0.75"/>
+      <feComposite in2="o" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+      <g style="filter: drop-shadow(0 10px 30px rgba(2, 4, 12, .6))">
+<!-- the corona: a wide soft glow, then the streamers, then a tighter halo on the ring -->
+    <circle cx="54" cy="54" r="27" fill="#FFB454" opacity="0.72" filter="url(#wide)"/>
+    <g fill="#FFD790" opacity="0.62" filter="url(#hair)"><polygon points="67.48,34.75 69.42,36.26 74.01,28.39"/><polygon points="75.43,44.37 76.11,46.04 84.13,41.83"/><polygon points="55.64,30.56 57.27,30.73 57.29,22.67"/><polygon points="77.13,58.16 76.82,59.61 83.83,60.34"/><polygon points="42.39,33.57 43.55,32.95 40.15,27.95"/><polygon points="72.39,68.63 71.6,69.57 75.83,72.32"/><polygon points="32.47,63.41 31.97,62.19 26.65,65.05"/><polygon points="32.42,44.7 33.01,43.44 26.36,41.11"/><polygon points="43.48,75.01 42.46,74.47 41.09,78.28"/><polygon points="45.46,32.11 46.47,31.74 44.59,28.16"/><polygon points="58.56,77.05 57.6,77.22 58.69,80.59"/></g>
+    <circle cx="54" cy="54" r="23.5" fill="none" stroke="#FFC66E" stroke-width="4.5" opacity="0.55" filter="url(#soft)"/>
+    <!-- the ring itself -->
+    <circle cx="54" cy="54" r="23.5" fill="none" stroke="url(#ring)" stroke-width="2.7"/>
+    <!-- the disc, with a soft tinted shadow so it sits in front of the light -->
+    <circle cx="54" cy="54" r="22.3" fill="url(#disc)" filter="url(#shadow)"/>
+    <!-- limb light: the edge nearest the bead catches a little -->
+    <path d="M34.86 42.95 A22.1 22.1 0 0 1 75.98 51.69" fill="none" stroke="#FFF3D2" stroke-width="0.9" opacity="0.55" filter="url(#hair)"/>
+    <!-- the bead: sunlight through a lunar valley -->
+    <circle cx="67.14" cy="34.52" r="7" fill="#FFE2A6" opacity="0.75" filter="url(#soft)"/>
+    <path d="M58.14 34.52h18M67.14 25.52v18" stroke="#FFF6E0" stroke-width="0.9" opacity="0.6" filter="url(#hair)"/>
+    <circle cx="67.14" cy="34.52" r="3.1" fill="#FFF8E6"/>
+      </g>
+    </svg>
+    <h1>Umbra</h1>
+    <p class="promise">Know whether tonight is worth going outside for.</p>
+    <p class="sub">An offline sky almanac for Android. It works out your darkness, your moonlight,
+      your meteor rates and your eclipses, then gives you one number and shows how it got there.</p>
+    <a class="cta" href="play/">Open it in your browser</a>
+    <p class="under">Free. No account, no adverts, nothing to buy, and no network permission.</p>
+  </div>
+</header>
+
+<section class="wrap split">
+  <div>
+    <p class="eyebrow">The one number</p>
+    <h2>A score that shows its work</h2>
+    <p>Every night gets marked out of ten for <strong>your</strong> place: what is actually on,
+      how many hours of true darkness you get, what the Moon is doing to them, and whether the
+      good hour is a civilised one.</p>
+    <p>All four components are on screen with the score, in plain language, because a number you
+      cannot argue with is a number you stop trusting. A Geminid peak from a suburban garden reads
+      differently from the same night at a dark site, and Umbra says so.</p>
+    <p>It also says what it cannot see. There is no weather in here, and the app never pretends
+      otherwise.</p>
+  </div>
+  <div class="shot"><img src="shots/01-tonight.png" width="1080" height="1920"
+    alt="The Tonight screen scoring a December night at 7.6 out of ten, with the four components broken out"></div>
+</section>
+
+<section class="wrap parts">
+  <h2>What is inside it</h2>
+  <div class="partgrid">
+    <div class="part"><b>01</b><div><h3>Real ephemerides</h3>
+      <p>Sun, Moon and planet positions from the standard published series, computed on the phone
+        in a few milliseconds. Rise, set and twilight are solved, not looked up.</p></div></div>
+    <div class="part"><b>02</b><div><h3>Meteor rates for your sky</h3>
+      <p>Twenty three streams from the IMO working list, run through the rate formula with your
+        radiant altitude, your light pollution and tonight's Moon. Usually a smaller number than
+        the headline, and a true one.</p></div></div>
+    <div class="part"><b>03</b><div><h3>Eclipses with local circumstances</h3>
+      <p>Solar and lunar, with the times, the magnitude and the altitude from where you stand,
+        plus a warning when you are close enough to the edge of a path to need a proper map.</p></div></div>
+    <div class="part"><b>04</b><div><h3>The darkness timeline</h3>
+      <p>Sunset, the three twilights, moonrise and the window of true darkness, drawn as one strip
+        you can read at a glance before you commit an evening.</p></div></div>
+    <div class="part"><b>05</b><div><h3>A life list</h3>
+      <p>Twenty seven things worth seeing once, from a total eclipse to noctilucent clouds, with
+        your log attached and the conditions of the night recorded automatically. The whole lot
+        exports as one file, and imports again on a new phone.</p></div></div>
+    <div class="part"><b>06</b><div><h3>Red light mode</h3>
+      <p>The whole app in red, so twenty minutes of dark adaptation survives a glance at your
+        phone. It can switch itself on after dusk.</p></div></div>
+  </div>
+</section>
+
+<section class="wrap split flip">
+  <div class="shot"><img src="shots/05-places.png" width="1080" height="1920"
+    alt="Two places compared side by side, with the darker site scoring higher and 72 more meteors an hour"></div>
+  <div>
+    <h2>Is the drive actually worth it?</h2>
+    <p>Add the field you sometimes drive to, tell Umbra how dark it is, and it puts the two skies
+      side by side for tonight: the score, the faintest star you should see, the hours of darkness,
+      and what the difference is worth in meteors an hour.</p>
+    <p>Some nights that is sixty extra meteors. Some nights it is four, and you may as well stay
+      in the garden. The app is happy to tell you the second thing.</p>
+  </div>
+</section>
+
+<section class="wrap split">
+  <div>
+    <h2>The year, worked out in advance</h2>
+    <p>Meteor peaks, eclipses, oppositions, greatest elongations, close conjunctions and the turns
+      of the year, each dated for your longitude and rated for your latitude. Umbra will happily
+      tell you that a famous shower is worth nothing from where you live.</p>
+    <p>Because it is all computed rather than fetched, the calendar works in a field with no signal,
+      on a plane, or in five years when nobody is maintaining a server.</p>
+  </div>
+  <div class="shot"><img src="shots/03-events.png" width="1080" height="1920"
+    alt="A calendar of the year ahead with the Geminids rated at 45 an hour and the Ursids marked as nothing much from here"></div>
+</section>
+
+<section class="wrap ledger">
+  <p class="eyebrow">The honest part</p>
+  <h2>What it does, and what it will not pretend to do</h2>
+  <div class="cols">
+    <div>
+      <h3>It does</h3>
+      <ul>
+        <li>Compute every number on the device, offline, from published algorithms</li>
+        <li>Score tonight and the next six weeks for a place you typed in yourself</li>
+        <li>Send at most one notification a day, in the evening, unless an eclipse you switched on is about to start</li>
+        <li>Keep your log and your life list in one file you can export, and import again, whenever you like</li>
+        <li>Work permanently, for free, with no account and nothing to unlock</li>
+      </ul>
+    </div>
+    <div class="no">
+      <h3>It does not</h3>
+      <ul>
+        <li>See the weather. There is no forecast in here, and clouds remain your problem</li>
+        <li>Predict aurora. That needs live solar wind data, and a guess would be a lie</li>
+        <li>Track satellites, whose orbits change faster than an offline app can follow</li>
+        <li>Ask for your location, or hold any permission that could reveal it</li>
+        <li>Contain adverts, trackers, analytics, accounts or purchases of any kind</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="wrap gallery">
+  <h2>Four more screens</h2>
+  <div class="rail">
+    <figure><img src="shots/02-night.png" width="1080" height="1920" alt="The Moon, the darkness window and tonight's reasons to go out">
+      <figcaption>Tonight, in order of what is worth your time</figcaption></figure>
+    <figure><img src="shots/04-shower.png" width="1080" height="1920" alt="The Geminids detail page with the radiant altitude curve">
+      <figcaption>A shower, with your rate and the radiant curve</figcaption></figure>
+    <figure><img src="shots/06-log.png" width="1080" height="1920" alt="The life list, partly ticked">
+      <figcaption>The life list, and the log behind it</figcaption></figure>
+    <figure><img src="shots/07-red.png" width="1080" height="1920" alt="The same screen in red light mode">
+      <figcaption>Red light mode, for adapted eyes</figcaption></figure>
+  </div>
+</section>
+
+<section class="rule">
+  <div class="wrap">
+    <blockquote>It would rather stay silent than waste your evening.</blockquote>
+    <p>You set the score at which a night is worth telling you about, and Umbra starts that bar
+      where your own sky can actually reach, measured over a year from your coordinates. Then it
+      holds to it: one notification a day at most, in the evening, and no alert it cannot stand behind.
+      Only an eclipse you can see from your place, with the Eclipses switch on, may reach you in the
+      small hours.</p>
+  </div>
+</section>
+
+<section class="wrap close">
+  <h2>Try it before you install anything</h2>
+  <p>The Android app is the same code you can run right here, in a browser tab, with nothing to
+    sign up for.</p>
+  <a class="cta" href="play/">Open it in your browser</a>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <span>Umbra. Built by SocialSure Private Limited.</span>
+    <span>
+      <a href="play/">Web version</a> &nbsp; <a href="/privacy-policies/umbra-privacy-policy.html">Privacy policy</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>

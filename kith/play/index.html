@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Kith</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main id="stage">
+
+  <!-- ONBOARDING -->
+  <section class="screen" id="onboard" hidden>
+    <div class="ob-track">
+      <article class="ob-card" data-step="0">
+        <div class="ob-mark" id="obMark"></div>
+        <p class="ob-kicker">Kith</p>
+        <h1 class="ob-line">Who are your people?</h1>
+        <p class="ob-sub">Not your contacts. Not your followers. The handful you would call from a hospital, and the wider circle you would hate to lose.</p>
+        <p class="ob-sub">Kith keeps them in four rings, each with its own rhythm, and quietly tells you when one has drifted. Nothing is uploaded. There is no account to make.</p>
+        <div class="btnrow">
+          <label class="btn ghost small filelabel">I have a Kith file<input type="file" id="obRestore" accept=".json" hidden></label>
+        </div>
+        <p class="ob-note" id="obRestoreNote"></p>
+      </article>
+
+      <article class="ob-card" data-step="1">
+        <h2 class="ob-line small">Start with five.</h2>
+        <p class="ob-sub">Type a name, choose a ring. You can add the rest later, and change any of it whenever you like.</p>
+        <div class="addrow">
+          <input type="text" id="obName" placeholder="A name" maxlength="60" autocomplete="off" aria-label="Name">
+          <button class="btn" id="obAdd">Add</button>
+        </div>
+        <div class="ringpick" id="obRing" role="radiogroup" aria-label="Ring"></div>
+        <p class="ob-note" id="obRingNote"></p>
+        <ul class="oblist" id="obList"></ul>
+      </article>
+
+      <article class="ob-card" data-step="2">
+        <h2 class="ob-line small">This is how Kith will sound.</h2>
+        <p class="ob-sub">Never louder than this. No red badges, no streaks, nothing you can fail.</p>
+        <div id="obPreview"></div>
+        <div class="field">
+          <label for="obCap">Nudges per week, at most</label>
+          <select id="obCap">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+          <p class="help">Kith will never show more than this, however many people have drifted.</p>
+        </div>
+      </article>
+
+      <article class="ob-card" data-step="3">
+        <h2 class="ob-line small">When is a good moment?</h2>
+        <p class="ob-sub">Kith gathers the week's nudges and puts them in one quiet notification. Pick an hour you would actually have time to send a message.</p>
+        <div class="field row">
+          <div class="half"><label for="obDay">Day</label>
+            <select id="obDay"></select></div>
+          <div class="half"><label for="obTime">Time</label>
+            <input type="time" id="obTime" value="10:00"></div>
+        </div>
+        <p class="help">Android will ask for permission to post notifications after this screen. Kith sends at most one a week, plus a reminder before a date you marked.</p>
+      </article>
+    </div>
+
+    <div class="ob-foot">
+      <div class="ob-dots" id="obDots"></div>
+      <div class="btnrow tight">
+        <button class="btn ghost small" id="obBack" hidden>Back</button>
+        <button class="btn" id="obNext">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- HEARTH -->
+  <section class="screen view" id="v-hearth" hidden>
+    <div class="hearthbar">
+      <div class="row1">
+        <p class="eyebrow" id="hearthDay"></p>
+        <button class="btn ghost small" id="toSettings">Settings</button>
+      </div>
+      <div class="row2">
+        <h1 class="title">Hearth</h1>
+        <div class="hearthmark" id="hearthMark"></div>
+      </div>
+    </div>
+    <div class="scroller">
+      <p class="lede" id="hearthLede"></p>
+      <div id="nudgeList"></div>
+      <div id="hearthRest" hidden></div>
+
+      <section id="ribbon" hidden>
+        <h2 class="sub">Coming up</h2>
+        <div id="ribbonList"></div>
+      </section>
+
+      <section id="tideHint" hidden>
+        <h2 class="sub">Worth a thought</h2>
+        <div id="tideHintList"></div>
+      </section>
+
+      <p class="effort" id="effortLine"></p>
+    </div>
+  </section>
+
+  <!-- PEOPLE -->
+  <section class="screen view" id="v-people" hidden>
+    <div class="topbar">
+      <div>
+        <p class="eyebrow" id="peopleCount"></p>
+        <h1 class="title">People</h1>
+      </div>
+      <button class="btn ghost small" id="viewToggle">List</button>
+    </div>
+    <div class="scroller">
+      <input type="search" id="search" placeholder="Find a name" aria-label="Find a name">
+      <div id="ringWrap"></div>
+      <div id="peopleList" hidden></div>
+      <div id="peopleEmpty" hidden></div>
+      <div class="btnrow"><button class="btn" id="addPerson">Add someone</button></div>
+    </div>
+  </section>
+
+  <!-- TIDES -->
+  <section class="screen view" id="v-tides" hidden>
+    <div class="topbar">
+      <div>
+        <p class="eyebrow">Who needs you this season</p>
+        <h1 class="title">Tides</h1>
+      </div>
+    </div>
+    <div class="scroller">
+      <section class="shelf">
+        <h2 class="sub">In a hard season</h2>
+        <div id="tideHard"></div>
+      </section>
+      <section class="shelf">
+        <h2 class="sub">Celebrating</h2>
+        <div id="tideGood"></div>
+      </section>
+      <p class="help long">Tides reads the chips on your moments from the last ninety days. Mark a moment as a hard season or a celebration and the person floats up here. A hard season also moves them up the queue when Kith picks who to raise this week.</p>
+    </div>
+  </section>
+
+  <!-- DATES -->
+  <section class="screen view" id="v-dates" hidden>
+    <div class="topbar">
+      <div>
+        <p class="eyebrow" id="datesCount"></p>
+        <h1 class="title">Dates</h1>
+      </div>
+      <button class="btn ghost small" id="addDate">Add a date</button>
+    </div>
+    <div class="scroller">
+      <div id="dateRiver"></div>
+      <div id="datesEmpty" hidden></div>
+    </div>
+  </section>
+
+  <!-- PERSON -->
+  <section class="screen view" id="v-person" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" id="personBack">Back</button>
+      <button class="btn ghost small" id="personEdit">Edit</button>
+    </div>
+    <div class="scroller" id="personBody"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen view" id="v-settings" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" id="settingsBack">Back</button>
+      <h1 class="title small">Settings</h1>
+    </div>
+    <div class="scroller">
+      <h2 class="sub">Nudges</h2>
+      <div class="field row">
+        <div class="half"><label for="setDay">Day</label><select id="setDay"></select></div>
+        <div class="half"><label for="setTime">Time</label><input type="time" id="setTime"></div>
+      </div>
+      <div class="field">
+        <label for="setCap">At most, per week</label>
+        <select id="setCap">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option>
+        </select>
+        <p class="help">If you set a nudge aside twice, Kith waits longer before raising that person again. It learns restraint, not insistence.</p>
+      </div>
+      <div class="field">
+        <label for="setTone">Wording</label>
+        <select id="setTone">
+          <option value="gentle">Gentle</option>
+          <option value="plain">Plain</option>
+          <option value="minimal">Few words</option>
+        </select>
+        <p class="help" id="tonePreview"></p>
+      </div>
+      <div class="field row spread">
+        <div><label for="setDiscreet">Discreet notifications</label>
+          <p class="help">Show only the app name on the lock screen, never a person's name.</p></div>
+        <input type="checkbox" id="setDiscreet">
+      </div>
+
+      <h2 class="sub">Dates</h2>
+      <div class="field row">
+        <div class="half"><label for="setLeadB">Birthday warning</label>
+          <select id="setLeadB"><option value="0">On the day</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option></select></div>
+        <div class="half"><label for="setLeadT">Tender date warning</label>
+          <select id="setLeadT"><option value="0">On the day</option><option value="1">1 day</option><option value="3">3 days</option><option value="7">7 days</option></select></div>
+      </div>
+
+      <h2 class="sub">Reading over your shoulder</h2>
+      <div class="field row spread">
+        <div><label for="setBlur">Discreet view</label>
+          <p class="help">Blur what people told you until you tap it. For reading Kith on a train.</p></div>
+        <input type="checkbox" id="setBlur">
+      </div>
+
+      <h2 class="sub">What Kith can never see</h2>
+      <ul class="plainlist">
+        <li>Your contacts. Every name here was typed by you.</li>
+        <li>Your calls and messages. Kith has no permission to read either, so a catch up is only logged when you say so.</li>
+        <li>The internet. The app does not hold the permission, so it cannot open a connection even by accident.</li>
+        <li>Anything about the other person's side. Kith records what you give. It never tracks whether they replied.</li>
+      </ul>
+
+      <h2 class="sub">Your notebook</h2>
+      <p class="help long" id="countLine"></p>
+      <div class="btnrow">
+        <button class="btn ghost small" id="exJson">Export JSON</button>
+        <button class="btn ghost small" id="exCsv">Export CSV</button>
+        <label class="btn ghost small filelabel">Import<input type="file" id="importFile" accept=".json" hidden></label>
+      </div>
+      <p class="help" id="ioNote"></p>
+      <div class="btnrow">
+        <button class="btn ghost small danger" id="eraseBtn">Erase everything</button>
+      </div>
+      <p class="help long">An export is a plain file written to your Downloads folder by your own tap. It is not encrypted, so keep it somewhere you would keep a diary.</p>
+
+      <p class="colophon">Kith. Remember your people.<br>Free and complete. No account, no subscription, no ads.</p>
+    </div>
+  </section>
+</main>
+
+<nav id="tabs" hidden>
+  <button data-view="hearth" class="tab is-on" aria-label="Hearth">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+      <ellipse class="lens" cx="12" cy="12" rx="3.6" ry="5.6" stroke="none"/>
+      <circle cx="9.4" cy="12" r="6.2"/><circle cx="14.6" cy="12" r="6.2"/>
+    </svg><span>Hearth</span></button>
+  <button data-view="people" class="tab" aria-label="People">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.2"/>
+      <circle class="fill" cx="12" cy="12" r="1.7"/>
+    </svg><span>People</span></button>
+  <button data-view="tides" class="tab" aria-label="Tides">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+         stroke-linecap="round" aria-hidden="true">
+      <path d="M2.5 9.2c2-2.4 4-2.4 6 0s4 2.4 6 0 4-2.4 6 0"/>
+      <path d="M2.5 15.2c2-2.4 4-2.4 6 0s4 2.4 6 0 4-2.4 6 0"/>
+    </svg><span>Tides</span></button>
+  <button data-view="dates" class="tab" aria-label="Dates">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.6"/>
+      <circle class="fill" cx="12" cy="3.4" r="2.5"/>
+    </svg><span>Dates</span></button>
+</nav>
+
+<!-- LOG A CATCH UP + MOMENT -->
+<div id="sheetLog" class="sheet" hidden>
+  <div class="sheet-panel">
+    <p class="sheet-title" id="logTitle"></p>
+    <p class="sheet-sub">How did you talk?</p>
+    <div class="chiprow" id="logKinds" role="radiogroup" aria-label="How you talked"></div>
+    <div class="field row spread tightfield">
+      <div><label for="logReal">Real talk</label>
+        <p class="help">Off means logistics. Logistics is logged, but it does not reset the rhythm.</p></div>
+      <input type="checkbox" id="logReal" checked>
+    </div>
+    <label for="logText">Anything worth remembering?</label>
+    <textarea id="logText" rows="3" maxlength="400" placeholder="Her mother starts chemo in March. Joking about wigs." aria-label="What to remember"></textarea>
+    <div class="chiprow" id="logChips" role="group" aria-label="Tags"></div>
+    <div class="btnrow end">
+      <button class="btn ghost small" id="logCancel">Cancel</button>
+      <button class="btn" id="logSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD OR EDIT A PERSON -->
+<div id="sheetPerson" class="sheet" hidden>
+  <div class="sheet-panel">
+    <p class="sheet-title" id="personSheetTitle">Add someone</p>
+    <label for="pName">Name</label>
+    <input type="text" id="pName" maxlength="60" autocomplete="off" placeholder="A name">
+    <p class="err" id="pNameErr" role="alert" hidden></p>
+    <label for="pRing" class="mt">Ring</label>
+    <div class="ringpick" id="pRing" role="radiogroup" aria-label="Ring"></div>
+    <p class="help" id="pRingNote"></p>
+    <div class="field row">
+      <div class="half"><label for="pRhythm">Reach out every</label>
+        <select id="pRhythm"></select></div>
+      <div class="half"><label for="pChannel">They prefer</label>
+        <select id="pChannel"></select></div>
+    </div>
+    <label for="pNote" class="mt">How you know them</label>
+    <input type="text" id="pNote" maxlength="200" autocomplete="off" placeholder="Optional. Met through Dana, twenty years ago.">
+    <label for="pPhone" class="mt">Number, if you want one tap dialling</label>
+    <input type="tel" id="pPhone" maxlength="32" autocomplete="off" placeholder="Optional">
+    <p class="help">Kept on this device only, and used to fill in your own dialler or messaging app.</p>
+    <div class="btnrow end">
+      <button class="btn ghost small danger" id="pDelete" hidden>Remove</button>
+      <button class="btn ghost small" id="pCancel">Cancel</button>
+      <button class="btn" id="pSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD A DATE -->
+<div id="sheetDate" class="sheet" hidden>
+  <div class="sheet-panel">
+    <p class="sheet-title">A date that matters</p>
+    <label for="dPerson">Whose</label>
+    <select id="dPerson"></select>
+    <label for="dKind" class="mt">What kind</label>
+    <div class="chiprow" id="dKind" role="radiogroup" aria-label="Kind of date"></div>
+    <label for="dLabel" class="mt">Call it what it is</label>
+    <input type="text" id="dLabel" maxlength="80" autocomplete="off" placeholder="The day her father died">
+    <div class="field row">
+      <div class="half"><label for="dDay">Day</label><input type="number" id="dDay" min="1" max="31" inputmode="numeric">
+        <p class="err" id="dDayErr" role="alert" hidden></p></div>
+      <div class="half"><label for="dMonth">Month</label><select id="dMonth"></select></div>
+    </div>
+    <div class="field row">
+      <div class="half"><label for="dYear">Year, if it matters</label><input type="number" id="dYear" min="1900" max="2100" inputmode="numeric" placeholder="Optional">
+        <p class="err" id="dYearErr" role="alert" hidden></p></div>
+      <div class="half"><label for="dLead">Tell me</label>
+        <select id="dLead"><option value="">Use my default</option><option value="0">On the day</option><option value="1">1 day early</option><option value="3">3 days early</option><option value="7">7 days early</option><option value="14">14 days early</option></select></div>
+    </div>
+    <div class="btnrow end">
+      <button class="btn ghost small" id="dCancel">Cancel</button>
+      <button class="btn" id="dSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT TO SAY -->
+<div id="sheetOpen" class="sheet" hidden>
+  <div class="sheet-panel">
+    <p class="sheet-title" id="openTitle"></p>
+    <div id="openRemember"></div>
+    <label for="openText">Your first line</label>
+    <textarea id="openText" rows="3" maxlength="400" aria-label="Your first line"></textarea>
+    <div class="btnrow" id="openActions"></div>
+    <div class="btnrow end">
+      <button class="btn ghost small" id="openClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<p id="toast" class="toast" hidden></p>
+
+<script src="js/store.js"></script>
+<script src="js/rings.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

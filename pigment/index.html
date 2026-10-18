@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pigment. Paint that behaves.</title>
+<meta name="description" content="A watercolour studio for Android where blue and yellow make green. Real pigments, a shallow water simulation, three paper stocks and a timelapse of every stroke. Offline, free, no account.">
+<meta property="og:title" content="Pigment. Paint that behaves.">
+<meta property="og:description" content="Twenty four named pigments with real granulation and staining, simulated water on simulated paper, and a timelapse of everything you painted. Works in airplane mode.">
+<meta property="og:type" content="website">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #EFE9DB; --surface: #FBF7EE; --surface-2: #E5DCC8; --sunk: #DCD1B9;
+    --ink: #1E1A15; --muted: #655B4D; --hair: #D6CBB4;
+    --accent: #9C4A2A; --accent-deep: #7E3A20; --accent-ink: #FFFFFF; --accent-wash: #F2E2D8;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans);
+         font-size: 18px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+  img.shot { width: 100%; height: auto; display: block; border-radius: 10px;
+             box-shadow: 0 1px 2px rgba(74,44,26,.12), 0 14px 34px rgba(74,44,26,.16); }
+
+  .cta { display: inline-block; background: var(--accent); color: var(--accent-ink); text-decoration: none;
+         padding: 15px 28px; border-radius: 12px; font-size: 17px; border: 1px solid var(--accent);
+         transition: transform .15s ease; }
+  .cta:active { transform: translateY(1px); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 78px; }
+  .mark { display: flex; align-items: center; gap: 12px; font-family: var(--serif); font-size: 19px; font-weight: 600; }
+  .mark img { width: 34px; height: 34px; border-radius: 50%; display: block;
+              box-shadow: 0 0 0 1px rgba(74,44,26,.12), 0 1px 3px rgba(74,44,26,.16); }
+  nav a { color: var(--muted); text-decoration: none; font-size: 15px; margin-left: 22px; }
+  nav a:hover { color: var(--ink); }
+
+  /* 1. hero */
+  .hero { display: grid; grid-template-columns: 1.08fr .92fr; gap: 62px; align-items: center; padding: 26px 0 100px; }
+  .hero h1 { font-size: clamp(42px, 6vw, 70px); line-height: 1.02; margin: 0 0 22px; }
+  .hero p { font-size: 20px; color: var(--muted); margin: 0 0 30px; max-width: 34ch; }
+  .hero .under { font-size: 15px; color: var(--muted); margin: 18px 0 0; max-width: 36ch; }
+  .hero img { max-width: 320px; margin-left: auto; }
+
+  /* 2. the proof: three swatches and a claim */
+  .proof { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair);
+           padding: 96px 0; text-align: center; background: var(--surface); }
+  .proof h2 { font-size: clamp(28px, 4vw, 44px); line-height: 1.16; max-width: 20ch; margin: 0 auto 26px; }
+  .proof p { color: var(--muted); max-width: 54ch; margin: 0 auto; }
+  .swatches { display: flex; justify-content: center; align-items: center; gap: 0; margin: 0 auto 34px;
+              max-width: 520px; }
+  .sw { flex: 1; }
+  .sw span { display: block; height: 96px; border-radius: 4px; }
+  .sw b { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 12px;
+          letter-spacing: .04em; }
+  .plus { flex: 0 0 auto; width: 46px; font-family: var(--serif); font-size: 26px; color: var(--muted); }
+
+  /* 3. mechanism: rows beside a phone */
+  .mech { display: grid; grid-template-columns: .82fr 1.18fr; gap: 66px; align-items: center; padding: 100px 0; }
+  h2.sec { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.14; margin: 0 0 16px; }
+  .mech p.sub { color: var(--muted); margin: 0 0 32px; max-width: 46ch; }
+  .beat { display: grid; grid-template-columns: 9.5rem 1fr; gap: 24px; padding: 22px 0; border-top: 1px solid var(--hair); }
+  .beat:last-child { border-bottom: 1px solid var(--hair); }
+  .beat .t { color: var(--accent); font-size: 17px; }
+  .beat .d { margin: 0; color: var(--muted); font-size: 17px; }
+  .mech img { max-width: 300px; }
+
+  /* 4. the pigment table */
+  .table { padding: 96px 0; border-top: 1px solid var(--hair); }
+  .table p.sub { color: var(--muted); max-width: 56ch; margin: 0 0 40px; }
+  .tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-size: 16.5px; min-width: 620px; }
+  th { text-align: left; font-weight: 500; font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--muted); padding: 0 12px 12px 0; border-bottom: 1px solid var(--hair); }
+  td { padding: 15px 12px 15px 0; border-bottom: 1px solid var(--hair); color: var(--muted); vertical-align: top; }
+  td.name { color: var(--ink); white-space: nowrap; }
+  td.name i { display: block; font-style: normal; font-size: 12.5px; color: var(--accent); letter-spacing: .06em; }
+  td .chipdot { display: inline-block; width: 13px; height: 13px; border-radius: 999px; margin-right: 9px;
+                vertical-align: -1px; border: 1px solid rgba(32,28,24,.18); }
+
+  /* 5. gallery */
+  .gallery { padding: 92px 0; border-top: 1px solid var(--hair); }
+  .gallery p.sub { color: var(--muted); max-width: 54ch; margin: 0 0 50px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--muted); font-size: 16px; margin-top: 16px; }
+
+  /* 6. timelapse: copy right, phone left */
+  .lapse { display: grid; grid-template-columns: .85fr 1.15fr; gap: 66px; align-items: center;
+           padding: 100px 0; border-top: 1px solid var(--hair); }
+  .lapse ol { margin: 24px 0 0; padding-left: 1.3rem; color: var(--muted); }
+  .lapse li { margin-bottom: 12px; }
+  .lapse li b { color: var(--ink); font-weight: 600; }
+  .lapse img { max-width: 300px; }
+
+  /* 7. plain facts */
+  .facts { padding: 92px 0; border-top: 1px solid var(--hair); }
+  .eyebrow { font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 16px; }
+  .facts .row { display: grid; grid-template-columns: 15rem 1fr; gap: 34px; padding: 26px 0;
+                border-top: 1px solid var(--hair); align-items: start; }
+  .facts .row:last-child { border-bottom: 1px solid var(--hair); }
+  .facts .k { color: var(--accent); font-size: 17px; }
+  .facts .v { margin: 0; color: var(--muted); }
+  .facts .v b { color: var(--ink); font-weight: 600; }
+
+  /* 8. close */
+  .close { text-align: center; padding: 96px 0 40px; border-top: 1px solid var(--hair); }
+  .close p.line { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 36px); max-width: 22ch;
+                  margin: 0 auto 34px; letter-spacing: -0.02em; line-height: 1.2; }
+  .note { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0;
+          padding: 22px 24px; font-size: 16px; color: var(--muted); max-width: 58ch; margin: 58px auto 0; text-align: left; }
+  .note b { color: var(--ink); font-weight: 600; }
+
+  footer { border-top: 1px solid var(--hair); padding: 34px 0 64px; color: var(--muted); font-size: 15px; margin-top: 56px; }
+  footer .row { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; }
+  footer a { color: var(--muted); text-decoration: none; margin-right: 20px; }
+  footer a:hover { color: var(--ink); }
+
+  .reveal { transition: opacity .6s ease, transform .6s ease; }
+  html.js .reveal:not(.in) { opacity: 0; transform: translateY(14px); }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    html.js .reveal:not(.in) { opacity: 1; transform: none; }
+    .reveal { transition: none; }
+  }
+
+  @media (max-width: 900px) {
+    .hero, .mech, .lapse { grid-template-columns: 1fr; gap: 44px; }
+    .hero { padding-bottom: 70px; }
+    .mech, .lapse { padding: 70px 0; }
+    .hero img, .mech img, .lapse img { max-width: 290px; margin: 0 auto; }
+    .strip { grid-template-columns: 1fr; gap: 44px; max-width: 320px; margin: 0 auto; }
+    .facts .row { grid-template-columns: 1fr; gap: 10px; }
+    .proof { padding: 72px 0; }
+    .sw span { height: 72px; }
+    nav a { margin-left: 14px; font-size: 14px; }
+    table { font-size: 15px; }
+    td, th { padding-right: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark">
+      <img src="shots/icon.png" width="512" height="512" alt="">
+      Pigment
+    </span>
+    <span>
+      <a href="#water">How it works</a>
+      <a href="#box">The box</a>
+      <a href="/privacy-policies/pigment-privacy-policy.html">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Paint that behaves.</h1>
+      <p>A watercolour studio where the water is simulated, the paper has tooth, and every colour in
+        the box is a named pigment with its own way of misbehaving.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.pigment">Get it on Google Play</a>
+      <p class="under">Free and complete. Every pigment unlocked from the first launch. No account,
+        no subscription, and no internet permission.</p>
+    </div>
+    <img class="shot reveal" src="shots/01-studio.png" width="1080" height="1920"
+         alt="The studio screen: a pigment study of five graded washes, a mixing bar and a drybrush passage, with the water slider set to Wet.">
+  </header>
+</div>
+
+<section class="proof">
+  <div class="wrap">
+    <div class="swatches reveal">
+      <div class="sw"><span style="background:#3e5293"></span><b>ULTRAMARINE PB29</b></div>
+      <div class="plus">+</div>
+      <div class="sw"><span style="background:#f1dc3e"></span><b>HANSA YELLOW PY3</b></div>
+      <div class="plus">=</div>
+      <div class="sw"><span style="background:#47624c"></span><b>WHAT THE MODEL SAYS</b></div>
+    </div>
+    <h2>Blue and yellow make green.</h2>
+    <p>Every other painting app averages two RGB values and hands you grey. Pigment gives each paint
+      a Kubelka-Munk absorption vector and a scattering strength, the way a manufacturer measures one,
+      and adds them by mass. That green above was not chosen by anybody. It is the arithmetic.</p>
+  </div>
+</section>
+
+<section class="mech wrap" id="water">
+  <img class="shot reveal" src="shots/02-drawer.png" width="1080" height="1920"
+       alt="The pigment drawer open over a painting, showing graded wash cards for the blues and the reds.">
+  <div>
+    <h2 class="sec">Water is the other half of the brush</h2>
+    <p class="sub">A shallow water simulation runs under the canvas at about thirty steps a second.
+      It only touches the parts of the sheet where something is happening, so a drying wash in one
+      corner costs almost nothing.</p>
+    <div class="beat"><span class="t">It flows</span><p class="d">Water runs downhill and wicks sideways into dry paper, faster into the low ground of the tooth than over the high ground.</p></div>
+    <div class="beat"><span class="t">It dries from the edge</span><p class="d">A wash loses water faster at its rim than in its middle, which drags pigment outward and leaves the hard dark line every painter recognises.</p></div>
+    <div class="beat"><span class="t">It carries colour</span><p class="d">Pigment moves with the water but slightly slower, so the wet edge always arrives before the colour does.</p></div>
+    <div class="beat"><span class="t">It picks colour back up</span><p class="d">Drop clean water into a wash that has just lost its shine and the fresh water lifts what was settling and pushes it out into a ragged rim. That is a backrun, and it is not a bug.</p></div>
+    <div class="beat"><span class="t">It answers gravity</span><p class="d">Switch on tilt flow and the phone's own tilt sensor becomes the direction that down is. Lean the phone and the wash runs.</p></div>
+  </div>
+</section>
+
+<section class="table wrap" id="box">
+  <h2 class="sec">Twenty four pigments, each with a personality</h2>
+  <p class="sub">Granulation, staining, opacity and how well a colour lifts back off are properties of
+    the paint, printed on the side of a real tube. Here they are numbers the engine actually reads.</p>
+  <div class="tablewrap">
+  <table>
+    <thead>
+      <tr><th>Pigment</th><th>Granulates</th><th>Stains</th><th>What that means on the sheet</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="name"><span class="chipdot" style="background:#3e5293"></span>Ultramarine<i>PB29</i></td>
+        <td>Heavily</td><td>Barely</td>
+        <td>Settles into the valleys of cold press and leaves the hills pale. Comes back off with a damp brush weeks later.</td>
+      </tr>
+      <tr>
+        <td class="name"><span class="chipdot" style="background:#2f6d8c"></span>Phthalo Blue<i>PB15:3</i></td>
+        <td>Not at all</td><td>Ferociously</td>
+        <td>Smooth, transparent and permanent. Once it is down it is down, and it will take over any mix you put it in.</td>
+      </tr>
+      <tr>
+        <td class="name"><span class="chipdot" style="background:#4e8fa8"></span>Cerulean Blue<i>PB35</i></td>
+        <td>Heavily</td><td>Barely</td>
+        <td>Opaque and heavy enough that you can watch it drop out of the water. Lifts out cleanly for clouds.</td>
+      </tr>
+      <tr>
+        <td class="name"><span class="chipdot" style="background:#8f7a44"></span>Goethite<i>PY43</i></td>
+        <td>As much as anything can</td><td>Not at all</td>
+        <td>Natural iron ore, coarsely ground. A flat wash of it dries as a map of the paper it was laid on.</td>
+      </tr>
+      <tr>
+        <td class="name"><span class="chipdot" style="background:#c02a63"></span>Quinacridone Rose<i>PV19</i></td>
+        <td>Not at all</td><td>Deeply</td>
+        <td>Glazes like coloured glass. Layer it over a dry wash and the wash underneath still shows through.</td>
+      </tr>
+      <tr>
+        <td class="name"><span class="chipdot" style="background:#3f3f42"></span>Lunar Black<i>PBk11</i></td>
+        <td>As much as anything can</td><td>Not at all</td>
+        <td>A magnetic iron black so coarse that a wash breaks into craters as the water leaves it.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="gallery wrap">
+  <h2 class="sec">A studio, not a canvas with brushes bolted on</h2>
+  <p class="sub">Choose the paper before the subject. Mix on a ceramic palette. Keep the sheets in a
+    drawer. The interface stays out of the way, because the only saturated thing on the screen should
+    be the paint.</p>
+  <div class="strip">
+    <figure class="reveal">
+      <img class="shot" src="shots/03-well.png" width="1080" height="1920"
+           alt="The mixing well: a blue gob smeared into a yellow gob, producing a green band, with the resulting mix named and measured underneath.">
+      <figcaption>The mixing well is a ceramic palette with real paint on it. Tap to squeeze a gob,
+        drag to smear two together, then take the result away as a tube of your own.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/05-box.png" width="1080" height="1920"
+           alt="The box: pigment cards for Ultramarine, Phthalo Blue and Cerulean Blue with graded swatches and behaviour bars.">
+      <figcaption>Every swatch card in the box is painted by the engine that paints your sheet, with
+        that pigment's own granulation in it. Nothing here is a picture of paint.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/04-flatfile.png" width="1080" height="1920"
+           alt="The flatfile: three finished sheets taped down in a drawer, each labelled with its paper, its date and its stroke count.">
+      <figcaption>Finished sheets live in a drawer, taped down, each one still the log of the strokes
+        that made it. Six guided washes will fill it with your first few.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="lapse wrap">
+  <img class="shot reveal" src="shots/06-export.png" width="1080" height="1920"
+       alt="The export sheet: a preview of the painting, a paper texture switch, and timelapse speed options with an estimated length.">
+  <div>
+    <h2 class="sec">The painting is stored as what you did to it</h2>
+    <p class="sub">A sheet is not saved as an image. It is saved as the log of every stroke: which
+      brush, which paint, how much water, and the milliseconds between the points. A painting of
+      seventy strokes is about twenty kilobytes of stroke log.</p>
+    <ol>
+      <li><b>Reopening replays it.</b> The whole painting runs back through the simulation, so a sheet
+        you come back to is the sheet you left, not a flattened copy of it.</li>
+      <li><b>Undo is real.</b> The engine keeps compressed snapshots of the water and the pigment, so
+        stepping back takes the water with it.</li>
+      <li><b>The timelapse is the same replay.</b> Recording plays your strokes back through the physics
+        while a recorder watches the canvas, and hands you a WebM file. It is your process, not a slideshow.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="facts wrap">
+  <p class="eyebrow">Plainly</p>
+  <div class="row"><span class="k">One permission</span>
+    <p class="v"><b>Vibrate.</b> A tick when a wash has finished drying, a fainter one under a dry brush.
+      Switch it off in the settings if you would rather not feel any of it.</p></div>
+  <div class="row"><span class="k">No network</span>
+    <p class="v">Pigment does not request the internet permission, so Android will not let it open a
+      connection at all. You can check that on the Play listing before you install.</p></div>
+  <div class="row"><span class="k">Nothing is collected</span>
+    <p class="v">No account, no analytics, no advertising ID, no crash reporter. Your paintings, your
+      mixes and your settings live in this phone's private storage and nowhere else.</p></div>
+  <div class="row"><span class="k">Nothing is locked</span>
+    <p class="v">All twenty four pigments, all three papers, all eight brushes, unlimited sheets,
+      watermark free export. There is no subscription and no in app purchase.</p></div>
+  <div class="row"><span class="k">Best with a stylus</span>
+    <p class="v">A pen reports real pressure and the brush answers it. A finger works too and is tuned
+      separately, but the pressure is assumed rather than measured.</p></div>
+</section>
+
+<section class="close wrap">
+  <p class="line">Mistakes are the best thing that happens on a wet sheet.</p>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.pigment">Get it on Google Play</a>
+  <div class="note">
+    <b>What this is not.</b> There is no gouache or oil engine, no layers, and no community gallery.
+    Pigment does one medium, watercolour, and does it on its own. Timelapse video is WebM, because an
+    MP4 encoder is not something an offline app can honestly claim. The simulation runs on the phone's
+    processor rather than its graphics chip, so a very large sheet on a very old phone will run the
+    water more slowly than a new one.
+  </div>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <span>Pigment by SocialSure Private Limited</span>
+    <span>
+      <a href="play/">Try it in a browser</a>
+      <a href="/privacy-policies/pigment-privacy-policy.html">Privacy policy</a>
+      <a href="https://play.google.com/store/apps/details?id=com.mohdshayan.pigment">Google Play</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  document.documentElement.classList.add('js');
+  const io = new IntersectionObserver((es) => {
+    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

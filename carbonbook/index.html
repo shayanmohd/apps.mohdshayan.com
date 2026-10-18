@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carbonbook: the bill book that never runs out</title>
+<meta name="description" content="Unlimited GST, VAT or sales tax invoices, quotations and receipts with your logo, as a PDF, offline. Free on Google Play, with one optional unlock.">
+<link rel="icon" href="shots/icon-512.png">
+<style>
+  @font-face { font-family: "Libre Franklin"; src: url("fonts/librefranklin_regular.ttf"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Libre Franklin"; src: url("fonts/librefranklin_semibold.ttf"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Libre Franklin"; src: url("fonts/librefranklin_bold.ttf"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Antonio"; src: url("fonts/antonio_bold.ttf"); font-weight: 700; font-display: swap; }
+
+  :root {
+    --paper: #F2F4F8; --sheet: #FBFCFE; --carbon: #1D2340; --smudge: #545B78;
+    --vermilion: #C4352B; --on-vermilion: #FBFCFE; --rule: rgba(84, 91, 120, 0.25);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #141827; --sheet: #1C2133; --carbon: #E3E6EF; --smudge: #9EA5BD;
+            --vermilion: #E57A6E; --on-vermilion: #141827; --rule: rgba(158, 165, 189, 0.25); }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--paper); color: var(--carbon);
+    font: 400 17px/1.6 "Libre Franklin", "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--vermilion); }
+  h1, h2, h3 { margin: 0; line-height: 1.15; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(2.2rem, 5.2vw, 3.6rem); font-weight: 700; }
+  h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 700; }
+  p { margin: 0; max-width: 34em; }
+  .wrap { width: min(1120px, calc(100% - 48px)); margin: 0 auto; }
+  .number { font-family: "Antonio", "Arial Narrow", sans-serif; font-weight: 700; color: var(--vermilion); letter-spacing: 0.02em; }
+
+  header.top { display: flex; flex-wrap: wrap; gap: 12px 0; align-items: center; justify-content: space-between; padding: 22px 0; }
+  header.top nav { display: flex; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.05rem; color: var(--carbon); text-decoration: none; }
+  .brand img { width: 36px; height: 36px; border-radius: 8px; }
+  header.top nav a { color: var(--smudge); text-decoration: none; margin-left: 24px; font-weight: 600; white-space: nowrap; }
+  header.top nav a:first-child { margin-left: 0; }
+  header.top nav a:hover, header.top nav a:focus-visible { color: var(--vermilion); }
+
+  .cta { display: inline-block; background: var(--vermilion); color: var(--on-vermilion); text-decoration: none;
+    font-weight: 600; font-size: 1.05rem; padding: 15px 26px; border-radius: 8px; }
+  .cta:hover { filter: brightness(1.06); }
+  .cta:active { transform: translateY(1px); }
+  a:focus-visible, .cta:focus-visible { outline: 3px solid var(--vermilion); outline-offset: 3px; }
+
+  /* 1. Hero: words left, the paid invoice right */
+  .hero { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 56px; align-items: center; padding: 48px 0 72px; }
+  .hero .lede { margin: 22px 0 32px; font-size: 1.2rem; color: var(--smudge); }
+  .hero .note { margin-top: 16px; color: var(--smudge); font-size: 0.95rem; }
+  .phone { margin: 0; min-width: 0; }
+  .hero > *, .unlock > *, .strip .row > * { min-width: 0; }
+  .phone img { display: block; width: 100%; max-width: 380px; margin: 0 auto; border-radius: 8px; border: 1px solid var(--rule); }
+
+  /* 2. The bill book page: a ruled list, one column, carbon ink */
+  .page { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 40px clamp(20px, 5vw, 64px); margin: 0 0 88px;
+    box-shadow: 0 12px 32px rgba(29, 35, 64, 0.08); }
+  .page h2 { margin-bottom: 8px; }
+  .page .sub { color: var(--smudge); margin-bottom: 28px; }
+  .page ol { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 48px; }
+  .page li { break-inside: avoid; padding: 12px 0; border-bottom: 1px solid var(--rule); line-height: 1.5; }
+
+  /* 3. Three shots side by side */
+  .strip { margin-bottom: 96px; }
+  .strip h2 { margin-bottom: 28px; }
+  .strip .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .strip figure { margin: 0; }
+  .strip img { display: block; width: 100%; border-radius: 8px; border: 1px solid var(--rule); }
+  .strip figcaption { margin-top: 12px; color: var(--smudge); font-size: 0.98rem; }
+
+  /* 4. The unlock: shot left, words right */
+  .unlock { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 56px; align-items: center; margin-bottom: 96px; }
+  .unlock ul { margin: 22px 0 26px; padding: 0; list-style: none; }
+  .unlock li { padding: 8px 0 8px 22px; position: relative; }
+  .unlock li::before { content: ""; position: absolute; left: 0; top: 17px; width: 10px; height: 10px; background: var(--vermilion); transform: rotate(-8deg); }
+  .price { font-size: 1.15rem; font-weight: 600; }
+  .unlock .fine { margin-top: 12px; color: var(--smudge); font-size: 0.95rem; }
+
+  /* 5. One statement, centred, on the Sheet */
+  .promise { background: var(--sheet); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 72px 0; text-align: center; margin-bottom: 72px; }
+  .promise h2 { max-width: 20em; margin: 0 auto 18px; }
+  .promise p { margin: 0 auto; color: var(--smudge); font-size: 1.1rem; }
+
+  footer { padding: 24px 0 64px; color: var(--smudge); font-size: 0.95rem; }
+  footer .links { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-bottom: 12px; }
+  footer a { color: var(--carbon); text-decoration: none; font-weight: 600; }
+  footer a:hover { color: var(--vermilion); }
+
+  @media (max-width: 860px) {
+    .hero, .unlock { grid-template-columns: 1fr; gap: 36px; }
+    .hero { padding-top: 24px; }
+    .unlock .phone { order: 2; }
+    .page ol { columns: 1; }
+    .strip .row { grid-template-columns: 1fr; }
+    .strip img { max-width: 380px; margin: 0 auto; }
+    header.top nav a { margin-left: 16px; font-size: 0.95rem; }
+    h1 { font-size: 2.1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#top"><img src="shots/icon-512.png" alt="" width="36" height="36">Carbonbook</a>
+    <nav><a href="#free">What is free</a><a href="#unlock">The unlock</a><a href="/privacy-policies/carbonbook-privacy-policy.html">Privacy</a></nav>
+  </header>
+
+  <section class="hero" id="top">
+    <div>
+      <h1>The bill book that never runs out.</h1>
+      <p class="lede">Unlimited GST, VAT or sales tax invoices, quotations and receipts with your logo, shared as a clean PDF on WhatsApp or email. No account, no signal needed.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.carbonbook">Get it on Google Play</a>
+      <p class="note">Free on Google Play, unlock everything once for USD 4.99. Works fully offline.</p>
+    </div>
+    <figure class="phone"><img src="shots/01-paid-invoice-detail.png" alt="A tax invoice for Kumar Traders with CGST and SGST lines and a vermilion PAID stamp" width="1080" height="1920"></figure>
+  </section>
+
+  <section class="page" id="free">
+    <h2>What you get without paying</h2>
+    <p class="sub">The free version does the whole job, with no cap and no watermark.</p>
+    <ol>
+      <li>Unlimited invoices, estimates or quotations, and receipts for one business</li>
+      <li>Your logo and signature on every PDF, two clean templates, A4 or Letter</li>
+      <li>GST from the place of supply with CGST, SGST or IGST, HSN or SAC and your GSTIN; VAT, sales tax or no tax; tax included or added</li>
+      <li>Discounts, shipping, round off, and the amount in words in lakh and crore or millions</li>
+      <li>Numbering that never repeats, even after a restore, with a financial year prefix if you want one</li>
+      <li>Saved customers and items that fill themselves in with the last price you charged</li>
+      <li>Estimates that turn into invoices in one tap, receipts from invoices, paid and unpaid marking</li>
+      <li>Share, print or save the PDF, and back everything up to one file you can restore on a new phone</li>
+    </ol>
+  </section>
+
+  <section class="strip">
+    <h2>Made at the counter, not at a desk</h2>
+    <div class="row">
+      <figure><img src="shots/02-editor-item-autocomplete.png" alt="The invoice editor with the item suggestion CPVC pipe 1 inch showing its rate and HSN" width="1080" height="1920"><figcaption>Type three letters and the item, its rate, tax and HSN fill in.</figcaption></figure>
+      <figure><img src="shots/03-quotation-convert.png" alt="A quotation's menu with Convert to invoice" width="1080" height="1920"><figcaption>A quotation becomes the invoice, with its own number, in one tap.</figcaption></figure>
+      <figure><img src="shots/04-share-sheet.png" alt="The Android share sheet holding Tax-Invoice-INV-0004.pdf" width="1080" height="1920"><figcaption>The PDF goes straight to WhatsApp, email, a printer or your files.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="unlock" id="unlock">
+    <figure class="phone"><img src="shots/05-gst-report-dark.png" alt="The monthly GST report: sales this month, taxable value, CGST, SGST and IGST by rate" width="1080" height="1920"></figure>
+    <div>
+      <h2>One purchase adds the back office</h2>
+      <ul>
+        <li>Three more templates, Letterhead, Ledger and Bold, and eight PDF colours</li>
+        <li>Proforma invoice, delivery note or challan, credit note and purchase order</li>
+        <li>Part payments, the PART PAID stamp and the Outstanding list by customer</li>
+        <li>Monthly sales and tax reports, with a GST summary by rate and HSN for your accountant</li>
+        <li>CSV export of documents, lines, customers, items and the month's report rows</li>
+        <li>More than one business, each with its own logo and numbering</li>
+        <li>Up to five custom fields on each document, such as a vehicle number</li>
+        <li>Duplicate any document to start the next one</li>
+      </ul>
+      <p class="price">Free on Google Play, unlock everything once for USD 4.99.</p>
+      <p class="fine">One payment, no subscription. Buying or restoring goes through Google Play and needs a connection once; after that the app works offline. The unlock belongs to the Google account that bought it.</p>
+    </div>
+  </section>
+</div>
+
+<section class="promise">
+  <div class="wrap">
+    <h2>Everything stays on your phone.</h2>
+    <p>Carbonbook has no account, no server and no permission to use the internet. Your customers, items and documents live on the device, and the backup is a zip file you keep wherever you like.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <div class="links">
+      <a href="https://play.google.com/store/apps/details?id=com.mohdshayan.carbonbook">Google Play</a>
+      <a href="/privacy-policies/carbonbook-privacy-policy.html">Privacy policy</a>
+      <a href="mailto:shayanm2002@gmail.com">Support and refunds</a>
+    </div>
+    <p>Carbonbook does not generate e-invoices (IRN) or e-way bills, does not file returns and does not collect payments. The GST summary helps you or your accountant; it is not a filed return. SocialSure Private Limited.</p>
+  </footer>
+</div>
+</body>
+</html>

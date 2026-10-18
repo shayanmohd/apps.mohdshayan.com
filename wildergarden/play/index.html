@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Wildergarden</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="valley" aria-label="The valley"></canvas>
+
+<!-- fixed top strip: always parchment, so the status bar is always legible -->
+<header id="topbar" hidden>
+  <div class="tb-inner">
+    <div class="tb-left">
+      <p class="tb-date" id="tbDate"></p>
+      <p class="tb-sub" id="tbSeason"></p>
+    </div>
+    <div class="tb-right">
+      <p class="tb-count" id="tbCount"></p>
+      <p class="tb-sub" id="tbBlight"></p>
+    </div>
+  </div>
+  <svg class="deckle top" viewBox="0 0 120 8" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M0 0 H120 V3.2 C112 5.9 104 2.5 96 4.9 C88 7.2 80 3 72 5.3 C64 7.5 56 2.8 48 5.1 C40 7.4 32 3.1 24 5.5 C16 7.8 8 3.4 0 5.9 Z"/>
+  </svg>
+</header>
+
+<!-- valley controls -->
+<div id="deck" hidden>
+  <svg class="deckle bottom" viewBox="0 0 120 8" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M0 8 H120 V4.8 C112 2.1 104 5.5 96 3.1 C88 .8 80 5 72 2.7 C64 .5 56 5.2 48 2.9 C40 .6 32 4.9 24 2.5 C16 .2 8 4.6 0 2.1 Z"/>
+  </svg>
+  <button class="prompt" id="prompt" hidden></button>
+  <p class="status" id="status"></p>
+  <div class="actions">
+    <button class="btn primary" id="actBtn">Put it down</button>
+    <button class="btn icon" id="wideBtn" aria-label="See the whole valley"><span class="wide-ic" data-ic="wide"></span></button>
+  </div>
+  <button id="handle" aria-label="Open the notebook">
+    <span class="handle-seal" id="handleSeal"></span>
+    <span class="handle-label">The notebook</span>
+    <span class="handle-ic" data-ic="chevron"></span>
+  </button>
+</div>
+
+<!-- the notebook: one sheet, everything else is behind it -->
+<div id="sheet" class="scrim" hidden>
+  <div class="sheet-panel" id="sheetPanel">
+    <span class="grip mid"></span>
+    <nav class="menu">
+      <button data-go="guide"><span class="m-ic" data-ic="guide"></span><span class="m-name">Field guide</span><span class="m-note" id="mGuide"></span></button>
+      <button data-go="almanac"><span class="m-ic" data-ic="almanac"></span><span class="m-name">Almanac</span><span class="m-note" id="mAlmanac"></span></button>
+      <button data-go="tally"><span class="m-ic" data-ic="tally"></span><span class="m-name">The tally</span><span class="m-note" id="mTally"></span></button>
+      <button data-go="photo"><span class="m-ic" data-ic="photo"></span><span class="m-name">Photograph the valley</span><span class="m-note">A card you can keep</span></button>
+      <button data-go="settings"><span class="m-ic" data-ic="settings"></span><span class="m-name">Settings</span><span class="m-note">The line, the reminder, your data</span></button>
+      <button data-go="pledge"><span class="m-ic" data-ic="pledge"></span><span class="m-name">Our pledge</span><span class="m-note">What this app will never do</span></button>
+    </nav>
+  </div>
+</div>
+
+<!-- species note -->
+<div id="note" class="scrim" hidden>
+  <div class="sheet-panel note-panel">
+    <div class="note-head">
+      <canvas class="plate big" id="notePlate" width="152" height="152"></canvas>
+      <div>
+        <p class="eyebrow" id="noteBiome"></p>
+        <h2 class="note-name" id="noteName"></h2>
+        <p class="note-when" id="noteWhen"></p>
+      </div>
+    </div>
+    <p class="prose" id="noteText"></p>
+    <p class="note-dep" id="noteDep" hidden></p>
+    <button class="btn ghost wide" id="noteClose">Close</button>
+  </div>
+</div>
+
+<!-- ------------ pages ------------ -->
+<section class="page" id="p-guide" hidden>
+  <div class="pagebar">
+    <button class="back" data-back aria-label="Back"><span data-ic="back"></span>Back</button>
+    <p class="pagetitle">Field guide</p>
+    <p class="pagemeta" id="guideMeta"></p>
+  </div>
+  <div class="scroller" id="guideBody"></div>
+</section>
+
+<section class="page" id="p-almanac" hidden>
+  <div class="pagebar">
+    <button class="back" data-back aria-label="Back"><span data-ic="back"></span>Back</button>
+    <p class="pagetitle">Almanac</p>
+    <p class="pagemeta" id="almanacMeta"></p>
+  </div>
+  <div class="scroller">
+    <p class="eyebrow">The last twelve weeks</p>
+    <figure class="hedgewrap">
+      <canvas id="hedge" class="hedge"></canvas>
+      <figcaption class="caption">One stem a day. Tall and green is a day under the line. A seed head is the day something arrived.</figcaption>
+    </figure>
+    <div id="almanacBody"></div>
+  </div>
+</section>
+
+<section class="page" id="p-tally" hidden>
+  <div class="pagebar">
+    <button class="back" data-back aria-label="Back"><span data-ic="back"></span>Back</button>
+    <p class="pagetitle">The tally</p>
+    <p class="pagemeta" id="tallyMeta"></p>
+  </div>
+  <div class="scroller">
+    <p class="tally-q" id="tallyQ">How long did the feeds have you today?</p>
+    <p class="tally-num"><span id="tallyVal">45</span><span class="unit" id="tallyUnit">minutes</span></p>
+    <input type="range" id="tallyRange" min="0" max="480" step="5" value="45" aria-label="Feed minutes today">
+    <div class="chips" id="tallyChips"></div>
+    <p class="verdict" id="tallyVerdict"></p>
+    <button class="btn primary wide" id="tallySave">Write it down</button>
+    <details class="where">
+      <summary><span data-ic="chevron"></span>Where do I find this number?</summary>
+      <p>On most Android phones: Settings, then Digital Wellbeing and parental controls, then the dashboard.
+         Add up the apps you named. Round to the nearest five minutes. Rounding is fine. Guessing low is not,
+         because the only person the valley can mislead is you.</p>
+    </details>
+    <section class="weekwrap">
+      <h2 class="h2">This week</h2>
+      <p class="help">Tap any day to correct it. A blank day grows nothing and costs nothing.</p>
+      <div class="week" id="tallyWeek"></div>
+    </section>
+    <div id="tallyMissed"></div>
+  </div>
+</section>
+
+<section class="page" id="p-photo" hidden>
+  <div class="pagebar">
+    <button class="back" data-back aria-label="Back"><span data-ic="back"></span>Back</button>
+    <p class="pagetitle">Photograph</p>
+    <p class="pagemeta"></p>
+  </div>
+  <div class="scroller">
+    <div class="cardwrap">
+      <div class="cardskel" id="cardSkel" aria-hidden="true"></div>
+      <img id="cardImg" alt="A card showing your valley" hidden>
+      <p class="inline-error" id="cardError" hidden></p>
+    </div>
+    <p class="eyebrow">Light</p>
+    <div class="chips" id="hourChips"></div>
+    <p class="eyebrow">Framing</p>
+    <div class="chips" id="frameChips"></div>
+    <div class="btnrow">
+      <button class="btn primary" id="cardSave">Save the card</button>
+      <button class="btn ghost" id="cardShare">Share</button>
+    </div>
+    <p class="caption">The card shows what grew. It never shows what you lost, because a picture of your own
+      screen time posted in public should not be a confession.</p>
+  </div>
+</section>
+
+<section class="page" id="p-settings" hidden>
+  <div class="pagebar">
+    <button class="back" data-back aria-label="Back"><span data-ic="back"></span>Back</button>
+    <p class="pagetitle">Settings</p>
+    <p class="pagemeta"></p>
+  </div>
+  <div class="scroller">
+    <div class="field">
+      <label for="setLimit">Your daily line</label>
+      <div class="rowline"><input type="range" id="setLimit" min="10" max="300" step="5"><span class="rowval" id="setLimitVal"></span></div>
+      <p class="help">Minutes in the feeds before the valley starts to lose colour. Pick something you could hit this week, not something noble.</p>
+    </div>
+
+    <div class="field">
+      <label for="setWorkStart">Your working hours</label>
+      <div class="rowline">
+        <input type="time" id="setWorkStart"><span class="rowsep">to</span><input type="time" id="setWorkEnd">
+      </div>
+      <p class="help">Stillness in the middle of a working day counts for less, because it was never really yours. Evening stillness counts for more.</p>
+    </div>
+
+    <div class="field row">
+      <div><label for="setRemind">One evening reminder</label>
+        <p class="help">A single line at a time you pick, to close the day. It is the only notification this app sends.</p></div>
+      <input type="checkbox" id="setRemind">
+    </div>
+    <div class="field" id="remindTimeField">
+      <label for="setRemindTime">Reminder time</label>
+      <input type="time" id="setRemindTime">
+    </div>
+
+    <div class="field">
+      <label for="setHemi">Hemisphere</label>
+      <select id="setHemi">
+        <option value="north">Northern</option>
+        <option value="south">Southern</option>
+      </select>
+      <p class="help">So the valley has the season you are actually standing in. Worked out from the date on this phone, never from your location.</p>
+    </div>
+
+    <div class="field row">
+      <div><label for="setHaptics">A pulse when something arrives</label>
+        <p class="help">One short buzz, only for a rare arrival. Nothing else in the app vibrates.</p></div>
+      <input type="checkbox" id="setHaptics">
+    </div>
+
+    <hr class="rule">
+    <h2 class="h2">Which feeds</h2>
+    <p class="help">Names for your own reading, so the tally means something. They stay on this phone and the app cannot check them.</p>
+    <div class="chips edit" id="feedChips"></div>
+    <div class="rowline">
+      <input type="text" id="feedInput" placeholder="Add a name" maxlength="24" enterkeyhint="done">
+      <button class="btn ghost small" id="feedAdd"><span data-ic="add"></span>Add</button>
+    </div>
+
+    <hr class="rule">
+    <h2 class="h2">Your ledger</h2>
+    <p class="help">Everything the app knows is on this device. There is no account and no server to ask.</p>
+    <div class="btnrow">
+      <button class="btn ghost small" id="exJson">Export JSON</button>
+      <button class="btn ghost small" id="exCsv">Export CSV</button>
+      <label class="btn ghost small filelabel">Import<input type="file" id="importFile" accept=".json" hidden></label>
+    </div>
+    <div class="btnrow">
+      <button class="btn ghost small danger" id="eraseBtn">Erase everything</button>
+    </div>
+    <p class="io-note" id="ioNote" role="status" hidden></p>
+    <hr class="rule">
+    <p class="colophon">Wildergarden. It grows when you put the phone down.<br>Free, complete, and offline.</p>
+  </div>
+</section>
+
+<section class="page" id="p-pledge" hidden>
+  <div class="pagebar">
+    <button class="back" data-back aria-label="Back"><span data-ic="back"></span>Back</button>
+    <p class="pagetitle">Our pledge</p>
+    <p class="pagemeta"></p>
+  </div>
+  <div class="scroller">
+    <p class="pledge-lead">A subscription to help you use your phone less would be a conflict of interest. So there isn't one.</p>
+    <ul class="pledge">
+      <li><b>No subscription.</b> No unlock, no premium tier, no cosmetic shop. All four biomes and all forty species are in the app you already have.</li>
+      <li><b>No advertising.</b> There is no ad code in the build and no advertising identifier is read.</li>
+      <li><b>No account.</b> Nothing to sign up for, nothing to log into, nothing to delete later.</li>
+      <li><b>No internet.</b> The app does not request the internet permission, so Android will not let it open a connection at all. It also opts out of Android backup and device transfer, so the system cannot copy your ledger off the phone either.</li>
+      <li><b>No surveillance.</b> Wildergarden never reads which apps you use. It asks you once a day and believes you.</li>
+      <li><b>One notification.</b> At a time you choose, to close the day. Nothing is designed to pull you back in.</li>
+      <li><b>No streak shaming.</b> Grace covers the first slip every week. Recovery is always faster than the damage. That ratio is deliberate.</li>
+    </ul>
+    <button class="btn ghost wide" id="pledgeShare">Share the pledge</button>
+  </div>
+</section>
+
+<!-- ------------ onboarding ------------ -->
+<section id="onboard" hidden>
+  <div class="ob-track" id="obTrack">
+    <article class="ob-card">
+      <span class="ob-mark" id="obMark"></span>
+      <p class="ob-line">This app wants you to stop opening it.</p>
+      <p class="ob-sub">Wildergarden is one valley that only grows while your phone is face down. There is nothing to collect by tapping and nothing to check. That is the whole design.</p>
+    </article>
+    <article class="ob-card">
+      <p class="ob-line">It cannot see your other apps.</p>
+      <p class="ob-sub">No usage permission, no internet, nothing watched in the background. Once a day you tell it how long the feeds had you, and it takes you at your word. The honesty is the mechanic.</p>
+    </article>
+    <article class="ob-card">
+      <p class="ob-line">Where is your line?</p>
+      <p class="ob-sub">Minutes a day in the feeds before the valley starts losing colour. Pick a number you could actually hit this week.</p>
+      <div class="ob-field">
+        <p class="tally-num"><span id="obLimitVal">60</span><span class="unit">minutes a day</span></p>
+        <input type="range" id="obLimit" min="10" max="300" step="5" value="60" aria-label="Daily limit">
+      </div>
+    </article>
+    <article class="ob-card">
+      <p class="ob-line">Which feeds are we talking about?</p>
+      <p class="ob-sub">For your own reading only, so the daily tally means something. The names never leave this phone. You can skip this.</p>
+      <div class="ob-field">
+        <div class="chips edit" id="obFeedChips"></div>
+        <div class="rowline">
+          <input type="text" id="obFeedInput" placeholder="Instagram, and so on" maxlength="24" enterkeyhint="done">
+          <button class="btn ghost small" id="obFeedAdd"><span data-ic="add"></span>Add</button>
+        </div>
+      </div>
+    </article>
+    <article class="ob-card">
+      <span class="ob-scene" id="obScene"></span>
+      <p class="ob-line">Come back tomorrow without coming back today.</p>
+      <p class="ob-sub">The valley is bare tonight. Meadow grass arrives after your first still hour, and everything after that takes longer. Nothing here is worth staying up for.</p>
+    </article>
+  </div>
+  <div class="ob-foot">
+    <div class="ob-dots" id="obDots"></div>
+    <button class="btn primary" id="obNext">Next</button>
+  </div>
+</section>
+
+<p id="toast" class="toast" hidden></p>
+
+<script src="js/mark.js"></script>
+<script src="js/store.js"></script>
+<script src="js/species.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/paint.js"></script>
+<script src="js/valley.js"></script>
+<script src="js/almanac.js"></script>
+<script src="js/card.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

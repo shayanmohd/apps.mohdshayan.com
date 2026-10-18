@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Sillage</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main id="stage">
+
+  <!-- ONBOARDING -->
+  <section class="screen" id="onboard" hidden>
+    <div class="ob-track">
+      <article class="ob-card" data-step="0">
+        <span class="ob-mark" id="obMark" aria-hidden="true"></span>
+        <p class="ob-kicker">Sillage</p>
+        <h1 class="ob-line">You have ten thousand photographs and not one smell.</h1>
+        <p class="ob-sub">Smell reaches memory before it reaches language. One molecule of a stranger's perfume and you are in a hallway in 1998, involuntarily, completely.</p>
+        <p class="ob-sub">Sillage is three things: a diary for smells, a training programme for your nose, and a place to keep what is on your shelf. All of it stays on this phone.</p>
+        <div class="btnrow">
+          <label class="btn ghost small filelabel">I have a Sillage file<input type="file" id="obRestore" accept=".json" hidden></label>
+        </div>
+        <p class="ob-note" id="obRestoreNote"></p>
+      </article>
+
+      <article class="ob-card" data-step="1">
+        <h2 class="ob-line small">You cannot record a smell. You can encode one.</h2>
+        <p class="ob-sub">The trick is comparison. An adjective evaporates; a comparison sticks. Every entry asks you for one sentence of it, and hands you a shape to fill in.</p>
+        <div class="field">
+          <label for="obAnchor">Try it now. Something you can smell, or remember smelling.</label>
+          <textarea id="obAnchor" rows="3" maxlength="240" placeholder="It is like wet cardboard and oranges, but warmer"></textarea>
+          <p class="help" id="obAnchorNote">This is the whole technique. It gets easier immediately.</p>
+        </div>
+      </article>
+
+      <article class="ob-card" data-step="2">
+        <h2 class="ob-line small">A few minutes, most mornings.</h2>
+        <p class="ob-sub">Training is short and it uses what is already in your kitchen. Coffee, a lemon, cloves and mint will get you through the first week.</p>
+        <div class="field row spread">
+          <div><label for="obRemind">Remind me to train</label>
+            <p class="help">One notification, composed on this device. You can turn it off at any time.</p></div>
+          <input type="checkbox" id="obRemind">
+        </div>
+        <div class="field row">
+          <div class="half"><label for="obTime">At</label><input type="time" id="obTime" value="07:00"></div>
+          <div class="half"><label for="obHemi">You are in the</label>
+            <select id="obHemi">
+              <option value="north">Northern hemisphere</option>
+              <option value="south">Southern hemisphere</option>
+            </select></div>
+        </div>
+        <p class="help">The hemisphere is only used to decide which season an entry belongs to, so that a cold first morning surfaces last year's cold first morning.</p>
+      </article>
+    </div>
+
+    <div class="ob-foot">
+      <div class="ob-dots" id="obDots"></div>
+      <div class="btnrow tight">
+        <button class="btn ghost small" id="obBack" hidden>Back</button>
+        <button class="btn" id="obNext">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section class="screen view" id="v-journal" hidden>
+    <div class="topbar mast tall">
+      <span class="mastart" id="mastJournal" aria-hidden="true"></span>
+      <div>
+        <p class="eyebrow" id="journalDay"></p>
+        <h1 class="title">Journal</h1>
+      </div>
+      <button class="btn ghost small" id="toSettings">Settings</button>
+    </div>
+    <div class="scroller">
+      <div id="resurface"></div>
+      <div class="searchrow">
+        <input type="search" id="entrySearch" placeholder="A note, a place, a feeling" aria-label="Search your entries">
+      </div>
+      <div id="entryStream"></div>
+      <div id="journalEmpty" hidden></div>
+      <p class="effort" id="weekLine"></p>
+    </div>
+    <button class="fab" id="newEntry" aria-label="New entry">
+      <svg class="fabmark" viewBox="16 16 76 76" aria-hidden="true" focusable="false">
+        <path d="M54 84C42 76 42 66 54 58c12-8 12-17.5 1.5-24" stroke-width="7"/>
+        <path d="M55.5 34c-5-3.2-5-7.5.5-9.5" stroke-width="4.6"/>
+      </svg>
+      <span class="fabtext">Log a smell</span>
+    </button>
+  </section>
+
+  <!-- TRAIN -->
+  <section class="screen view" id="v-train" hidden>
+    <div class="topbar mast">
+      <span class="mastart" id="mastTrain" aria-hidden="true"></span>
+      <div>
+        <p class="eyebrow" id="trainEyebrow"></p>
+        <h1 class="title">Train</h1>
+      </div>
+      <button class="btn ghost small" id="toSkill">Your nose</button>
+    </div>
+    <div class="scroller">
+      <div id="todaySession"></div>
+      <h2 class="sub">Tracks</h2>
+      <div id="trackList"></div>
+      <h2 class="sub">How the scoring works</h2>
+      <p class="help long">You shuffle the jars and you mark yourself. Sillage cannot smell anything, so the number on your accuracy curve is exactly as honest as you are. Marking a miss is worth more than marking a hit: it is the only way the app knows which shelf to send you back to.</p>
+    </div>
+  </section>
+
+  <!-- SHELF -->
+  <section class="screen view" id="v-shelf" hidden>
+    <div class="topbar mast">
+      <span class="mastart" id="mastShelf" aria-hidden="true"></span>
+      <div>
+        <p class="eyebrow" id="shelfCount"></p>
+        <h1 class="title">Shelf</h1>
+      </div>
+      <button class="btn ghost small" id="addBottle">Add a bottle</button>
+    </div>
+    <div class="scroller">
+      <div id="shelfStats"></div>
+      <div id="bottleGrid" class="grid"></div>
+      <div id="shelfEmpty" hidden></div>
+      <div id="neglected"></div>
+    </div>
+  </section>
+
+  <!-- LEXICON -->
+  <section class="screen view" id="v-lexicon" hidden>
+    <div class="topbar mast">
+      <span class="mastart" id="mastLexicon" aria-hidden="true"></span>
+      <div>
+        <p class="eyebrow" id="lexEyebrow"></p>
+        <h1 class="title">Lexicon</h1>
+      </div>
+      <button class="btn ghost small" id="lexMode">Yours</button>
+    </div>
+    <div class="scroller">
+      <div class="searchrow">
+        <input type="search" id="lexSearch" placeholder="Find a word" aria-label="Search the lexicon">
+      </div>
+      <div id="lexBody"></div>
+    </div>
+  </section>
+
+  <!-- ENTRY FLOW -->
+  <section class="screen view" id="v-entry" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" id="entryCancel">Cancel</button>
+      <button class="btn small" id="entrySave">Save</button>
+    </div>
+    <div class="scroller">
+      <p class="eyebrow" id="entryWhen"></p>
+      <h1 class="title" id="entryTitle">What did you smell?</h1>
+
+      <div class="field">
+        <textarea id="eText" rows="3" maxlength="600" placeholder="Rain hitting the hot pavement outside the bakery" aria-label="What you smelled"></textarea>
+      </div>
+
+      <h2 class="sub">Notes</h2>
+      <div class="chiprow" id="eTags"></div>
+      <div class="btnrow tight">
+        <button class="btn ghost small" id="eAddTag">Add a note</button>
+        <button class="btn bare" id="eSuggest">Read my words</button>
+      </div>
+      <p class="help" id="eTagNote">Tags come from the lexicon, and every one you use grows your vocabulary.</p>
+
+      <h2 class="sub">Feeling</h2>
+      <div id="eWheel" class="wheelwrap"></div>
+      <p class="help" id="eFeelNote"></p>
+
+      <h2 class="sub">Where, and who</h2>
+      <div class="field row">
+        <div class="half"><label for="ePlace">Place</label>
+          <input type="text" id="ePlace" maxlength="80" autocomplete="off" placeholder="Rua da Bica, Lisbon"></div>
+        <div class="half"><label for="ePeople">Who was there</label>
+          <input type="text" id="ePeople" maxlength="120" autocomplete="off" placeholder="Comma separated"></div>
+      </div>
+      <div class="field">
+        <label for="eBottle">Wearing</label>
+        <select id="eBottle"></select>
+      </div>
+
+      <h2 class="sub">The anchor</h2>
+      <div class="field">
+        <textarea id="eAnchor" rows="3" maxlength="240" aria-label="One sentence of comparison"></textarea>
+        <div class="btnrow tight">
+          <button class="btn bare" id="eScaffold">Another shape</button>
+          <span class="help" id="eAnchorCount"></span>
+        </div>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn ghost small danger" id="eDelete" hidden>Delete this entry</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DRILL -->
+  <section class="screen view" id="v-drill" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" id="drillQuit">Leave</button>
+      <p class="eyebrow" id="drillStep"></p>
+    </div>
+    <div class="scroller" id="drillBody"></div>
+  </section>
+
+  <!-- BOTTLE -->
+  <section class="screen view" id="v-bottle" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" id="bottleBack">Back</button>
+      <button class="btn ghost small" id="bottleEdit">Edit</button>
+    </div>
+    <div class="scroller" id="bottleBody"></div>
+  </section>
+
+  <!-- LEXICON CARD -->
+  <section class="screen view" id="v-card" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" id="cardBack">Back</button>
+      <p class="eyebrow" id="cardFamily"></p>
+    </div>
+    <div class="scroller" id="cardBody"></div>
+  </section>
+
+  <!-- SKILL DASHBOARD -->
+  <section class="screen view" id="v-skill" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" id="skillBack">Back</button>
+      <h1 class="title small">Your nose</h1>
+    </div>
+    <div class="scroller" id="skillBody"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen view" id="v-settings" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" id="settingsBack">Back</button>
+      <h1 class="title small">Settings</h1>
+    </div>
+    <div class="scroller">
+      <h2 class="sub">Training</h2>
+      <div class="field row spread">
+        <div><label for="setRemind">Remind me</label>
+          <p class="help">One notification for the next session, composed here and scheduled by Android.</p></div>
+        <input type="checkbox" id="setRemind">
+      </div>
+      <div class="field row">
+        <div class="half"><label for="setTime">At</label><input type="time" id="setTime"></div>
+        <div class="half"><label for="setEvery">How often</label>
+          <select id="setEvery">
+            <option value="1">Every day</option>
+            <option value="2">Every other day</option>
+            <option value="3">Every third day</option>
+            <option value="7">Once a week</option>
+          </select></div>
+      </div>
+
+      <h2 class="sub">Resurfacing</h2>
+      <div class="field row spread">
+        <div><label for="setResurface">Bring old entries back</label>
+          <p class="help">Anniversaries, and the same week of the year. A soft haptic pulse when one lands.</p></div>
+        <input type="checkbox" id="setResurface">
+      </div>
+      <div class="field">
+        <label for="setHemi">Hemisphere</label>
+        <select id="setHemi">
+          <option value="north">Northern</option>
+          <option value="south">Southern</option>
+        </select>
+        <p class="help">Used only to decide which season an entry belongs to.</p>
+      </div>
+
+      <h2 class="sub">The shelf</h2>
+      <div class="field row">
+        <div class="half"><label for="setCurrency">Currency mark</label>
+          <input type="text" id="setCurrency" maxlength="3" autocomplete="off"></div>
+        <div class="half"><label for="setPrices">Show prices</label>
+          <div class="switchrow"><input type="checkbox" id="setPrices"></div></div>
+      </div>
+      <p class="help">Prices are private and stay on this device. Turn them off if you hand your phone around.</p>
+
+      <h2 class="sub">What Sillage cannot do</h2>
+      <ul class="plainlist">
+        <li>Reach the internet. The app does not hold the permission, so it cannot open a connection at all.</li>
+        <li>Decode batch codes. That needs a brand database nobody can verify, so it is not here rather than half here.</li>
+        <li>Take photographs. There is no camera permission. Every bottle on your shelf is drawn from its own name.</li>
+        <li>Know the weather. Rain-triggered resurfacing needed a live forecast, so entries come back by date and by season instead.</li>
+      </ul>
+
+      <h2 class="sub">Your notebook</h2>
+      <p class="help long" id="countLine"></p>
+      <div class="btnrow">
+        <button class="btn ghost small" id="exJson">Export JSON</button>
+        <button class="btn ghost small" id="exCsv">Entries CSV</button>
+        <button class="btn ghost small" id="exShelf">Shelf CSV</button>
+        <label class="btn ghost small filelabel">Import<input type="file" id="importFile" accept=".json" hidden></label>
+      </div>
+      <p class="help" id="ioNote"></p>
+      <div class="btnrow">
+        <button class="btn ghost small danger" id="eraseBtn">Erase everything</button>
+      </div>
+      <p class="help long">An export is a plain file written to your Downloads folder by your own tap. It is not encrypted, so keep it where you would keep a diary.</p>
+
+      <p class="colophon">Sillage. A diary for your most neglected sense.<br>Free and complete. No account, no subscription, no ads.</p>
+    </div>
+  </section>
+</main>
+
+<nav id="tabs" hidden>
+  <button data-view="journal" class="tab is-on">Journal</button>
+  <button data-view="train" class="tab">Train</button>
+  <button data-view="shelf" class="tab">Shelf</button>
+  <button data-view="lexicon" class="tab">Lexicon</button>
+</nav>
+
+<!-- NOTE PICKER -->
+<div id="sheetTags" class="sheet" hidden>
+  <div class="sheet-panel tall">
+    <p class="sheet-title">Notes</p>
+      <input type="search" id="tagSearch" placeholder="Search the lexicon" aria-label="Search notes">
+    <div id="tagResults" class="taglist"></div>
+    <div class="btnrow end">
+      <button class="btn" id="tagDone">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEAR -->
+<div id="sheetWear" class="sheet" hidden>
+  <div class="sheet-panel">
+    <p class="sheet-title" id="wearTitle"></p>
+    <p class="sheet-sub">What is today?</p>
+    <div class="chiprow" id="wearContexts" role="group" aria-label="Context"></div>
+    <div class="field row">
+      <div class="half"><label for="wearSprays">Sprays</label>
+        <input type="number" id="wearSprays" min="1" max="20" inputmode="numeric" placeholder="Optional"></div>
+      <div class="half"><label for="wearDate">Day</label>
+        <input type="date" id="wearDate"></div>
+    </div>
+    <div class="btnrow end">
+      <button class="btn ghost small" id="wearCancel">Cancel</button>
+      <button class="btn" id="wearSave">Log it</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTLE EDITOR -->
+<div id="sheetBottle" class="sheet" hidden>
+  <div class="sheet-panel tall">
+    <p class="sheet-title" id="bottleSheetTitle">Add a bottle</p>
+    <div class="field row">
+      <div class="half"><label for="bName">Name</label>
+        <input type="text" id="bName" maxlength="60" autocomplete="off" placeholder="Terre d'Hermes"></div>
+      <div class="half"><label for="bHouse">House</label>
+        <input type="text" id="bHouse" maxlength="40" autocomplete="off" placeholder="Hermes"></div>
+    </div>
+    <div class="field row">
+      <div class="half"><label for="bSize">Size, ml</label>
+        <input type="number" id="bSize" min="1" max="1000" inputmode="numeric" placeholder="100"></div>
+      <div class="half"><label for="bStatus">What it is</label>
+        <select id="bStatus"></select></div>
+    </div>
+    <div class="field row">
+      <div class="half"><label for="bPrice">Price paid</label>
+        <input type="number" id="bPrice" min="0" step="0.01" inputmode="decimal" placeholder="Private"></div>
+      <div class="half"><label for="bAcquired">Acquired</label>
+        <input type="date" id="bAcquired"></div>
+    </div>
+    <label class="mt">Notes on the bottle</label>
+    <div class="chiprow" id="bNotes"></div>
+    <div class="btnrow tight"><button class="btn ghost small" id="bAddNote">Add a note</button></div>
+
+    <label for="bSillage" class="mt">Sillage</label>
+    <div class="chiprow" id="bSillage" role="radiogroup" aria-label="Sillage"></div>
+    <label class="mt">Seasons it works</label>
+    <div class="chiprow" id="bSeasons" role="group" aria-label="Seasons"></div>
+
+    <p class="sheet-sub mt">Your take, in three lines</p>
+    <input type="text" id="bOpening" maxlength="120" autocomplete="off" placeholder="Opening" aria-label="Opening">
+    <input type="text" id="bHeart" maxlength="120" autocomplete="off" placeholder="Heart" aria-label="Heart" class="mt6">
+    <input type="text" id="bDrydown" maxlength="120" autocomplete="off" placeholder="Drydown" aria-label="Drydown" class="mt6">
+    <label for="bStory" class="mt">How it arrived</label>
+    <input type="text" id="bStory" maxlength="160" autocomplete="off" placeholder="Optional. Bought in Rome, the day it rained.">
+
+    <div class="btnrow end">
+      <button class="btn ghost small danger" id="bDelete" hidden>Remove</button>
+      <button class="btn ghost small" id="bCancel">Cancel</button>
+      <button class="btn" id="bSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<p id="toast" class="toast" hidden></p>
+
+<script src="js/lexicon.js"></script>
+<script src="js/content.js"></script>
+<script src="js/art.js"></script>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

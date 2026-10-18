@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sillage. A diary for your most neglected sense.</title>
+<meta name="description" content="A journal for smells, a training programme for your nose, and a wear log for your perfumes. Offline, private, free, and with no internet permission at all.">
+<meta property="og:title" content="Sillage. A diary for your most neglected sense.">
+<meta property="og:description" content="You have ten thousand photographs and not one smell. Sillage is a scent journal, a nose-training curriculum and a collection manager, and none of it leaves your phone.">
+<meta property="og:type" content="website">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    color-scheme: light dark;
+    --paper: #F7F2E9; --paper-2: #F1EADD; --paper-3: #E9DFCE;
+    --ink: #221A20; --soft: #574C53; --faint: #6A5D63;
+    --hair: #DED2C4; --accent: #9B2D63; --accent-deep: #75204C; --accent-ink: #FFF6F1;
+    --plum: #5A1B46; --gold: #D79A34;
+    --sans: "Archivo", "Helvetica Neue", system-ui, -apple-system, sans-serif;
+    --serif: "Spectral", Iowan Old Style, Palatino, Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #141014; --paper-2: #1F1820; --paper-3: #2B212C;
+            --ink: #EFE5E5; --soft: #B4A4AC; --faint: #9C8B94;
+            --hair: #3A2C39; --accent: #F182B8; --accent-deep: #D2599A; --accent-ink: #1B0F17;
+            --plum: #8E3A6C; --gold: #E8B85C; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans);
+         font-size: 18px; line-height: 1.62; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  img.shot { width: 100%; height: auto; display: block; border: 1px solid var(--hair); border-radius: 14px; }
+  h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 3.7vw, 42px);
+       line-height: 1.1; letter-spacing: -0.018em; margin: 0 0 16px; }
+  .eyebrow { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint);
+             margin: 0 0 14px; font-weight: 600; }
+  .cta { display: inline-block; background: linear-gradient(158deg, var(--accent), var(--accent-deep));
+         color: var(--accent-ink); text-decoration: none;
+         padding: 14px 28px; border-radius: 3px; font-size: 17px; border: 1px solid var(--accent-deep); }
+  .cta:hover { opacity: .92; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 86px; }
+  .mark { display: flex; align-items: center; gap: 12px; font-family: var(--serif); font-size: 22px; }
+  .mark svg { width: 34px; height: 34px; display: block; }
+  nav a { color: var(--soft); text-decoration: none; font-size: 15px; margin-left: 24px; }
+  nav a:hover { color: var(--ink); }
+
+  /* 1. hero: prose left, phone right */
+  .hero { display: grid; grid-template-columns: 1.08fr .92fr; gap: 64px; align-items: center; padding: 22px 0 106px; }
+  .hero h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 5.6vw, 66px);
+             line-height: 1.04; letter-spacing: -0.028em; margin: 0 0 22px; }
+  .hero p.stand { font-size: 20px; color: var(--soft); margin: 0 0 32px; max-width: 34ch; }
+  .hero p.under { font-size: 15px; color: var(--faint); margin: 18px 0 0; }
+  .hero img { max-width: 316px; margin-left: auto; }
+
+  /* 2. the scene: one centred statement */
+  .scene { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 108px 0; }
+  .scene p.big { font-family: var(--serif); font-size: clamp(26px, 3.6vw, 41px); line-height: 1.26;
+                 margin: 0 auto; max-width: 22ch; text-align: center; letter-spacing: -0.018em; }
+  .scene p.after { font-size: 18px; color: var(--soft); max-width: 54ch; margin: 30px auto 0; text-align: center; }
+
+  /* 3. the anchor: phone left, prose and scaffolds right */
+  .anchor { display: grid; grid-template-columns: .84fr 1.16fr; gap: 58px; align-items: center; padding: 104px 0; }
+  .anchor img { max-width: 292px; }
+  .anchor p { color: var(--soft); margin: 0 0 16px; max-width: 46ch; }
+  .scaffolds { margin: 26px 0 0; padding: 0; list-style: none; }
+  .scaffolds li { font-family: var(--serif); font-size: 20px; color: var(--ink); padding: 11px 0;
+                  border-top: 1px solid var(--hair); }
+  .scaffolds li:last-child { border-bottom: 1px solid var(--hair); }
+  .scaffolds em { font-style: italic; color: var(--faint); }
+
+  /* 4. the training gallery */
+  .gallery { padding: 26px 0 104px; border-top: 1px solid var(--hair); }
+  .gallery .lead { color: var(--soft); max-width: 54ch; margin: 0 0 48px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--soft); font-size: 16px; margin-top: 16px; }
+  .strip figcaption b { color: var(--ink); font-weight: 600; }
+
+  /* 5. the shelf: numbers left, phone right */
+  .shelf { display: grid; grid-template-columns: 1.1fr .9fr; gap: 58px; align-items: center;
+           padding: 104px 0; border-top: 1px solid var(--hair); }
+  .shelf img { max-width: 292px; margin: 0 auto; }
+  .shelf p { color: var(--soft); margin: 0 0 24px; max-width: 46ch; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hair);
+           border: 1px solid var(--hair); border-radius: 12px; overflow: hidden; }
+  .facts > div { background: var(--paper); padding: 18px 20px; }
+  .facts .n { font-family: var(--serif); font-size: 27px; line-height: 1.1; }
+  .facts .l { font-size: 13px; color: var(--faint); margin-top: 4px; }
+
+  /* 6. the lexicon: a real card, set as one */
+  .lex { padding: 104px 0; border-top: 1px solid var(--hair); }
+  .lexgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 58px; align-items: start; margin-top: 34px; }
+  .lexcard { background: var(--paper-2); border: 1px solid var(--hair); border-radius: 14px; padding: 30px 32px 26px; }
+  .lexcard h3 { font-family: var(--serif); font-weight: 400; font-size: 38px; margin: 0 0 12px; letter-spacing: -0.02em; }
+  .lexcard p.w { font-family: var(--serif); font-size: 21px; line-height: 1.42; margin: 0 0 14px; }
+  .lexcard p.o { font-family: var(--serif); font-style: italic; font-size: 18px; line-height: 1.48; color: var(--soft); margin: 0 0 20px; }
+  .lexcard .fam { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+  .fams { columns: 2; column-gap: 34px; margin: 0; padding: 0; list-style: none; }
+  .fams li { font-size: 16px; color: var(--soft); padding: 7px 0; break-inside: avoid; }
+  .fams li b { color: var(--ink); font-weight: 500; font-family: var(--serif); font-size: 17px; }
+  .lex .lead { color: var(--soft); max-width: 54ch; margin: 0; }
+
+  /* 7. what it cannot do */
+  .cannot { padding: 100px 0; border-top: 1px solid var(--hair); }
+  .cannot .row { display: grid; grid-template-columns: 16rem 1fr; gap: 34px; padding: 24px 0;
+                 border-top: 1px solid var(--hair); align-items: start; }
+  .cannot .row:last-child { border-bottom: 1px solid var(--hair); }
+  .cannot .k { font-family: var(--serif); font-size: 20px; }
+  .cannot .v { margin: 0; color: var(--soft); font-size: 16.5px; }
+  .cannot .v b { color: var(--ink); font-weight: 600; }
+
+  /* 8. close */
+  .close { text-align: center; padding: 100px 0 30px; border-top: 1px solid var(--hair); }
+  .close p.line { font-family: var(--serif); font-size: clamp(25px, 3.2vw, 35px); max-width: 21ch;
+                  margin: 0 auto 32px; line-height: 1.18; letter-spacing: -0.018em; }
+  .note { background: var(--paper-2); border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0;
+          padding: 22px 24px; font-size: 16px; color: var(--soft); max-width: 60ch; margin: 62px auto 0; text-align: left; }
+  .note b { color: var(--ink); font-weight: 600; }
+
+  footer { border-top: 1px solid var(--hair); padding: 34px 0 70px; color: var(--faint); font-size: 15px; margin-top: 58px; }
+  footer .row { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; }
+  footer a { color: var(--faint); text-decoration: none; margin-right: 20px; }
+  footer a:hover { color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .hero, .anchor, .shelf, .lexgrid { grid-template-columns: 1fr; gap: 44px; }
+    .hero { padding-bottom: 72px; }
+    .anchor, .shelf, .lex { padding: 74px 0; }
+    .hero img, .anchor img, .shelf img { max-width: 292px; margin: 0 auto; }
+    .strip { grid-template-columns: 1fr; gap: 46px; max-width: 320px; margin: 0 auto; }
+    .cannot .row { grid-template-columns: 1fr; gap: 10px; }
+    .fams { columns: 1; }
+    .scene { padding: 76px 0; }
+    nav { height: 70px; }
+    nav a { margin-left: 16px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark">
+      <svg viewBox="20 16 68 76" aria-hidden="true">
+        <defs>
+          <linearGradient id="mkbase" x1="0.5" y1="1" x2="0.5" y2="0">
+            <stop offset="0" stop-color="var(--plum)"/><stop offset="1" stop-color="var(--accent)"/>
+          </linearGradient>
+          <linearGradient id="mklift" x1="0.5" y1="1" x2="0.5" y2="0">
+            <stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--gold)"/>
+          </linearGradient>
+        </defs>
+        <path d="M54 84C42 76 42 66 54 58c12-8 12-17.5 1.5-24" fill="none" stroke="url(#mkbase)"
+              stroke-width="10.8" stroke-linecap="round" pathLength="100" stroke-dasharray="44 200"/>
+        <path d="M54 84C42 76 42 66 54 58c12-8 12-17.5 1.5-24" fill="none" stroke="var(--accent)"
+              stroke-width="8.4" stroke-linecap="round" pathLength="100" stroke-dasharray="36 200" stroke-dashoffset="-40"/>
+        <path d="M54 84C42 76 42 66 54 58c12-8 12-17.5 1.5-24" fill="none" stroke="url(#mklift)"
+              stroke-width="5.2" stroke-linecap="round" pathLength="100" stroke-dasharray="21 200" stroke-dashoffset="-72"/>
+        <path d="M55.5 34c-5-3.2-5-7.5.5-9.5" fill="none" stroke="var(--gold)" stroke-width="3.2" stroke-linecap="round"/>
+      </svg>
+      Sillage
+    </span>
+    <span>
+      <a href="#train">Training</a>
+      <a href="#private">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>A diary for your most neglected sense.</h1>
+      <p class="stand">Journal the smells you want to keep. Train your nose on what is already in your kitchen. Track what is on your shelf and how often you actually reach for it.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.sillage">Get it on Google Play</a>
+      <p class="under">Free and complete. No account, no subscription, and no internet permission at all.</p>
+    </div>
+    <img class="shot" src="shots/01-journal.png" width="1080" height="1920"
+         alt="The Journal screen: the trail drawn under the masthead, a memory from one year ago today, then a stream of scent entries with note tags and a coloured edge for the feeling.">
+  </header>
+</div>
+
+<section class="scene">
+  <div class="wrap">
+    <p class="big">You have ten thousand photographs and not one smell.</p>
+    <p class="after">Smell is the sense wired straight into memory's basement. One molecule of a stranger's
+      perfume on a train and you are, involuntarily, in a hallway in 1998. We built whole industries for
+      documenting what we see and hear, and almost nothing for the sense that time travels.</p>
+  </div>
+</section>
+
+<section class="anchor wrap">
+  <img class="shot" src="shots/02-entry.png" width="1080" height="1920"
+       alt="The entry screen: what you smelled, note tags drawn from the lexicon, an eight-part emotion wheel with Joy selected, and the place and people fields.">
+  <div>
+    <h2>You cannot record a smell. You can encode one.</h2>
+    <p>A photograph does the remembering for you. A smell will not sit still for that, so Sillage asks for
+      the next best thing: one sentence of comparison, written while you can still smell it. Articulating a
+      smell is what files it somewhere you can find it again.</p>
+    <p>The app teaches this without lecturing. The anchor field hands you a sentence shape, and a different
+      one every time you ask.</p>
+    <ul class="scaffolds">
+      <li>It is like <em>____</em>, but <em>____</em></li>
+      <li>Closest thing: <em>____</em>. Wrong because <em>____</em></li>
+      <li>Nine parts <em>____</em>, one part <em>____</em></li>
+      <li>It smells the way <em>____</em> sounds</li>
+    </ul>
+  </div>
+</section>
+
+<section class="gallery wrap" id="train">
+  <h2>Training that fits in a kitchen cupboard</h2>
+  <p class="lead">Thirty eight sessions across two tracks, from four minutes to twelve. Foundations works on
+    four things you already own: coffee, a lemon, cloves and mint. The Pantry Conservatory then takes eight
+    shelves of your own kitchen, four jars at a time, and widens to eight.</p>
+  <div class="strip">
+    <figure>
+      <img class="shot" src="shots/03-drill.png" width="1080" height="1920"
+           alt="A blind identification round: jar six of eight, a shortlist of the materials still unnamed, and the jars already named or missed listed underneath.">
+      <figcaption><b>Blind, and honestly scored.</b> You shuffle the jars and you mark yourself, because the
+        app cannot smell anything. It says so on the screen, and the number means what it says.</figcaption>
+    </figure>
+    <figure>
+      <img class="shot" src="shots/04-nose.png" width="1080" height="1920"
+           alt="The skill dashboard: an accuracy curve across sixteen scored sessions, a vocabulary growth chart, and a memory span figure of ninety seconds.">
+      <figcaption><b>Your nose, charted.</b> Identification accuracy over time, how many words you own out of
+        352, the longest gap you have carried a smell across, and which shelf keeps beating you.</figcaption>
+    </figure>
+    <figure>
+      <img class="shot" src="shots/06-lexicon.png" width="1080" height="1920"
+           alt="The lexicon card for indolic: what it is, where you meet it, nearby cards, and the journal entry where the word was used.">
+      <figcaption><b>Words for what you smell.</b> Every miss points at a card. Every card you use becomes
+        one of your words, and your vocabulary is drawn as a curve like everything else.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="shelf wrap">
+  <div>
+    <h2>Your shelf, and what you actually wear</h2>
+    <p>Bottles, decants and samples, with the notes, the sillage, the seasons and a three line take:
+      opening, heart, drydown. One tap logs a wear, and about a fortnight later the numbers start telling
+      you things about yourself that you would have denied.</p>
+    <div class="facts">
+      <div><div class="n">Reach for</div><div class="l">what share of your wears each bottle takes</div></div>
+      <div><div class="n">Per wear</div><div class="l">what it has cost you every time you put it on</div></div>
+      <div><div class="n">By month</div><div class="l">the seasons a bottle turns out to belong to</div></div>
+      <div><div class="n">The back</div><div class="l">unworn for months, and worth a decision</div></div>
+    </div>
+    <p style="margin-top:24px">Every bottle is drawn in code from its own name and notes, which is why the
+      shelf looks like a shelf without the app ever asking for your camera.</p>
+  </div>
+  <img class="shot" src="shots/05-shelf.png" width="1080" height="1920"
+       alt="The Shelf screen: nine drawn bottles in a grid with wear counts, a row of statistics, and a strip showing wears by month.">
+</section>
+
+<section class="lex wrap">
+  <h2>352 cards, fifteen families, one personal concordance</h2>
+  <p class="lead">The lexicon is the connective tissue. Tag an entry with a note and the word is yours.
+    Write it into a sentence and it is yours too. Each card lists every entry and every bottle where it
+    turns up, which makes it a map of your own nose rather than a glossary.</p>
+  <div class="lexgrid">
+    <div class="lexcard">
+      <p class="fam">The Animalic Cellar</p>
+      <h3>Costus</h3>
+      <p class="w">Wet hair, wet dog, coconut and violet. Genuinely strange, and restricted for allergy reasons.</p>
+      <p class="o">The smell people mean when they say a fragrance smells like scalp.</p>
+    </div>
+    <ul class="fams">
+      <li><b>The Citrus Grove</b> peel oils and pith</li>
+      <li><b>The Green Bench</b> sap, stem, crushed leaf</li>
+      <li><b>The White Flowers</b> sweetness with a shadow</li>
+      <li><b>The Flower Room</b> rose, violet, iris</li>
+      <li><b>The Orchard</b> flesh rather than peel</li>
+      <li><b>The Spice Drawer</b> warm and cold spices</li>
+      <li><b>The Timber Yard</b> heartwood and sawdust</li>
+      <li><b>The Resin Bench</b> what a tree bleeds</li>
+      <li><b>The Animalic Cellar</b> leather, skin, fur</li>
+      <li><b>Musk and Powder</b> the quiet half</li>
+      <li><b>The Sweet Kitchen</b> perfume that smells edible</li>
+      <li><b>Earth and Stone</b> soil, root, flint</li>
+      <li><b>Air, Salt, Water</b> ozone and rain</li>
+      <li><b>Smoke and Fire</b> tar, birch, incense</li>
+      <li><b>Words of the Craft</b> the vocabulary itself</li>
+    </ul>
+  </div>
+</section>
+
+<section class="cannot wrap" id="private">
+  <p class="eyebrow">Architecture, not a promise</p>
+  <h2>What Sillage cannot do</h2>
+  <div class="row"><span class="k">Reach the internet</span>
+    <p class="v">The app does not request the INTERNET permission, so Android will not let it open a
+      connection even by accident. <b>You can check that on the Play listing before you install.</b> No
+      account, no sync, no analytics, no crash reporter, no advertising identifier.</p></div>
+  <div class="row"><span class="k">Take a photograph</span>
+    <p class="v">There is no camera permission and no photo picker. <b>Every bottle on your shelf is drawn
+      from its own name and notes</b>, which is a better looking shelf than most people's camera roll and
+      costs you nothing.</p></div>
+  <div class="row"><span class="k">Decode a batch code</span>
+    <p class="v">Decoding needs a brand by brand database that nobody outside those brands can verify.
+      <b>Shipping a half correct one would be worse than not shipping it</b>, so the feature is absent and
+      this paragraph exists instead.</p></div>
+  <div class="row"><span class="k">Know the weather</span>
+    <p class="v">Rain triggered resurfacing needed a live forecast, and a forecast needs a network. Old
+      entries come back by anniversary and by <b>the same week of the year</b>, which turns out to be most
+      of what made the idea good.</p></div>
+  <div class="row"><span class="k">Treat anything</span>
+    <p class="v">The drills are written as skill practice, in the same spirit as ear training or wine
+      tasting. <b>Sillage makes no medical claim.</b> If your sense of smell has changed suddenly, that is a
+      conversation for a doctor and not for an app.</p></div>
+</section>
+
+<section class="close wrap">
+  <p class="line">Weird, uncontested, and the only app your nose has ever had.</p>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.sillage">Get it on Google Play</a>
+  <div class="note">
+    <b>What is deliberately not here.</b> No community, no shelf sharing and no clubs: those need a server,
+    and a server needs an account. No photographs, for the permission reason above. Backup is a plain JSON
+    or CSV export written to your Downloads folder, not an encrypted archive, so keep it where you would
+    keep a diary. English only. And no paid tier of any kind: every entry, every bottle, every session and
+    all 352 cards are free.
+  </div>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <span>
+      <a href="/privacy-policies/sillage-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Try it in a browser</a>
+      <a href="https://play.google.com/store/apps/details?id=com.mohdshayan.sillage">Google Play</a>
+    </span>
+    <span>Sillage, by SocialSure Private Limited.</span>
+  </div>
+</footer>
+
+</body>
+</html>

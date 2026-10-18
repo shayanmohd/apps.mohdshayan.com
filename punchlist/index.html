@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Punchlist. Walk the site, ship the report.</title>
+<meta name="description" content="Pin defects to the floorplan, photograph them, and send a branded PDF report from the phone. No account, no sync, no internet permission.">
+<meta property="og:title" content="Punchlist. Walk the site, ship the report.">
+<meta property="og:description" content="Forty defects and one problem: turning them into something a trade will act on. This does it on the walk.">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --bg: #F1EFE8; --surface: #FFFFFF; --ink: #14161A; --muted: #4F555C; --faint: #5F666C;
+    --hair: #D3CEC0; --accent: #FFC400; --accent-dk: #D69E00; --on-accent: #14161A; --link: #8A5A00;
+    --hazard: repeating-linear-gradient(115deg, var(--ink) 0 7px, var(--accent) 7px 14px);
+    --sans: Archivo, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161A; --surface: #1D2126; --ink: #ECEAE4; --muted: #A7AEB5; --faint: #8B939A;
+            --hair: #2C3238; --accent: #FFC400; --accent-dk: #C89400; --on-accent: #14161A; --link: #FFC400; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans);
+         font-size: 17px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--link); }
+  h1, h2, h3 { letter-spacing: -0.02em; font-weight: 700; }
+
+  .cta { display: inline-block; background: var(--accent); color: var(--on-accent); text-decoration: none;
+         padding: 14px 26px; border-radius: 4px; font-size: 16px; font-weight: 700;
+         border: 1.5px solid var(--ink); box-shadow: 0 3px 0 var(--accent-dk);
+         transition: transform .12s ease, box-shadow .12s ease; }
+  .cta:active { transform: translateY(3px); box-shadow: none; }
+  .rule-hazard { height: 5px; background: var(--hazard); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 74px; }
+  .mark { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+  .mark svg { display: block; width: 30px; height: 30px; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 15px; margin-left: 22px; }
+  nav a:hover { color: var(--ink); }
+
+  .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; padding: 26px 0 92px; }
+  .hero h1 { font-size: clamp(36px, 4.8vw, 58px); line-height: 1.05; margin: 0 0 20px; }
+  .hero p { font-size: 19px; color: var(--muted); margin: 0 0 30px; max-width: 34ch; }
+  .shot { width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--hair); display: block;
+          box-shadow: 0 18px 40px -28px rgba(60,50,18,.9); }
+  .hero .shot { max-width: 330px; margin-left: auto; }
+
+  .steps { border-bottom: 1px solid var(--hair); padding: 76px 0; }
+  .steps h2 { font-size: clamp(26px, 3vw, 34px); margin: 0 0 40px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  .grid3 h3 { margin: 0 0 8px; font-size: 18px; }
+  .grid3 p { margin: 0; color: var(--muted); }
+  .grid3 .n { display: block; font-size: 13px; letter-spacing: .14em; color: var(--faint); margin-bottom: 12px; }
+
+  .report { padding: 92px 0; display: grid; grid-template-columns: .95fr 1.05fr; gap: 56px; align-items: center; }
+  .report h2 { font-size: clamp(26px, 3vw, 34px); margin: 0 0 18px; max-width: 16ch; }
+  .report p { color: var(--muted); margin: 0 0 14px; }
+
+  .life { padding: 0 0 92px; }
+  .life h2 { font-size: clamp(26px, 3vw, 34px); margin: 0 0 26px; }
+  .chain { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+  .chain span { border: 1px solid var(--hair); background: var(--surface); border-radius: 4px;
+                padding: 8px 14px; font-size: 15px; border-left: 4px solid var(--accent); }
+  .life p { color: var(--muted); max-width: 46ch; margin: 0; }
+  .lifegrid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: start; }
+  .lifegrid .shot { max-width: 300px; margin-left: auto; }
+
+  .offline { border-top: 1px solid var(--hair); padding: 76px 0; }
+  .offline h2 { font-size: clamp(26px, 3vw, 34px); margin: 0 0 20px; max-width: 18ch; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 46px; }
+  .cols h3 { margin: 0 0 8px; font-size: 18px; }
+  .cols p { margin: 0; color: var(--muted); }
+
+  .close { text-align: center; padding: 76px 0 110px; }
+  .close p { font-size: 22px; max-width: 26ch; margin: 0 auto 28px; font-weight: 600; }
+
+  footer { border-top: 1px solid var(--hair); padding: 32px 0 60px; color: var(--faint); font-size: 15px; }
+  footer .r { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer a { color: var(--muted); text-decoration: none; margin-right: 18px; }
+
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none } }
+
+  @media (max-width: 860px) {
+    .hero, .report { grid-template-columns: 1fr; gap: 34px; }
+    .hero .shot, .report .shot { max-width: 320px; margin: 0 auto; }
+    .grid3, .cols, .lifegrid { grid-template-columns: 1fr; gap: 30px; }
+    .lifegrid .shot { max-width: 300px; margin: 0 auto; }
+    nav a { margin-left: 14px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark">
+      <svg viewBox="0 0 108 108" aria-hidden="true">
+        <path d="M54 83.6 42.2 63.5a21.1 21.1 0 1 1 23.6 0Z" fill="#FFC400" stroke="#14161A" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M43.5 51.2 51.5 59.2 65.6 42.9" fill="none" stroke="#14161A" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Punchlist</span>
+    <span>
+      <a href="#walk">The walk</a>
+      <a href="/privacy-policies/punchlist-privacy-policy.html">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Walk the site. Ship the report.</h1>
+      <p>A site walk produces forty defects and one problem: turning them into something a trade will act
+        on. Punchlist does that on the walk, in a basement, with no signal.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.punchlist">Get it on Google Play</a>
+    </div>
+    <img class="shot reveal" src="shots/01-walk.png" width="1080" height="1920"
+         alt="A floorplan with numbered defect pins dropped where the problems are.">
+  </header>
+</div>
+
+<div class="rule-hazard"></div>
+
+<section class="steps" id="walk">
+  <div class="wrap">
+    <h2>Three taps, then keep walking</h2>
+    <div class="grid3">
+      <div><span class="n">TAP</span><h3>On the plan</h3>
+        <p>Load the floorplan, tap where the problem is. The pin lands where you put it and keeps its
+          number for the rest of the defect's life.</p></div>
+      <div><span class="n">SHOOT</span><h3>The photo</h3>
+        <p>The camera opens straight away. The photo attaches to the pin, not to a camera roll you will
+          have to match up later.</p></div>
+      <div><span class="n">SET</span><h3>Trade and severity</h3>
+        <p>Nineteen trades built in, four severities, a room and a due date. Then you are back on the
+          plan and moving.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="report wrap">
+  <img class="shot reveal" src="shots/04-report.png" width="1080" height="1920"
+       alt="A generated PDF report with a branded cover and a plan page.">
+  <div>
+    <h2>The report is one tap</h2>
+    <p>Punchlist writes the PDF itself, on the phone. A branded cover with your logo and the project
+      details. A plan page per floor with every pin numbered and placed. Then one entry per defect with
+      its photo, trade, severity, room, due date and history.</p>
+    <p>Group it by room, by trade or by severity. Send the whole thing, or send one trade only their
+      pages, straight into WhatsApp or email.</p>
+  </div>
+</section>
+
+<section class="life wrap">
+  <h2>The defect has a life</h2>
+  <div class="chain">
+    <span>Open</span><span>Assigned</span><span>Fixed and claimed</span><span>Verified</span><span>Closed</span>
+  </div>
+  <div class="lifegrid">
+    <p>Every change is stamped and kept. So the report you send in week six can show that the plasterer was
+      told in week two, which is usually the whole argument. Each defect keeps its photographs, the crop of
+      the plan that shows where it is, who it went to and when it moved.</p>
+    <img class="shot reveal" src="shots/03-defect.png" width="1080" height="1920"
+         alt="A defect with its photograph, its details and the piece of plan it sits on.">
+  </div>
+</section>
+
+<section class="offline">
+  <div class="wrap">
+    <h2>No signal, no problem</h2>
+    <div class="cols">
+      <div>
+        <h3>It cannot phone home</h3>
+        <p>Punchlist does not request the internet permission. That is why it works in a lift shaft or a
+          plant room, and why nothing about your client's site can leak from it. There is no account, no
+          sync and no server to trust.</p>
+      </div>
+      <div>
+        <h3>So an export is your backup</h3>
+        <p>Projects, plans, photos and reports live on the phone until you share them. Export everything
+          as a file whenever you want, and keep it wherever your job files live.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="close wrap">
+  <p>Free. No per-project charge, no seat licence, and nothing of ours on your report.</p>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.punchlist">Get it on Google Play</a>
+</section>
+
+<footer>
+  <div class="wrap r">
+    <span>
+      <a href="/privacy-policies/punchlist-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Try it in the browser</a>
+    </span>
+    <span>SocialSure Private Limited</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

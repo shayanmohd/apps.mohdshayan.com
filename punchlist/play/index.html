@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Punchlist</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══ ONBOARDING ══ -->
+<section class="screen" id="onboard" hidden>
+  <div class="ob-body">
+    <div class="ob-mark" id="obMark" aria-hidden="true"></div>
+    <div class="ob-track" id="obTrack">
+      <article class="ob-card">
+        <h1>Walk the site.<br>Ship the report.</h1>
+        <p>Tap the floorplan where the defect is. Shoot it. Tag it. Keep walking.</p>
+      </article>
+      <article class="ob-card">
+        <h1>The report is one tap.</h1>
+        <p>A branded PDF with your cover, a numbered pin map and one entry per defect. Split it by trade so the tiler gets only the tiler's pages.</p>
+      </article>
+      <article class="ob-card">
+        <h1>No signal, no problem.</h1>
+        <p>Plans, photos, pins and the PDF are all made on this phone. Punchlist has no internet permission at all, so nothing can leave it.</p>
+      </article>
+    </div>
+  </div>
+  <div class="ob-foot">
+    <div class="ob-dots" id="obDots"></div>
+    <button class="btn primary" id="obNext">Next</button>
+  </div>
+</section>
+
+<!-- ══ PROJECTS ══ -->
+<section class="view" id="v-projects" hidden>
+  <header class="topbar">
+    <div class="tb-title">
+      <span class="tb-mark" id="brandMark" aria-hidden="true"></span>
+      <div class="tb-text">
+        <h1>Projects</h1>
+        <p class="tb-sub" id="projSub"></p>
+      </div>
+    </div>
+    <button class="btn small" id="newProjBtn">New project</button>
+  </header>
+  <div class="scroller">
+    <div id="projList" class="stack-list"></div>
+    <div class="empty" id="projEmpty" hidden>
+      <span class="art" id="artProjects" aria-hidden="true"></span>
+      <p class="empty-h">No projects yet.</p>
+      <p class="empty-p">Start with the sample plan to see how a walk works, or set up your own project and import a floorplan photo.</p>
+      <div class="btnrow">
+        <button class="btn primary" id="sampleBtn">Open the sample plan</button>
+        <button class="btn" id="newProjBtn2">New project</button>
+      </div>
+    </div>
+    <p class="foot-note" id="projFoot" hidden>Everything here lives on this phone only. Take a backup from Setup before you change devices.</p>
+  </div>
+</section>
+
+<!-- ══ WALK ══ -->
+<section class="view" id="v-walk" hidden>
+  <header class="topbar walkbar">
+    <div class="tb-title">
+      <div class="tb-text">
+        <h1 id="walkTitle">Walk</h1>
+        <p class="tb-sub" id="walkSub"></p>
+      </div>
+    </div>
+    <button class="btn small ghost" id="planSwitchBtn" hidden>Plans</button>
+  </header>
+
+  <div class="plan-stage" id="planStage">
+    <div class="plan-canvas" id="planCanvas"><img id="planImg" alt="Floorplan" draggable="false"></div>
+    <div class="pin-layer" id="pinLayer"></div>
+    <div class="plan-empty" id="planEmpty" hidden>
+      <span class="art" id="artPlan" aria-hidden="true"></span>
+      <p class="empty-h">No plan on this project yet.</p>
+      <p class="empty-p">Photograph the paper plan on the wall, or pick an image of it from this phone. You can square up the corners afterwards.</p>
+      <button class="btn primary" id="addPlanBtn2">Add a plan</button>
+    </div>
+    <div class="plan-empty" id="planMissing" hidden>
+      <span class="art" id="artMissing" aria-hidden="true"></span>
+      <p class="empty-h">The plan image is missing.</p>
+      <p class="empty-p">Its pins are safe, but the picture is not on this phone. Restore the backup it came from, or remove the plan from the project and add it again.</p>
+    </div>
+    <div class="plan-empty" id="walkNoProject" hidden>
+      <span class="art" id="artNoProject" aria-hidden="true"></span>
+      <p class="empty-h">Pick a project first.</p>
+      <p class="empty-p">Open a project from the Projects tab and its plan appears here.</p>
+    </div>
+  </div>
+
+  <div class="walk-hud" id="walkHud" hidden>
+    <div class="hud-left">
+      <button class="chip-btn" id="filterBtn" aria-label="Filter pins">All pins</button>
+      <button class="chip-btn" id="fitBtn" aria-label="Fit plan to screen">Fit</button>
+    </div>
+    <button class="walk-fab" id="walkFab" aria-pressed="false">
+      <span class="wf-icon" aria-hidden="true"></span><span class="wf-label">Start walk</span>
+    </button>
+  </div>
+  <p class="walk-hint" id="walkHint" hidden>Walk mode on. Tap the plan where the defect is.</p>
+</section>
+
+<!-- ══ REPORT ══ -->
+<section class="view" id="v-report" hidden>
+  <header class="topbar">
+    <div class="tb-title">
+      <div class="tb-text">
+        <h1>Report</h1>
+        <p class="tb-sub" id="repSub"></p>
+      </div>
+    </div>
+  </header>
+  <div class="scroller" id="repScroll">
+    <div id="repForm" hidden>
+      <div class="field">
+        <label for="repTitle">Report title</label>
+        <input type="text" id="repTitle" maxlength="60" placeholder="Snag list">
+      </div>
+      <div class="field">
+        <label for="repConditions">Conditions on the day</label>
+        <input type="text" id="repConditions" maxlength="60" placeholder="Dry, 11C, wind SW">
+        <p class="help">Typed by you, not fetched. Weather gets argued about in payment disputes, so it belongs on the cover.</p>
+      </div>
+
+      <p class="label">Group entries by</p>
+      <div class="chips" id="repGroup">
+        <button class="chip" data-g="room">Room or zone</button>
+        <button class="chip" data-g="trade">Trade</button>
+        <button class="chip" data-g="severity">Severity</button>
+        <button class="chip" data-g="none">Defect number</button>
+      </div>
+
+      <p class="label">Include</p>
+      <div class="chips" id="repInclude">
+        <button class="chip" data-k="cover">Cover page</button>
+        <button class="chip" data-k="planmap">Pin map</button>
+        <button class="chip" data-k="photos">Photos</button>
+        <button class="chip" data-k="crops">Plan location crops</button>
+        <button class="chip" data-k="closed">Closed defects</button>
+      </div>
+
+      <p class="label">Trade filter</p>
+      <div class="chips" id="repTrades"></div>
+
+      <div class="rep-summary" id="repSummary"></div>
+
+      <hr class="rule">
+      <h2 class="h2">Sent before</h2>
+      <div id="repHistory" class="stack-list"></div>
+      <p class="help" id="repHistoryEmpty" hidden>Nothing generated on this project yet.</p>
+    </div>
+    <div class="empty" id="repEmpty" hidden>
+      <span class="art" id="artReport" aria-hidden="true"></span>
+      <p class="empty-h">Open a project to build its report.</p>
+      <p class="empty-p">Reports are assembled from the defects on the project's plans.</p>
+    </div>
+  </div>
+  <div class="view-foot" id="repFoot" hidden>
+    <button class="btn primary wide" id="repPreviewBtn">Assemble report</button>
+  </div>
+</section>
+
+<!-- ══ SETUP ══ -->
+<section class="view" id="v-setup" hidden>
+  <header class="topbar"><div class="tb-title"><div class="tb-text"><h1>Setup</h1><p class="tb-sub">Branding, trades and your data</p></div></div></header>
+  <div class="scroller">
+    <h2 class="h2">Your branding</h2>
+    <p class="help">This is the cover of every report you send. It is the whole reason a client thinks you are a bigger outfit than you are.</p>
+
+    <div class="brandrow">
+      <div class="logo-slot" id="logoSlot"><span id="logoPlaceholder">No logo</span><img id="logoImg" alt="" hidden></div>
+      <div class="brandrow-btns">
+        <button class="btn small" id="logoBtn">Choose logo</button>
+        <button class="btn small ghost" id="logoClear" hidden>Remove</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="orgName">Company name</label>
+      <input type="text" id="orgName" maxlength="48" placeholder="Your company">
+    </div>
+    <div class="field">
+      <label for="orgFooter">Report footer line</label>
+      <input type="text" id="orgFooter" maxlength="80" placeholder="hello@yourcompany.co.uk  |  07700 900123">
+    </div>
+
+    <hr class="rule">
+    <h2 class="h2">Trades and contacts</h2>
+    <p class="help">Assign a defect to a person, then send that person only their own pages.</p>
+    <div id="contactList" class="stack-list"></div>
+    <div class="empty small" id="contactEmpty" hidden>
+      <span class="art" id="artContacts" aria-hidden="true"></span>
+      <p class="empty-p">No contacts yet. Add the trades you work with and a defect can be issued to a person.</p>
+    </div>
+    <div class="btnrow"><button class="btn small" id="newContactBtn">Add a contact</button></div>
+
+    <hr class="rule">
+    <h2 class="h2">Walking</h2>
+    <div class="field row">
+      <div><label for="setHaptics">Haptic tick on pin</label>
+        <p class="help">A tap you can feel through a glove when a pin is set.</p></div>
+      <input type="checkbox" id="setHaptics">
+    </div>
+    <div class="field row">
+      <div><label for="setKeepAwake">Keep the screen on while walking</label>
+        <p class="help">The screen stays lit in walk mode so the plan does not lock in your hand.</p></div>
+      <input type="checkbox" id="setKeepAwake">
+    </div>
+
+    <hr class="rule">
+    <h2 class="h2">Your data</h2>
+    <p class="help">Punchlist has no account and no server. A backup is a file you hold. Photos are included, so a backup of a busy project is large.</p>
+    <div class="btnrow">
+      <button class="btn small" id="backupBtn">Back up everything</button>
+      <label class="btn small filelabel">Restore<input type="file" id="restoreFile" accept=".json,application/json" hidden></label>
+    </div>
+    <div class="btnrow">
+      <button class="btn small ghost" id="csvBtn">Defects as CSV</button>
+      <button class="btn small ghost danger" id="eraseBtn">Erase everything</button>
+    </div>
+    <p class="help" id="dataNote"></p>
+
+    <hr class="rule">
+    <p class="colophon">Punchlist. No account, no ads, no internet permission.<br>Published by SocialSure Private Limited.</p>
+  </div>
+</section>
+
+<!-- ══ TABS ══ -->
+<nav id="tabs" hidden>
+  <button class="tab is-on" data-view="projects"><span>Projects</span></button>
+  <button class="tab" data-view="walk"><span>Walk</span></button>
+  <button class="tab" data-view="report"><span>Report</span></button>
+  <button class="tab" data-view="setup"><span>Setup</span></button>
+</nav>
+
+<!-- ══ SHEET: CAPTURE ══ -->
+<div class="sheet" id="sh-capture" hidden>
+  <header class="sheet-bar">
+    <button class="icon-btn" data-close="sh-capture" aria-label="Cancel">Cancel</button>
+    <p class="sheet-title" id="capTitle">Defect</p>
+    <button class="icon-btn strong" id="capSave">Save</button>
+  </header>
+  <div class="sheet-body" id="capBody">
+    <div class="cam-block" id="camBlock">
+      <div class="cam-frame">
+        <video id="camVideo" playsinline muted autoplay></video>
+        <div class="cam-off" id="camOff" hidden>
+          <p id="camOffMsg">Camera is off.</p>
+          <button class="btn small" id="camStart">Turn the camera on</button>
+        </div>
+      </div>
+      <div class="cam-controls">
+        <label class="btn ghost small filelabel" id="camPickLabel">Files<input type="file" id="camPick" accept="image/*" multiple hidden></label>
+        <button class="shutter" id="shutterBtn" aria-label="Take photo"></button>
+        <button class="btn ghost small" id="camFlip">Flip</button>
+      </div>
+    </div>
+
+    <div class="thumbs" id="capThumbs"></div>
+
+    <p class="label">Note</p>
+    <textarea id="capNote" rows="2" maxlength="400" placeholder="What is wrong, in plain words"></textarea>
+    <div class="chips wrap" id="capPhrases"></div>
+
+    <p class="label">Trade</p>
+    <div class="chips scrollx" id="capTrades"></div>
+
+    <p class="label">Severity</p>
+    <div class="chips" id="capSeverity"></div>
+
+    <p class="label">Room or zone</p>
+    <input type="text" id="capRoom" maxlength="40" list="roomList" placeholder="Kitchen">
+    <datalist id="roomList"></datalist>
+
+    <p class="label">Due</p>
+    <div class="chips" id="capDue"></div>
+    <input type="date" id="capDueDate">
+
+    <p class="label">Assign to</p>
+    <select id="capAssignee"><option value="">Nobody yet</option></select>
+  </div>
+  <div class="sheet-foot">
+    <button class="btn primary wide" id="capSaveNext">Save and keep walking</button>
+  </div>
+</div>
+
+<!-- ══ SHEET: DEFECT DETAIL ══ -->
+<div class="sheet" id="sh-defect" hidden>
+  <header class="sheet-bar">
+    <button class="icon-btn" data-close="sh-defect" aria-label="Back">Back</button>
+    <p class="sheet-title" id="defTitle">Defect</p>
+    <button class="icon-btn" id="defEdit">Edit</button>
+  </header>
+  <div class="sheet-body" id="defBody"></div>
+</div>
+
+<!-- ══ SHEET: PROJECT ══ -->
+<div class="sheet" id="sh-project" hidden>
+  <header class="sheet-bar">
+    <button class="icon-btn" data-close="sh-project">Cancel</button>
+    <p class="sheet-title" id="projSheetTitle">New project</p>
+    <button class="icon-btn strong" id="projSave">Save</button>
+  </header>
+  <div class="sheet-body">
+    <div class="field" id="pfNameField"><label for="pfName">Project name</label>
+      <input type="text" id="pfName" maxlength="60" placeholder="Maple Court, Plot 14">
+      <p class="err" id="pfNameErr" hidden>A project needs a name before it can be saved.</p></div>
+    <div class="field"><label for="pfClient">Client</label>
+      <input type="text" id="pfClient" maxlength="60" placeholder="Who receives the report"></div>
+    <div class="field"><label for="pfAddress">Address</label>
+      <input type="text" id="pfAddress" maxlength="90" placeholder="Site address as it should read on the cover"></div>
+    <div class="field"><label for="pfRef">Your reference</label>
+      <input type="text" id="pfRef" maxlength="30" placeholder="Job number"></div>
+
+    <hr class="rule">
+    <h2 class="h2">Plans</h2>
+    <p class="help">One plan per floor or zone. Import a photo of the paper plan or an image exported from a PDF, then square up the corners.</p>
+    <div id="pfPlans" class="stack-list"></div>
+    <div class="btnrow"><button class="btn small" id="addPlanBtn">Add a plan</button></div>
+    <div class="btnrow" id="projDeleteRow" hidden>
+      <button class="btn small ghost danger" id="projDelete">Delete this project</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHEET: PLAN IMPORT / DESKEW ══ -->
+<div class="sheet" id="sh-plan" hidden>
+  <header class="sheet-bar">
+    <button class="icon-btn" data-close="sh-plan">Cancel</button>
+    <p class="sheet-title">Square up the plan</p>
+    <button class="icon-btn strong" id="planApply">Use plan</button>
+  </header>
+  <div class="sheet-body">
+    <div class="field"><label for="planLabel">Plan label</label>
+      <input type="text" id="planLabel" maxlength="30" placeholder="Level 2"></div>
+    <div class="deskew-wrap" id="deskewWrap">
+      <canvas id="deskewCanvas"></canvas>
+      <div id="deskewHandles"></div>
+    </div>
+    <p class="help">Drag the four corners onto the corners of the drawing. Punchlist straightens the perspective out of the photo.</p>
+    <div class="chips" id="planTweaks">
+      <button class="chip" data-k="square">Square up</button>
+      <button class="chip" data-k="clean">Ink and paper</button>
+    </div>
+    <div class="btnrow"><label class="btn small ghost filelabel">Pick a different image<input type="file" id="planPick" accept="image/*" hidden></label></div>
+  </div>
+</div>
+
+<!-- ══ SHEET: CONTACT ══ -->
+<div class="sheet" id="sh-contact" hidden>
+  <header class="sheet-bar">
+    <button class="icon-btn" data-close="sh-contact">Cancel</button>
+    <p class="sheet-title" id="contactSheetTitle">Contact</p>
+    <button class="icon-btn strong" id="contactSave">Save</button>
+  </header>
+  <div class="sheet-body">
+    <div class="field" id="cfNameField"><label for="cfName">Name</label><input type="text" id="cfName" maxlength="50">
+      <p class="err" id="cfNameErr" hidden>Give the contact a name or a company.</p></div>
+    <div class="field" id="cfCompanyField"><label for="cfCompany">Company</label><input type="text" id="cfCompany" maxlength="50"></div>
+    <div class="field"><label for="cfTrade">Trade</label>
+      <select id="cfTrade"></select></div>
+    <div class="field"><label for="cfPhone">Phone</label><input type="tel" id="cfPhone" maxlength="30"></div>
+    <div class="field"><label for="cfEmail">Email</label><input type="email" id="cfEmail" maxlength="60"></div>
+    <div class="btnrow" id="contactDeleteRow" hidden>
+      <button class="btn small ghost danger" id="contactDelete">Delete contact</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHEET: REPORT PREVIEW ══ -->
+<div class="sheet" id="sh-preview" hidden>
+  <header class="sheet-bar">
+    <button class="icon-btn" data-close="sh-preview">Back</button>
+    <p class="sheet-title" id="prevTitle">Report</p>
+    <button class="icon-btn strong" id="prevShare">Send</button>
+  </header>
+  <div class="sheet-body">
+    <p class="prev-count" id="prevCount"></p>
+    <div id="prevPages" class="prev-pages"></div>
+    <div class="btnrow">
+      <button class="btn primary wide" id="prevSave">Save the PDF to this phone</button>
+    </div>
+    <div id="prevSplit" hidden>
+      <hr class="rule">
+      <h2 class="h2">Send one trade their pages</h2>
+      <p class="help">A separate PDF with only that trade's defects, numbered as they are on the full report.</p>
+      <div id="prevSplitList" class="stack-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHEET: PLAN PICKER ══ -->
+<div class="sheet compact" id="sh-plans" hidden>
+  <header class="sheet-bar">
+    <button class="icon-btn" data-close="sh-plans">Close</button>
+    <p class="sheet-title">Plans</p>
+    <span class="icon-btn spacer"></span>
+  </header>
+  <div class="sheet-body"><div id="planPickList" class="stack-list"></div></div>
+</div>
+
+<!-- ══ CONFIRM ══ -->
+<div class="modal" id="confirm" hidden>
+  <div class="modal-panel">
+    <p class="modal-h" id="confirmH"></p>
+    <p class="modal-p" id="confirmP"></p>
+    <div class="btnrow end">
+      <button class="btn small ghost" id="confirmNo">Cancel</button>
+      <button class="btn small danger-solid" id="confirmYes">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="tapShield" hidden aria-hidden="true"></div>
+<div class="busy" id="busy" hidden><div class="busy-panel"><div class="bar"><i id="busyBar"></i></div><p id="busyMsg">Working</p></div></div>
+<p id="toast" class="toast" hidden></p>
+
+<script src="js/icons.js"></script>
+<script src="js/store.js"></script>
+<script src="js/media.js"></script>
+<script src="js/demo.js"></script>
+<script src="js/pdfwriter.js"></script>
+<script src="js/report.js"></script>
+<script src="js/plan.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

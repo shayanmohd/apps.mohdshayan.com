@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#050d16">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="EchoDepths: ping to see. stay silent to survive. a roguelite played in total darkness.">
+<title>echodepths</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="pal-ice">
+<canvas id="c" aria-hidden="true"></canvas>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"/></symbol>
+  <symbol id="i-pebble" viewBox="0 0 24 24"><path d="M6.5 14.5c-1.2-3.4 1.6-7.5 6-7.5s7 3.2 5.5 6.5-4.6 4.4-8 3.6-3.1-1.2-3.5-2.6z"/><path d="M10 11.5c.8-.7 2-.9 3-.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5.5 12.5l4 4 9-9"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 4v11M8 8l4-4 4 4M6 13v6h12v-6"/></symbol>
+</svg>
+
+<div id="hud" hidden>
+  <div id="depth" aria-live="off">1,000 m</div>
+  <div id="biome"></div>
+  <button id="pause" aria-label="pause"><svg class="ic"><use href="#i-pause"/></svg></button>
+  <div id="hp" aria-label="health"></div>
+  <button id="pebble" aria-label="throw pebble"><svg class="ic"><use href="#i-pebble"/></svg><span>pebble</span><b id="pebble-n">0</b></button>
+  <div id="hint" aria-live="polite"></div>
+  <div id="float"></div>
+</div>
+<div id="sr" class="visually-hidden" aria-live="polite" role="status"></div>
+
+<div id="screens">
+  <section id="title" class="screen">
+    <div class="stack">
+      <h1 class="wordmark" tabindex="-1">echo<span>depths</span></h1>
+      <p class="tag">to see is to be seen.</p>
+      <nav class="menu">
+        <button class="mbtn primary" data-go="dive">dive</button>
+        <button class="mbtn" data-go="daily">daily descent</button>
+        <button class="mbtn" data-go="grotto">grotto</button>
+        <button class="mbtn" data-go="options">options</button>
+      </nav>
+      <p class="stats" id="title-stats"></p>
+      <p class="fine">headphones on. one thumb. sound is all you have.</p>
+    </div>
+  </section>
+
+  <section id="daily" class="screen deep" hidden>
+    <div class="stack wide">
+      <h2 tabindex="-1">daily descent</h2>
+      <p class="muted" id="daily-date"></p>
+      <svg id="daily-illo" class="illo" viewBox="0 0 300 120" aria-hidden="true">
+        <path class="wall" d="M12 22c26-9 44 6 68-3s38-14 60-4 40 2 62-6 46 2 86 6"/>
+        <path class="wall" d="M8 104c30 7 52-8 78 1s44 12 66 2 42-4 64 4 44-2 72-6"/>
+        <line class="tick" x1="150" y1="30" x2="150" y2="94" stroke-dasharray="2 4"/>
+        <circle class="glow" cx="150" cy="62" r="22"/>
+        <circle class="ring" cx="150" cy="62" r="9" opacity=".95"/>
+        <circle class="ring" cx="150" cy="62" r="18" opacity=".55"/>
+        <circle class="ring" cx="150" cy="62" r="28" opacity=".25"/>
+        <circle class="lamp" cx="150" cy="62" r="2.6"/>
+        <text x="24" y="66">1,000 m</text>
+        <text x="236" y="66">deeper</text>
+      </svg>
+      <p class="body">one cave. one attempt. the same seed for everyone today.</p>
+      <div id="daily-result" class="card" hidden></div>
+      <button class="mbtn primary" id="daily-dive">dive</button>
+      <button class="mbtn" id="daily-share" hidden><svg class="ic"><use href="#i-share"/></svg> share result</button>
+      <button class="mbtn" data-go="title">back</button>
+      <p class="fine">today's result is kept on this device. a new cave opens at midnight.</p>
+    </div>
+  </section>
+
+  <section id="grotto" class="screen deep" hidden>
+    <div class="stack wide">
+      <h2 tabindex="-1">the grotto</h2>
+      <svg class="illo" viewBox="0 0 300 136" aria-hidden="true">
+        <path class="wall" d="M6 18c30-10 54 8 82-2s50-16 76-6 44 4 66-4 40-4 64 4"/>
+        <path class="lit" d="M96 24c8 10 12 26 6 40s-16 20-22 34-3 10-2 14"/>
+        <path class="lit" d="M150 22c2 14-2 28 0 44s6 26 4 40 0 8 0 12"/>
+        <path class="lit" d="M204 24c-8 10-12 26-6 40s16 20 22 34 3 10 2 14"/>
+        <path class="wall" d="M40 60c10 6 22 10 34 8M232 66c-10 6-22 8-34 6M62 96c10 4 18 10 28 6M212 98c-10 4-18 8-28 4"/>
+        <circle class="glow" cx="150" cy="22" r="14"/>
+        <circle class="lamp" cx="150" cy="22" r="2.4"/>
+        <text x="66" y="131">sense</text>
+        <text x="136" y="131">body</text>
+        <text x="206" y="131">voice</text>
+      </svg>
+      <p class="muted"><b id="oto-count">0</b> otoliths. long-press an evolution to feel it before you buy.</p>
+      <div id="evo-list" class="evo-grid"></div>
+      <button class="mbtn" data-go="title">back</button>
+    </div>
+  </section>
+
+  <section id="options" class="screen deep" hidden>
+    <div class="stack wide">
+      <h2 tabindex="-1">options</h2>
+      <div class="opt-row"><span>phosphor</span><div class="seg" id="opt-palette"><button data-v="ice">cyan</button><button data-v="green">green</button><button data-v="amber">amber</button></div></div>
+      <div class="opt-row"><span>haptics</span><div class="seg" id="opt-haptics"><button data-v="1" class="on">on</button><button data-v="0">off</button></div></div>
+      <div class="opt-row"><span>haptic strength</span><input type="range" id="opt-hstr" min="0.3" max="1.5" step="0.1" value="1" aria-label="haptic strength"></div>
+      <div class="opt-row"><span>audio</span><div class="seg" id="opt-audio"><button data-v="1" class="on">on</button><button data-v="0">off</button></div></div>
+      <div class="opt-row"><span>ambience</span><input type="range" id="opt-amb" min="0" max="1" step="0.05" value="0.7" aria-label="ambience volume"></div>
+      <div class="opt-row"><span>eyes closed mode</span><div class="seg" id="opt-eyes"><button data-v="0" class="on">off</button><button data-v="1">on</button></div></div>
+      <p class="note">eyes closed hides every visual. sound and haptics carry the whole game, and predator bearings are spoken.</p>
+      <div class="opt-row"><span>abyssal calm (assist)</span><div class="seg" id="opt-calm"><button data-v="0" class="on">off</button><button data-v="1">on</button></div></div>
+      <p class="note">calm: slower predators, longer fade, one extra hit. a daily descent in calm is unranked.</p>
+      <button class="mbtn" id="opt-haptest">test haptics</button>
+      <button class="mbtn danger" id="opt-reset">erase save</button>
+      <button class="mbtn" data-go="title">back</button>
+      <p class="fine">no flashing. no ads. no accounts. nothing leaves your phone.</p>
+    </div>
+  </section>
+
+  <section id="pausemenu" class="screen dim" hidden>
+    <div class="stack">
+      <svg class="mark small" viewBox="0 0 64 64" aria-hidden="true"><circle class="ring r3" cx="32" cy="32" r="27"/><circle class="ring r2" cx="32" cy="32" r="18.5"/><circle class="ring r1" cx="32" cy="32" r="10"/><circle class="ring live" cx="32" cy="32" r="27"/><circle class="lamp" cx="32" cy="32" r="3.2"/></svg>
+      <h2 tabindex="-1">held breath</h2>
+      <button class="mbtn primary" id="pm-resume">resume</button>
+      <button class="mbtn" id="pm-surface">surface (abandon run)</button>
+    </div>
+  </section>
+
+  <section id="death" class="screen sonar" hidden>
+    <div class="stack bottom">
+      <h2 id="death-title" tabindex="-1">the dark kept you.</h2>
+      <p class="body" id="death-cause"></p>
+      <div class="statgrid">
+        <div><small>depth</small><b id="d-depth"></b></div>
+        <div><small>chambers</small><b id="d-chambers"></b></div>
+        <div><small>otoliths</small><b id="d-oto"></b></div>
+        <div><small>shouts</small><b id="d-shouts"></b></div>
+      </div>
+      <button class="mbtn primary" id="d-surface">surface</button>
+    </div>
+  </section>
+</div>
+
+<script src="js/util.js"></script>
+<script src="js/haptics.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/procgen.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

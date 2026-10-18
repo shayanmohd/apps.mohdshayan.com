@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doorway: the map that answers can I get in</title>
+<meta name="description" content="A personal access atlas. Ninety second structured surveys of the places you go, read back through your own needs, on a phone with no network permission at all.">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --bg: #EDF1F6; --surface: #FFFFFF; --surface-2: #E6ECF4;
+    --ink: #0F1A22; --muted: #46586B; --faint: #5C6E81;
+    --hair: #CFDAE6; --accent: #0B63C5; --accent-dk: #08498F; --accent-sf: #DDEAFB;
+    --stop: #A32316; --warn: #8A5300; --light: #F6B25C; --light-sf: #FDEEDA;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-size: 17px; line-height: 1.55;
+         font-family: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--accent); }
+  h1, h2, h3 { margin: 0; letter-spacing: -0.015em; font-weight: 700; }
+  p { margin: 0; }
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 0 22px; }
+  .eyebrow { font-size: 0.8125rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+             color: var(--muted); margin-bottom: 12px; }
+
+  /* nav */
+  nav { border-bottom: 1px solid var(--hair); background: var(--surface); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 66px; }
+  .mark { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.0625rem; }
+  .mark svg { display: block; }
+  nav a { font-size: 0.9375rem; font-weight: 700; text-decoration: none; }
+
+  /* hero */
+  .hero { padding: 68px 0 8px; position: relative;
+          background: radial-gradient(60% 70% at 78% 6%, var(--light-sf), rgba(253,238,218,0) 62%); }
+  .hero .wrap { display: grid; grid-template-columns: 1.15fr .85fr; gap: 46px; align-items: center; }
+  .hero h1 { font-size: 3.1rem; line-height: 1.05; }
+  .hero .lede { font-size: 1.25rem; color: var(--muted); margin-top: 20px; max-width: 30rem; }
+  .cta { display: inline-block; margin-top: 30px; font-weight: 700; color: #fff;
+         background: linear-gradient(180deg, #1370D4, var(--accent));
+         text-decoration: none; padding: 16px 26px; border-radius: 10px; font-size: 1.0625rem;
+         box-shadow: 0 2px 4px rgba(8,73,143,.3), 0 12px 26px -12px rgba(11,99,197,.7); }
+  .cta:hover { background: var(--accent-dk); }
+  .free { margin-top: 14px; font-size: 0.9375rem; color: var(--faint); }
+  .shot { border: 1px solid var(--hair); border-radius: 14px; overflow: hidden; background: var(--surface);
+          box-shadow: 0 2px 6px rgba(15,26,34,.07), 0 22px 54px -22px rgba(11,99,197,.45); }
+
+  /* the ontology */
+  .facts { padding: 78px 0 12px; }
+  .facts h2 { font-size: 2rem; max-width: 24rem; }
+  .facts .intro { color: var(--muted); margin-top: 14px; max-width: 34rem; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 44px; margin-top: 34px;
+          border-top: 1px solid var(--hair); }
+  .grid > div { border-bottom: 1px solid var(--hair); padding: 20px 0; }
+  .grid h3 { font-size: 1.0625rem; }
+  .grid p { color: var(--muted); font-size: 0.9375rem; margin-top: 6px; }
+
+  /* lens: text and picture */
+  .lens { padding: 78px 0; }
+  .lens .wrap { display: grid; grid-template-columns: .95fr 1.05fr; gap: 48px; align-items: center; }
+  .lens h2 { font-size: 2rem; }
+  .lens p { color: var(--muted); margin-top: 16px; }
+  .verdicts { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .v { display: flex; gap: 12px; align-items: baseline; font-size: 0.9375rem; }
+  .v b { flex: 0 0 7.2rem; font-weight: 700; }
+  .v.ok b { color: var(--accent-dk); } .v.check b { color: var(--warn); } .v.no b { color: var(--stop); }
+  .v span { color: var(--muted); }
+
+  /* evidence band */
+  .evidence { background: var(--surface); border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+  .evidence .wrap { padding-top: 70px; padding-bottom: 70px; display: grid;
+                    grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .evidence h2 { font-size: 2rem; }
+  .evidence p { color: var(--muted); margin-top: 16px; }
+  .stamp { margin-top: 26px; border-left: 3px solid var(--accent); padding-left: 16px; font-size: 0.9375rem; }
+  .stamp b { display: block; }
+  .stamp span { color: var(--faint); }
+
+  /* limits */
+  .limits { padding: 74px 0; }
+  .limits h2 { font-size: 2rem; max-width: 26rem; }
+  .limits .cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px 44px; margin-top: 30px; }
+  .limits h3 { font-size: 1.0625rem; }
+  .limits p { color: var(--muted); font-size: 0.9375rem; margin-top: 6px; }
+
+  /* strip */
+  .strip { background: var(--accent-sf); border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+  .strip .wrap { padding: 26px 22px; display: flex; flex-wrap: wrap; gap: 10px 34px; font-size: 0.9375rem;
+                 color: var(--accent-dk); font-weight: 700; }
+
+  /* close */
+  .close { padding: 78px 0 86px; text-align: center; }
+  .close h2 { font-size: 2.2rem; max-width: 30rem; margin: 0 auto; line-height: 1.15; }
+  .close p { color: var(--muted); margin-top: 16px; }
+
+  footer { border-top: 1px solid var(--hair); background: var(--surface); }
+  footer .wrap { padding: 28px 22px 40px; display: flex; flex-wrap: wrap; gap: 12px 26px;
+                 font-size: 0.9375rem; color: var(--faint); }
+  footer a { font-weight: 700; text-decoration: none; }
+
+  @media (max-width: 860px) {
+    .hero { padding-top: 44px; }
+    .hero .wrap, .lens .wrap, .evidence .wrap { grid-template-columns: 1fr; gap: 34px; }
+    .hero h1 { font-size: 2.4rem; }
+    .grid, .limits .cols { grid-template-columns: 1fr; }
+    .shot { max-width: 380px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="mark">
+      <svg width="26" height="26" viewBox="18 18 72 72" aria-hidden="true">
+        <defs>
+          <linearGradient id="nav-open" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFF7E7"/><stop offset="1" stop-color="#F3A945"/>
+          </linearGradient>
+        </defs>
+        <path d="M44 72 H72 L84 86 H32 Z" fill="#F6B25C" opacity="0.34"/>
+        <rect x="44" y="27" width="28" height="45" rx="1.5" fill="url(#nav-open)"/>
+        <path d="M44 27 L33 33 V78 L44 72 Z" fill="#C9D9EA" stroke="#0F1A22" stroke-width="2.4" stroke-linejoin="round"/>
+        <rect x="44" y="27" width="28" height="45" rx="1.5" fill="none" stroke="#0F1A22" stroke-width="2.6"/>
+        <rect x="38" y="70.5" width="40" height="3.4" rx="1.7" fill="#0B63C5"/>
+      </svg> Doorway</span>
+    <a href="/privacy-policies/doorway-privacy-policy.html">Privacy</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Can I get in?</h1>
+      <p class="lede">A map will tell you the coffee is good. It will not tell you there is a step at the door,
+        that the toilet is up six stairs, or that the room is unbearable after seven. Doorway is where you keep
+        the answers, for every place you have actually been.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.doorway">Get it on Google Play</a>
+      <p class="free">Free, no account, no ads, and no internet permission at all.</p>
+    </div>
+    <img class="shot" src="shots/01-places.png" width="1080" height="1920"
+         alt="The Doorway place list, sorted by distance, each place carrying a verdict and the date it was last checked.">
+  </div>
+</header>
+
+<section class="facts">
+  <div class="wrap">
+    <p class="eyebrow">The survey</p>
+    <h2>Ninety seconds of concrete questions</h2>
+    <p class="intro">No star ratings and no free text to argue with. A survey is a short run of things a stranger
+      can act on, and you can skip any of them. Three partial surveys of the same place compose into one listing.</p>
+    <div class="grid">
+      <div>
+        <h3>The way in</h3>
+        <p>Steps and the height of the tallest one, ramp or platform lift, the width of the opening, how heavy the
+          door is, what is underfoot in the doorway, and the approach from the street.</p>
+      </div>
+      <div>
+        <h3>The toilet</h3>
+        <p>Whether there is one at all, whether it is step free from the room, a cubicle built for wheelchair use,
+          grab bars on one side or both, room to turn, and the width of that door too.</p>
+      </div>
+      <div>
+        <h3>Inside</h3>
+        <p>Room to move between the tables, whether the floor is all one level, chairs that move or fixed benches,
+          the range of table heights, and whether there is anywhere to sit while you wait.</p>
+      </div>
+      <div>
+        <h3>Sound and light</h3>
+        <p>How loud it was, music, lighting, how busy, a quieter corner, print size on the menus, marked step edges,
+          a hearing loop. Kept against the time of day, because that is the only way they mean anything.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="lens">
+  <div class="wrap">
+    <img class="shot" src="shots/02-verdict.png" width="1080" height="1920"
+         alt="A venue page reading Check first, with the reasons listed: the toilet is tight to turn in, loud when surveyed, a permanent ramp gets you past the two steps.">
+    <div>
+      <h2>One set of facts, several ways of reading it</h2>
+      <p>Set your thresholds once. The step you can get over, the narrowest door you fit through, whether you need
+        an accessible toilet, how much noise and crowding you can be in, what you need from the lighting and the print.
+        Every place is then judged against those numbers, and the verdict shows its working.</p>
+      <div class="verdicts">
+        <p class="v ok"><b>Works</b><span>Level in at the door. An accessible toilet, turning space and all.</span></p>
+        <p class="v check"><b>Check first</b><span>A portable ramp, so somebody has to be there to put it out.</span></p>
+        <p class="v no"><b>Does not work</b><span>One step, 14 cm, no ramp. The opening is about 74 cm.</span></p>
+      </div>
+      <p>Nobody else sees your lens. It never leaves the phone, and it is deliberately left out of anything you share.</p>
+    </div>
+  </div>
+</section>
+
+<section class="evidence">
+  <div class="wrap">
+    <div>
+      <h2>Every answer carries who saw it, and when</h2>
+      <p>Places change quietly. A doorway widened, a toilet turned into a store cupboard, a ramp that stopped being
+        put out. So Doorway dates everything, counts how many surveys agree, keeps the ones that disagree instead of
+        hiding them, and asks you to re-confirm what has aged. Marking a place still accurate takes one tap.</p>
+      <p>Where there is no photograph, the app draws the entrance to scale from the numbers that were recorded:
+        the steps, the rise, the width of the opening, the ramp at the gradient a permanent one is built to.
+        It is a drawing, it says so, and it is made only of things a person entered.</p>
+      <div class="stamp">
+        <b>2 surveys agree, 5 weeks ago</b>
+        <span>An earlier survey said 15 cm, 5 months ago. The newest answer is shown.</span>
+      </div>
+    </div>
+    <img class="shot" src="shots/03-evidence.png" width="1080" height="1920"
+         alt="The way in section of a venue page: seven facts with their provenance, above a scale drawing of the doorway.">
+  </div>
+</section>
+
+<div class="strip">
+  <div class="wrap">
+    <span>No account</span>
+    <span>No ads or analytics</span>
+    <span>No internet permission</span>
+    <span>Your lens stays on the phone</span>
+    <span>Export as a plain file</span>
+  </div>
+</div>
+
+<section class="limits">
+  <div class="wrap">
+    <h2>What Doorway is not</h2>
+    <div class="cols">
+      <div>
+        <h3>There is no map</h3>
+        <p>Map tiles need a network and this app has none. Places are a list, sorted by how far away they are when
+          you let it read your position.</p>
+      </div>
+      <div>
+        <h3>There is no crowd</h3>
+        <p>Nothing you record is uploaded, because the app cannot open a connection at all. Pooling happens when you
+          send somebody a pack and they open it: their surveys and yours then compose place by place.</p>
+      </div>
+      <div>
+        <h3>Noise is a judgement</h3>
+        <p>Doorway never opens the microphone. Loudness is what a person thought at the time, kept with the time of
+          day it was thought at.</p>
+      </div>
+      <div>
+        <h3>Faces are not found for you</h3>
+        <p>Automatic blurring needs a model this app does not carry, so it does not pretend to. You get a blur brush,
+          and the pixels you paint over are gone before the photograph is written.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="close">
+  <div class="wrap">
+    <h2>Ninety seconds at your next coffee makes somebody's Friday work.</h2>
+    <p>Including your own, next month, when you have forgotten.</p>
+    <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.doorway">Get it on Google Play</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Doorway by SocialSure Private Limited</span>
+    <a href="/privacy-policies/doorway-privacy-policy.html">Privacy policy</a>
+    <a href="play/">Try it in a browser</a>
+    <a href="mailto:shayanm2002@gmail.com">shayanm2002@gmail.com</a>
+  </div>
+</footer>
+
+</body>
+</html>

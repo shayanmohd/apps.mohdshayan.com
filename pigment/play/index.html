@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Pigment</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 4 L7 12 L15 20"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3 C12 3 5.5 10.4 5.5 14.6 A6.5 6.5 0 0 0 18.5 14.6 C18.5 10.4 12 3 12 3 Z"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7 L4 11 L9 15"/><path d="M4 11 H14 A5.5 5.5 0 0 1 14 22 H10"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="M15 7 L20 11 L15 15"/><path d="M20 11 H10 A5.5 5.5 0 0 0 10 22 H14"/></symbol>
+  <symbol id="i-brush" viewBox="0 0 24 24"><path d="M8.5 15.5 L15.5 4.5 C16.4 3.2 18.4 4.3 17.8 5.8 L13 16.5"/><path d="M8.5 15.5 C6 16.4 6.4 19.6 4 20.6 C6.6 21.9 10.6 20.7 11.1 17.6 Z"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path d="M4 19 L11 12"/><path d="M9.5 10.5 L14 6 L20 12 L15.5 16.5 Z"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="M3 7h3.4M11.6 7H21M3 13h6.4M14.6 13H21M3 19h8.4M16.6 19H21"/><circle cx="9" cy="7" r="2.3"/><circle cx="12" cy="13" r="2.3"/><circle cx="14" cy="19" r="2.3"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5 V19 M5 12 H19"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 11 v5.4"/><circle cx="12" cy="7.9" r="1.05" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-sheet" viewBox="0 0 24 24"><path d="M5.4 3.6 H18.6 V20.4 H5.4 Z"/><path d="M8.6 2.4 L6 5.2"/><path d="M15.4 2.4 L18 5.2"/></symbol>
+  <symbol id="i-well" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M8.2 13.4 C9.6 11 11.1 10 12.9 10.4 C14.8 10.8 15.4 12.6 15.8 14"/></symbol>
+</svg>
+
+<main id="stage">
+
+  <!-- ============================ first run ============================ -->
+  <section class="screen intro" id="s-intro" hidden>
+    <div class="intro-art">
+      <canvas id="introArt" aria-hidden="true"></canvas>
+    </div>
+    <div class="intro-mid">
+      <p class="wordmark">Pigment</p>
+      <h1>Blue and yellow make green.</h1>
+      <p>Not grey. Not brown. Green, because every colour in this box is a real pigment
+         with real absorption, mixing in real water on paper that has real tooth.</p>
+      <p class="sm">Three minutes to your first wash. Nothing to sign up for.</p>
+    </div>
+    <div class="intro-foot">
+      <button class="btn primary wide" id="introStart">Load the mop</button>
+      <button class="quietlink" id="introSkip">Take me to the studio instead</button>
+    </div>
+  </section>
+
+  <!-- ============================ flatfile ============================= -->
+  <section class="view" id="v-flatfile">
+    <header class="bar">
+      <div class="barwrap">
+        <span class="mark"><canvas id="flatMark" aria-hidden="true"></canvas></span>
+        <div><h1 class="barTitle">Flatfile</h1><p class="barSub" id="flatSub"></p></div>
+      </div>
+      <button class="iconbtn" id="btnSettings" aria-label="Settings"><svg><use href="#i-gear"/></svg></button>
+    </header>
+    <div class="scroller" id="flatScroll">
+      <div class="sheets" id="sheetGrid"></div>
+      <div class="empty" id="flatEmpty" hidden>
+        <div class="emptyart" aria-hidden="true">
+          <span class="tapedsheet"><canvas id="emptyBloom"></canvas></span>
+        </div>
+        <p class="lede">Nothing in the drawer yet.</p>
+        <p>A painting starts with a sheet of paper, not with a subject. Pick the surface and
+           the surface will tell you what it wants.</p>
+      </div>
+      <button class="newsheet" id="btnNew">
+        <span class="ns-ico"><svg><use href="#i-plus"/></svg></span>
+        <span class="ns-txt"><b>Stretch a new sheet</b><i>Choose paper, then size</i></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============================= lessons ============================= -->
+  <section class="view" id="v-lessons" hidden>
+    <header class="bar">
+      <div><h1 class="barTitle">Guided washes</h1><p class="barSub" id="lessonSub"></p></div>
+    </header>
+    <div class="scroller">
+      <p class="lede">Six short exercises about water, not about drawing. Each one takes a couple of
+        minutes and leaves you with a finished sheet in the flatfile.</p>
+      <div id="lessonList"></div>
+    </div>
+  </section>
+
+  <!-- ============================ pigments ============================= -->
+  <section class="view" id="v-pigments" hidden>
+    <header class="bar">
+      <div><h1 class="barTitle">The box</h1><p class="barSub">24 pigments, and what each one does</p></div>
+    </header>
+    <div class="scroller">
+      <p class="lede">Every swatch below is painted by the same engine that paints your sheet:
+        a graded wash from a whisper to full strength, with that pigment's own granulation in it.</p>
+      <div id="pigList"></div>
+    </div>
+  </section>
+
+  <!-- =========================== paper picker ========================== -->
+  <section class="screen" id="s-picker" hidden>
+    <header class="topbar">
+      <button class="iconbtn" id="pickBack" aria-label="Back"><svg><use href="#i-back"/></svg></button>
+      <div class="title"><span>Stretch a sheet</span></div>
+    </header>
+    <div class="scroller pad">
+      <p class="eyebrow">Surface</p>
+      <div class="papers" id="paperList"></div>
+      <p class="eyebrow mt">Shape</p>
+      <div class="chips" id="sizeList"></div>
+      <p class="help" id="pickerNote"></p>
+    </div>
+    <div class="footbar">
+      <button class="btn primary wide" id="pickGo">Tape it down</button>
+    </div>
+  </section>
+
+  <!-- ============================= studio ============================== -->
+  <section class="screen studio" id="s-studio" hidden>
+    <header class="topbar">
+      <button class="iconbtn" id="studioBack" aria-label="Back to the flatfile"><svg><use href="#i-back"/></svg></button>
+      <div class="title"><span id="studioName">Sheet</span><i id="studioSub"></i></div>
+      <button class="iconbtn" id="btnUndo" aria-label="Undo"><svg><use href="#i-undo"/></svg></button>
+      <button class="iconbtn" id="btnRedo" aria-label="Redo"><svg><use href="#i-redo"/></svg></button>
+      <button class="iconbtn" id="btnMenu" aria-label="Painting menu"><svg><use href="#i-dots"/></svg></button>
+    </header>
+
+    <div class="guide" id="guide" hidden>
+      <div class="gcard">
+        <p class="gsay" id="guideSay"></p>
+        <p class="gsub" id="guideSub"></p>
+        <div class="grow">
+          <span class="gcount" id="guideCount"></span>
+          <button class="quietlink" id="guideSkip">End the lesson</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvaswrap" id="canvasWrap">
+      <canvas id="sheet"></canvas>
+      <div class="veil" id="canvasVeil" hidden>
+        <svg class="soak" viewBox="0 0 64 64" aria-hidden="true">
+          <circle class="s1" cx="32" cy="32" r="9"/>
+          <circle class="s2" cx="32" cy="32" r="9"/>
+          <circle class="s3" cx="32" cy="32" r="9"/>
+        </svg>
+        <p id="veilText">Replaying your strokes</p>
+      </div>
+      <p class="tiltnote" id="tiltNote" hidden>Tilt flow is on. Lean the phone and the wash will run.</p>
+      <div class="lapse" id="lapseCard" hidden aria-live="polite">
+        <p id="lapseSay">Recording the timelapse. Your strokes are being replayed.</p>
+        <div class="progress"><span id="lapseBar"></span></div>
+      </div>
+      <p class="inline-error" id="saveErr" hidden><svg aria-hidden="true"><use href="#i-info"/></svg><span></span></p>
+    </div>
+
+    <div class="dock">
+      <div class="waterrow">
+        <svg class="wico"><use href="#i-drop"/></svg>
+        <input type="range" id="waterRange" min="0" max="100" step="1" value="72" aria-label="Water carried by the brush">
+        <span class="wlabel" id="waterLabel">Loaded</span>
+      </div>
+      <div class="paintrow">
+        <button class="dockbtn pig" id="btnPig"><canvas class="chip-sw" id="pigDot" aria-hidden="true"></canvas><span class="lbl" id="pigLabel">Ultramarine</span></button>
+        <button class="iconbtn dockicon" id="btnMoist" aria-label="Moisture view"><svg><use href="#i-drop"/></svg></button>
+      </div>
+      <div class="toolrow">
+        <button class="dockbtn" id="btnBrush"><svg><use href="#i-brush"/></svg><span class="lbl" id="brushLabel">Round 12</span></button>
+        <button class="dockbtn" id="btnTool"><svg><use href="#i-tool"/></svg><span class="lbl" id="toolLabel">Paint</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================== mixing well =========================== -->
+  <section class="screen" id="s-well" hidden>
+    <header class="topbar">
+      <button class="iconbtn" id="wellBack" aria-label="Back to the sheet"><svg><use href="#i-back"/></svg></button>
+      <div class="title"><span>Mixing well</span><i>Tap to squeeze a gob. Drag to smear.</i></div>
+      <button class="iconbtn" id="wellWipe" aria-label="Wipe the palette"><svg><use href="#i-close"/></svg></button>
+    </header>
+    <div class="wellwrap" id="wellWrap"><canvas id="wellCanvas"></canvas></div>
+    <div class="welltray">
+      <div class="traytubes" id="wellTubes"></div>
+      <div class="trayfoot">
+        <div class="mixinfo">
+          <canvas class="chip-sw big" id="mixDot" aria-hidden="true"></canvas>
+          <div><b id="mixName">Nothing picked up yet</b><i id="mixProps">Drag across two gobs to mix them</i></div>
+        </div>
+        <button class="btn primary" id="wellTake" disabled>Take this mix</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav id="tabs">
+  <button class="tab is-on" data-view="flatfile">Flatfile</button>
+  <button class="tab" data-view="lessons">Washes</button>
+  <button class="tab" data-view="pigments">The box</button>
+</nav>
+
+<!-- ============================== sheets =============================== -->
+
+<div class="sheetlayer" id="sh-pig" hidden>
+  <div class="sheetpanel tall">
+    <div class="sheethead">
+      <div class="segbar" id="pigTabs">
+        <button class="seg is-on" data-tab="tubes">Tubes</button>
+        <button class="seg" data-tab="mixes">Your mixes</button>
+      </div>
+      <button class="iconbtn" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button>
+    </div>
+    <div class="sheetbody" id="pigDrawer"></div>
+    <div class="sheetfoot"><button class="btn ghost wide" id="openWell">Open the mixing well</button></div>
+  </div>
+</div>
+
+<div class="sheetlayer" id="sh-brush" hidden>
+  <div class="sheetpanel">
+    <div class="sheethead"><p class="sheettitle">Brushes</p>
+      <button class="iconbtn" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheetbody" id="brushList"></div>
+  </div>
+</div>
+
+<div class="sheetlayer" id="sh-tool" hidden>
+  <div class="sheetpanel">
+    <div class="sheethead"><p class="sheettitle">What is on the brush</p>
+      <button class="iconbtn" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheetbody" id="toolList"></div>
+    <div class="sheetfoot"><button class="btn ghost wide" id="btnUnmask" hidden>Rub off the masking fluid</button></div>
+  </div>
+</div>
+
+<div class="sheetlayer" id="sh-menu" hidden>
+  <div class="sheetpanel">
+    <div class="sheethead"><p class="sheettitle" id="menuTitle">Sheet</p>
+      <button class="iconbtn" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheetbody">
+      <div class="menurow">
+        <label for="renameIn">Name</label>
+        <input type="text" id="renameIn" maxlength="40" autocomplete="off">
+      </div>
+      <div class="menurow switch">
+        <div><b>Tilt flow</b><i>Gravity pulls the wash toward whichever way you lean the phone.</i></div>
+        <input type="checkbox" id="tiltChk">
+      </div>
+      <div class="menurow switch">
+        <div><b>Haptics</b><i>A tick when a wash finishes drying, and texture under a dry brush.</i></div>
+        <input type="checkbox" id="hapticChk">
+      </div>
+      <button class="listbtn" id="menuExport"><b>Export and timelapse</b><i id="menuExportSub">Save a picture, or record the painting happening</i></button>
+      <button class="listbtn danger" id="menuDelete"><b>Throw this sheet away</b><i>It cannot be brought back</i></button>
+    </div>
+  </div>
+</div>
+
+<div class="sheetlayer" id="sh-export" hidden>
+  <div class="sheetpanel tall">
+    <div class="sheethead"><p class="sheettitle">Export</p>
+      <button class="iconbtn" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheetbody">
+      <div class="exportprev"><img id="exportImg" alt="The painting as it will be saved"></div>
+      <div class="menurow switch">
+        <div><b>Keep the paper texture</b><i>Off gives you a flat image on a plain ground.</i></div>
+        <input type="checkbox" id="paperChk" checked>
+      </div>
+      <button class="btn primary wide" id="exportPng">Save the picture</button>
+      <hr class="rule">
+      <p class="eyebrow">Timelapse</p>
+      <p class="help">Your strokes are replayed through the simulation and recorded as they happen.
+         The video is a WebM file, which Android, Chrome and most editors open directly.</p>
+      <div class="chips" id="speedChips"></div>
+      <p class="help" id="lapseEst"></p>
+      <button class="btn ghost wide" id="exportLapse">Record the timelapse</button>
+      <p class="help" id="exportNote"></p>
+    </div>
+  </div>
+</div>
+
+<div class="sheetlayer" id="sh-settings" hidden>
+  <div class="sheetpanel tall">
+    <div class="sheethead"><p class="sheettitle">Pigment</p>
+      <button class="iconbtn" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheetbody">
+      <p class="help">Everything in this app happens on this phone. There is no account, no server and
+        no internet permission, so nothing you paint can leave unless you export it yourself.</p>
+      <div class="menurow switch">
+        <div><b>Left handed rails</b><i>Puts the paint controls under your left thumb.</i></div>
+        <input type="checkbox" id="leftyChk">
+      </div>
+      <div class="menurow switch">
+        <div><b>Haptics</b><i>A tick when a wash dries, and texture under a dry brush.</i></div>
+        <input type="checkbox" id="hapticChk2">
+      </div>
+      <button class="listbtn" id="btnExportAll"><b>Export everything</b><i>Your paintings as stroke logs, plus your mixes, in one JSON file</i></button>
+      <button class="listbtn danger" id="btnErase"><b>Erase everything</b><i>Every sheet, every mix, every setting</i></button>
+      <p class="help" id="settingsNote"></p>
+      <p class="colophon">Pigment. Watercolour simulated rather than imitated.<br>
+        Free and complete. No account, no subscription, no advertising.</p>
+    </div>
+  </div>
+</div>
+
+<div class="sheetlayer" id="sh-mixname" hidden>
+  <div class="sheetpanel">
+    <div class="sheethead"><p class="sheettitle">Save this mix</p>
+      <button class="iconbtn" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheetbody">
+      <div class="mixinfo big"><canvas class="chip-sw big" id="saveDot" aria-hidden="true"></canvas>
+        <div><b id="saveProps"></b><i>Saved mixes sit beside the tubes in the drawer.</i></div></div>
+      <div class="menurow"><label for="mixNameIn">Name</label>
+        <input type="text" id="mixNameIn" maxlength="34" autocomplete="off"></div>
+      <button class="btn primary wide" id="mixSave">Save it</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheetlayer" id="sh-info" hidden>
+  <div class="sheetpanel">
+    <div class="sheethead"><p class="sheettitle" id="infoTitle"></p>
+      <button class="iconbtn" data-close aria-label="Close"><svg><use href="#i-close"/></svg></button></div>
+    <div class="sheetbody" id="infoBody"></div>
+  </div>
+</div>
+
+<p id="toast" class="toast" hidden></p>
+
+<script src="js/data.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/bloom.js"></script>
+<script src="js/store.js"></script>
+<script src="js/studio.js"></script>
+<script src="js/well.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

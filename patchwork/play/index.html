@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Patchwork</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- One stroke width, one corner language, one set of caps. Every glyph in the app comes from here. -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <defs>
+    <g id="stroke-defaults"></g>
+  </defs>
+  <symbol id="i-board" viewBox="0 0 24 24">
+    <rect x="3.2" y="3.2" width="7.6" height="7.6" rx="1.6"/>
+    <rect x="13.2" y="13.2" width="7.6" height="7.6" rx="1.6"/>
+    <rect x="3.2" y="13.2" width="7.6" height="7.6" rx="1.6"/>
+    <rect x="16.9" y="1.6" width="7.2" height="7.2" rx="1.6" transform="rotate(24 20.5 5.2)"/>
+  </symbol>
+  <symbol id="i-bookings" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.6"/>
+    <path d="M12 6.9V12l3.4 2.1"/>
+  </symbol>
+  <symbol id="i-ledger" viewBox="0 0 24 24">
+    <path d="M12 6.3v13.4"/>
+    <path d="M12 6.3C10.4 4.9 8.3 4.2 5.6 4.2H3.4v13.3h2.2c2.7 0 4.8.7 6.4 2.2"/>
+    <path d="M12 6.3c1.6-1.4 3.7-2.1 6.4-2.1h2.2v13.3h-2.2c-2.7 0-4.8.7-6.4 2.2"/>
+  </symbol>
+  <symbol id="i-people" viewBox="0 0 24 24">
+    <circle cx="9.2" cy="8.1" r="3.5"/>
+    <path d="M3 19.6c.6-3.2 3.1-5.1 6.2-5.1s5.6 1.9 6.2 5.1"/>
+    <path d="M16.2 5.2a3.5 3.5 0 0 1 0 6.6"/>
+    <path d="M17.6 14.9c2.1.5 3.6 2.2 4.1 4.7"/>
+  </symbol>
+  <symbol id="i-search" viewBox="0 0 24 24">
+    <circle cx="10.6" cy="10.6" r="6.4"/>
+    <path d="M15.4 15.4 20 20"/>
+  </symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24">
+    <path d="M12 5.6v12.8M5.6 12h12.8"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24">
+    <path d="m5 12.6 4.6 4.4L19 6.9"/>
+  </symbol>
+  <symbol id="i-share" viewBox="0 0 24 24">
+    <path d="M12 15.4V3.8"/>
+    <path d="m7.9 7.9 4.1-4.1 4.1 4.1"/>
+    <path d="M4.6 13.9v4.6c0 .9.8 1.7 1.7 1.7h11.4c.9 0 1.7-.8 1.7-1.7v-4.6"/>
+  </symbol>
+  <symbol id="i-merge" viewBox="0 0 24 24">
+    <path d="M12 3.8v11.6"/>
+    <path d="m7.9 11.3 4.1 4.1 4.1-4.1"/>
+    <path d="M4.6 13.9v4.6c0 .9.8 1.7 1.7 1.7h11.4c.9 0 1.7-.8 1.7-1.7v-4.6"/>
+  </symbol>
+</svg>
+
+<main id="stage">
+
+  <!-- ONBOARDING -->
+  <section class="screen" id="onboard" hidden>
+    <div class="ob-track" id="obTrack">
+      <div class="ob-mark" id="obMark"></div>
+      <article class="ob-card is-on">
+        <h1>An hour for an hour.</h1>
+        <p>Teach an hour of guitar, earn one hour. Spend it on an hour of anything anyone else can do.
+          No money changes hands, ever.</p>
+      </article>
+      <article class="ob-card">
+        <h1>This is the book, not the market.</h1>
+        <p>Patchwork keeps the ledger for a group that already meets: a street, a building, a library
+          circle, a family. It does not find you strangers, and it has no network to find them on.</p>
+      </article>
+      <article class="ob-card">
+        <h1>The node fronts you two hours.</h1>
+        <p>Everyone starts at plus two and may go to minus three. An overdraft is not a debt, it is the
+          group covering you until you help someone.</p>
+      </article>
+      <article class="ob-card">
+        <h1>Who keeps this book?</h1>
+        <div class="field"><label for="obName">Your name</label>
+          <input id="obName" type="text" autocomplete="off" placeholder="Amaia" maxlength="60">
+          <span class="err" id="obNameErr" hidden></span></div>
+        <div class="field"><label for="obNode">What is the group called?</label>
+          <input id="obNode" type="text" autocomplete="off" placeholder="Lower Road" maxlength="40"></div>
+      </article>
+    </div>
+    <div class="ob-foot">
+      <div class="ob-dots" id="obDots"></div>
+      <button class="btn primary" id="obNext">Next</button>
+    </div>
+  </section>
+
+  <!-- BOARD -->
+  <section class="screen view" id="v-board" hidden>
+    <header class="top">
+      <div class="headtext"><h1 id="nodeName">The node</h1><p class="sub" id="boardSub"></p></div>
+      <button class="quilt-btn" id="quiltMini" aria-label="Open the ledger"></button>
+    </header>
+    <div class="scroller">
+      <div class="searchwrap">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75"
+             stroke-linecap="round" stroke-linejoin="round"><use href="#i-search"/></svg>
+        <input type="search" id="boardSearch" placeholder="Search offers and asks" aria-label="Search the board">
+      </div>
+      <div class="segbar" role="tablist">
+        <button class="seg is-on" data-board="offers" role="tab" aria-selected="true">Offers</button>
+        <button class="seg" data-board="asks" role="tab" aria-selected="false">Asks</button>
+      </div>
+      <div id="boardList" class="stagger"></div>
+      <div class="empty" id="boardEmpty" hidden></div>
+    </div>
+  </section>
+
+  <!-- BOOKINGS -->
+  <section class="screen view" id="v-bookings" hidden>
+    <header class="top">
+      <div class="headtext"><h1>Bookings</h1><p class="sub" id="bookingSub">Arranged, and waiting to be confirmed.</p></div>
+      <button class="btn small" id="newBookingTop">Arrange</button>
+    </header>
+    <div class="scroller">
+      <div id="bookingList" class="stagger"></div>
+      <div class="empty" id="bookingEmpty" hidden></div>
+    </div>
+  </section>
+
+  <!-- LEDGER -->
+  <section class="screen view" id="v-ledger" hidden>
+    <header class="top">
+      <div class="headtext"><h1>Ledger</h1><p class="sub" id="ledgerSub"></p></div>
+      <button class="btn small ghost" id="ledgerExport">Export</button>
+    </header>
+    <div class="scroller">
+      <div id="quiltBig"></div>
+      <h2 class="h2">Where the hours sit</h2>
+      <div class="balances" id="balances"></div>
+      <h2 class="h2">The book</h2>
+      <div id="ledgerList"></div>
+      <div class="empty" id="ledgerEmpty" hidden></div>
+    </div>
+  </section>
+
+  <!-- PEOPLE -->
+  <section class="screen view" id="v-people" hidden>
+    <header class="top">
+      <div class="headtext"><h1>People</h1><p class="sub" id="peopleSub"></p></div>
+      <button class="btn small" id="addPerson">Add person</button>
+    </header>
+    <div class="scroller">
+      <div id="peopleList" class="stagger"></div>
+      <div class="empty" id="peopleEmpty" hidden></div>
+      <hr class="rule">
+      <h2 class="h2">The book itself</h2>
+      <p class="help">Everything lives on this phone. Share the book as a file so another keeper can
+        merge it, and import theirs the same way.</p>
+      <div class="btnrow">
+        <button class="btn small ghost" id="exportJson">Export the book</button>
+        <label class="btn small ghost filelabel" for="importFile">Merge a book</label>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+        <button class="btn small ghost" id="exportCsv">Export CSV</button>
+      </div>
+      <p class="help" id="ioNote"></p>
+      <div class="btnrow"><button class="btn small danger" id="eraseBtn">Erase everything</button></div>
+      <hr class="rule">
+      <p class="colophon">Patchwork. An hour for an hour.<br>Version 1.0.1</p>
+    </div>
+  </section>
+</main>
+
+<nav id="tabs" hidden>
+  <button data-view="board" class="tab is-on">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75"
+         stroke-linecap="round" stroke-linejoin="round"><use href="#i-board"/></svg>Board</button>
+  <button data-view="bookings" class="tab">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75"
+         stroke-linecap="round" stroke-linejoin="round"><use href="#i-bookings"/></svg>Bookings</button>
+  <button data-view="ledger" class="tab">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75"
+         stroke-linecap="round" stroke-linejoin="round"><use href="#i-ledger"/></svg>Ledger</button>
+  <button data-view="people" class="tab">
+    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75"
+         stroke-linecap="round" stroke-linejoin="round"><use href="#i-people"/></svg>People</button>
+</nav>
+
+<!-- SHEETS -->
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true">
+  <div class="sheet-panel" id="sheetPanel"></div>
+</div>
+
+<p id="toast" class="toast" role="status" hidden></p>
+
+<script src="js/store.js"></script>
+<script src="js/art.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

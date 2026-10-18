@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thirstday: plant watering reminder and window light check</title>
+<meta name="description" content="Watering reminders that follow the day you really watered and learn each plant's interval, plus a window light check in lux. Free on Google Play with one optional unlock. Works fully offline.">
+<link rel="icon" href="icon.png">
+<style>
+  @font-face { font-family: "Bricolage"; src: url("fonts/bricolagegrotesque_semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Bricolage"; src: url("fonts/bricolagegrotesque_extrabold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
+  @font-face { font-family: "Figtree"; src: url("fonts/figtree_regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Figtree"; src: url("fonts/figtree_medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+
+  :root {
+    color-scheme: light dark;
+    --ground: #EDF2EE; --surface: #F8FAF7; --ink: #16241B; --muted: #4B5B51; --leaf: #2C7833;
+    --on-leaf: #F8FAF7; --line: #C9D4CC; --shadow: rgba(22, 36, 27, 0.16);
+    --band1: rgba(44, 120, 51, 0.12); --band2: rgba(44, 120, 51, 0.30); --band3: rgba(44, 120, 51, 0.55); --band4: #2C7833;
+    --radius-sm: 6px; --radius-md: 12px; --radius-lg: 20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #111915; --surface: #1A2520; --ink: #E2EBE4; --muted: #A2B2A7; --leaf: #6CC673;
+      --on-leaf: #111915; --line: #2E3D35; --shadow: rgba(0, 0, 0, 0.45);
+      --band1: rgba(108, 198, 115, 0.12); --band2: rgba(108, 198, 115, 0.30); --band3: rgba(108, 198, 115, 0.55); --band4: #6CC673;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--ground); color: var(--ink);
+    font: 400 17px/1.55 "Figtree", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { display: block; max-width: 100%; height: auto; }
+  a { color: var(--leaf); text-underline-offset: 3px; }
+  h1, h2, h3 { font-family: "Bricolage", system-ui, sans-serif; font-weight: 600; margin: 0; letter-spacing: -0.015em; }
+  h1 { font-weight: 800; font-size: clamp(2.3rem, 4.3vw, 3.35rem); line-height: 1.04; letter-spacing: -0.035em; }
+  h2 { font-size: clamp(1.75rem, 3.6vw, 2.6rem); line-height: 1.08; }
+  h3 { font-size: 1.15rem; line-height: 1.25; }
+  p { margin: 0; }
+  .muted { color: var(--muted); }
+  .num { font-variant-numeric: tabular-nums; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+  /* Header: brand only, the single call to action lives in the hero. */
+  .top { display: flex; align-items: center; height: 72px; }
+  .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none;
+    font-family: "Bricolage", system-ui, sans-serif; font-weight: 800; font-size: 1.3rem; letter-spacing: -0.02em; }
+  .brand img { width: 36px; height: 36px; border-radius: var(--radius-sm); }
+
+  /* Phone frame around a real capture. */
+  .phone { border: 9px solid var(--ink); border-radius: 34px; overflow: hidden; background: var(--surface);
+    box-shadow: 0 28px 60px -18px var(--shadow); }
+  .phone img { width: 100%; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1.45fr 0.55fr; gap: 56px; align-items: center; padding: 40px 0 88px; }
+  .hero p.lead { margin-top: 22px; font-size: 1.22rem; max-width: 34rem; color: var(--muted); }
+  .cta { display: inline-flex; align-items: center; margin-top: 32px; padding: 15px 26px; border-radius: var(--radius-md);
+    background: var(--leaf); color: var(--on-leaf); font-weight: 500; font-size: 1.05rem; text-decoration: none; white-space: nowrap;
+    transition: transform 120ms ease; }
+  .cta:active { transform: translateY(1px) scale(0.99); }
+  .cta:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .hero .phone { width: min(330px, 100%); justify-self: end; }
+
+  section { padding: 96px 0; }
+
+  /* Watering: text beside an offset pair of screens */
+  .water { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .water ol { list-style: none; margin: 32px 0 0; padding: 0; display: grid; gap: 22px; max-width: 32rem; }
+  .water li { padding-left: 20px; border-left: 3px solid var(--band3); }
+  .water li b { display: block; font-weight: 500; }
+  .water li span { color: var(--muted); }
+  .pair { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+  .pair .phone:last-child { margin-top: 72px; }
+
+  /* Light: the ruler, full width */
+  .light { background: var(--surface); border-radius: var(--radius-lg); padding: 64px 56px; }
+  .light > p { margin-top: 18px; max-width: 40rem; color: var(--muted); }
+  .reading { margin-top: 48px; display: flex; align-items: baseline; gap: 10px; }
+  .reading strong { font-family: "Bricolage", system-ui, sans-serif; font-weight: 800; font-size: clamp(3.4rem, 9vw, 6rem);
+    line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .reading span { color: var(--muted); font-size: 1.2rem; }
+  .ruler { position: relative; margin-top: 28px; }
+  .bar { display: grid; grid-template-columns: 47.7fr 20.1fr 9.9fr 22.3fr; height: 44px; border-radius: var(--radius-md); overflow: hidden; }
+  .bar i:nth-child(1) { background: var(--band1); }
+  .bar i:nth-child(2) { background: var(--band2); }
+  .bar i:nth-child(3) { background: var(--band3); }
+  .bar i:nth-child(4) { background: var(--band4); }
+  .notch { position: absolute; left: 60.2%; top: -12px; width: 4px; height: 68px; margin-left: -2px; background: var(--ink); border-radius: 2px; }
+  .ends { display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.95rem; color: var(--muted); }
+  .bands { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; margin-top: 44px; }
+  .bands div { padding-top: 14px; border-top: 6px solid var(--band1); }
+  .bands div:nth-child(2) { border-top-color: var(--band2); }
+  .bands div:nth-child(3) { border-top-color: var(--band3); }
+  .bands div:nth-child(4) { border-top-color: var(--band4); }
+  .bands h3 { margin-bottom: 6px; }
+  .bands p { color: var(--muted); font-size: 0.98rem; }
+
+  /* Price: what is free beside what the unlock adds, with the unlock screens */
+  .price h2 { max-width: 20ch; }
+  .price .line { margin-top: 18px; font-size: 1.2rem; }
+  .price-grid { display: grid; grid-template-columns: 1fr 1fr 0.85fr; gap: 48px; margin-top: 56px; align-items: start; }
+  .price-grid h3 { padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .price-grid ul { list-style: none; margin: 0; padding: 0; }
+  .price-grid li { padding: 12px 0 0; }
+  .price-grid li + li { margin-top: 2px; }
+  .price-grid .note { margin-top: 22px; font-size: 0.95rem; color: var(--muted); }
+  .stack { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .stack .phone { border-width: 7px; border-radius: 26px; }
+  .stack .phone:last-child { margin-top: 48px; }
+
+  /* Offline: one statement over a two by two grid */
+  .offline { border-top: 1px solid var(--line); }
+  .offline h2 { max-width: 22ch; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 40px 64px; margin-top: 48px; max-width: 940px; }
+  .facts p { margin-top: 8px; color: var(--muted); max-width: 30rem; }
+
+  footer { border-top: 1px solid var(--line); padding: 32px 0 56px; display: flex; flex-wrap: wrap; gap: 16px 32px;
+    justify-content: space-between; font-size: 0.95rem; color: var(--muted); }
+  footer nav { display: flex; gap: 24px; flex-wrap: wrap; }
+
+  @media (max-width: 900px) {
+    .price-grid { grid-template-columns: 1fr 1fr; }
+    .stack { grid-column: 1 / -1; max-width: 460px; }
+  }
+  @media (max-width: 767px) {
+    .wrap { padding: 0 16px; }
+    .hero { grid-template-columns: 1fr; gap: 40px; padding: 16px 0 56px; }
+    .hero .phone { justify-self: center; width: min(300px, 82%); }
+    section { padding: 64px 0; }
+    .water { grid-template-columns: 1fr; gap: 40px; }
+    .pair .phone:last-child { margin-top: 40px; }
+    .light { padding: 40px 20px; border-radius: var(--radius-md); }
+    .bar { height: 36px; }
+    .notch { height: 60px; }
+    .bands { grid-template-columns: 1fr 1fr; gap: 24px 20px; }
+    .price-grid { grid-template-columns: 1fr; gap: 36px; }
+    .facts { grid-template-columns: 1fr; gap: 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cta { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./"><img src="icon.png" alt="" width="36" height="36">Thirstday</a>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div>
+        <h1>The right day to water, the right window to grow.</h1>
+        <p class="lead">Reminders that move when you water late, learn each plant's rhythm, and a light check for every window.</p>
+        <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.thirstday">Get it on Google Play</a>
+      </div>
+      <div class="phone"><img src="shots/01-light-check.png" width="720" height="1280" alt="The Light screen reading 6,380 lux at an east window, medium light, with the plants that suit it"></div>
+    </div>
+
+    <section>
+      <div class="water">
+        <div>
+          <h2>Mark the day you really watered.</h2>
+          <ol>
+            <li><b>Watered yesterday instead of today?</b><span>Pick the real day and the next one counts from it.</span></li>
+            <li><b>Soil still damp?</b><span>Push the pot back two days without logging a watering.</span></li>
+            <li><b>Three waterings in, it learns.</b><span>The middle gap of your last five becomes that plant's own interval, shown in plain words.</span></li>
+            <li><b>One digest a day.</b><span>Around the time you choose, naming what is due. A Today list and a home screen widget show the same.</span></li>
+          </ol>
+        </div>
+        <div class="pair">
+          <div class="phone"><img src="shots/02-today.png" width="720" height="1280" loading="lazy" alt="The Today list with one plant a day late, three due today and two due tomorrow"></div>
+          <div class="phone"><img src="shots/03-plant.png" width="720" height="1280" loading="lazy" alt="A Monstera watered every 9 days, learned from its last 5 waterings"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="light" aria-labelledby="light-h">
+      <h2 id="light-h">Hold the phone at the glass.</h2>
+      <p>The light sensor reads the window in lux or foot-candles and places it on a ruler from 100 to 100,000 lux, then names the plants from your list and from about 230 houseplants that suit the spot. Every figure is an estimate from a phone sensor, not a lab meter.</p>
+      <div class="reading"><strong>6,380</strong><span>lux, medium light</span></div>
+      <div class="ruler" role="img" aria-label="A log ruler from 100 to 100,000 lux in four bands, with a reading of 6,380 lux in the medium band">
+        <div class="bar"><i></i><i></i><i></i><i></i></div>
+        <span class="notch"></span>
+        <div class="ends num"><span>100</span><span>100,000</span></div>
+      </div>
+      <div class="bands">
+        <div><h3>Low</h3><p class="num">Under 2,700 lux. ZZ plant, prayer plant, peace lily.</p></div>
+        <div><h3>Medium</h3><p class="num">2,700 to 10,800 lux. Calathea, Marble Queen, monstera.</p></div>
+        <div><h3>Bright indirect</h3><p class="num">10,800 to 21,500 lux. String of pearls, alocasia.</p></div>
+        <div><h3>Direct</h3><p class="num">Above 21,500 lux. Aloe vera, jade, cacti.</p></div>
+      </div>
+    </section>
+
+    <section class="price" aria-labelledby="price-h">
+      <h2 id="price-h">Free to use. One purchase unlocks the rest.</h2>
+      <p class="line">Free on Google Play, unlock everything once for USD 2.99. No ads, no subscription, no account.</p>
+      <div class="price-grid">
+        <div>
+          <h3>Free, with no limit on plants</h3>
+          <ul>
+            <li>Unlimited plants with a cover photo each</li>
+            <li>Watering and feeding, fixed or learned</li>
+            <li>The daily digest, the Today list and the widget</li>
+            <li>The live window light check</li>
+            <li>A backup file you can restore on any phone</li>
+          </ul>
+        </div>
+        <div>
+          <h3>The unlock adds</h3>
+          <ul>
+            <li>A day light log with a DLI estimate</li>
+            <li>Saved spots by room and a wrong-light check</li>
+            <li>A grow-light hours calculator</li>
+            <li>Misting, repotting, pruning, rotating and your own tasks</li>
+            <li>A photo timeline for each plant</li>
+            <li>Vacation mode with a sitter sheet PDF</li>
+            <li>CSV export</li>
+          </ul>
+          <p class="note">Buying or restoring goes through Google Play and needs a connection once. The unlock belongs to the Google account that bought it.</p>
+        </div>
+        <div class="stack">
+          <div class="phone"><img src="shots/04-day-log.png" width="720" height="1280" loading="lazy" alt="A saved east window spot at 6,215 lux with its plants and a day log, part of the unlock"></div>
+          <div class="phone"><img src="shots/05-vacation-dark.png" width="720" height="1280" loading="lazy" alt="Vacation mode in dark theme, part of the unlock"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="offline" aria-labelledby="offline-h">
+      <h2 id="offline-h">Works fully offline. Nothing leaves the phone.</h2>
+      <div class="facts">
+        <div><h3>No internet permission</h3><p>The app cannot send anything anywhere. There are no ads, no analytics and no crash reporting.</p></div>
+        <div><h3>Your data stays yours</h3><p>Plants, photos and readings live on your phone. Save a backup file wherever you like, or export CSV with the unlock.</p></div>
+        <div><h3>Honest about the sensor</h3><p>Phone light sensors vary, so readings are estimates. Thirstday does not identify plants or give toxicity advice.</p></div>
+        <div><h3>Reminders around your time</h3><p>Android delivers the digest around the time you pick, not to the minute. The Today list is always there.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Thirstday by SocialSure Private Limited</span>
+    <nav aria-label="Legal and support">
+      <a href="/privacy-policies/thirstday-privacy-policy.html">Privacy policy</a>
+      <a href="mailto:shayanm2002@gmail.com">Help with a purchase or refund</a>
+    </nav>
+  </footer>
+</div>
+</body>
+</html>

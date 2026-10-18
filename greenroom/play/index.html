@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no, interactive-widget=resizes-content">
+<meta name="color-scheme" content="dark">
+<title>Greenroom</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 108'%3E%3Crect width='108' height='108' fill='%230A2417'/%3E%3Cpath d='M44 20h20l18 66H26Z' fill='%23F5B44C' opacity='.28'/%3E%3Cpath d='M54 84V58' stroke='%23FFE7BC' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='45' y='30' width='18' height='30' rx='9' fill='%23FFD79A'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Nothing on screen may look live before its handler exists. This runs from the
+     parser, before a single stylesheet rule or script has been fetched, so the
+     seconds between first paint and app.js are never a screen of dead buttons.
+     A tap in that window says so and is replayed the moment the app is ready. -->
+<script>
+(function () {
+  var ready = false, pending = null;
+  document.addEventListener('click', function (e) {
+    if (ready) return;
+    var n = e.target, b = null;
+    while (n && n !== document) { if (n.tagName === 'BUTTON' || n.tagName === 'A') { b = n; break; } n = n.parentNode; }
+    if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    if (document.documentElement.className.indexOf('booting') < 0) {
+      document.documentElement.className += ' booting';
+    }
+    pending = b;
+  }, true);
+  window.__grReady = function () {
+    ready = true;
+    document.documentElement.className = document.documentElement.className.replace(/ ?booting/g, '');
+    if (pending) { var b = pending; pending = null; setTimeout(function () { b.click(); }, 0); }
+  };
+  window.__grFailed = function (why) {
+    ready = true;
+    var el = document.getElementById('bootfail');
+    if (!el) return;
+    document.documentElement.className = document.documentElement.className.replace(/ ?booting/g, '');
+    var d = document.getElementById('bootfailWhy');
+    if (d && why) d.textContent = String(why).slice(0, 160);
+    el.hidden = false;
+  };
+  // If app.js never runs at all, nothing above ever fires. Say so out loud,
+  // but leave a slow phone plenty of room first.
+  setTimeout(function () {
+    if (!ready && !window.App) window.__grFailed('The app did not finish opening.');
+  }, 20000);
+})();
+</script>
+
+<div id="bootnote" aria-live="polite">Greenroom is opening. One moment.</div>
+
+<!-- One icon language for the whole app: 24 unit box, 2 unit stroke, round caps
+     and joins, no filled shapes except the two transport glyphs. -->
+<svg style="display:none" aria-hidden="true" focusable="false">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="M4 7h7M17 7h3M4 12h9M19 12h1M4 17h4M14 17h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="7" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="11" cy="17" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7.5 5.2 18.6 12 7.5 18.8Z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+  <!-- the tabs -->
+  <symbol id="i-tab-stage" viewBox="0 0 24 24"><path d="M9.6 3h4.8l4.6 16.5H5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 19.5V13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="9.4" y="6" width="5.2" height="8" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-tab-speeches" viewBox="0 0 24 24"><path d="M7 3.5h7l4 4v13H7Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 11h6M10 15h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-tab-progress" viewBox="0 0 24 24"><path d="M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M5 15l4.5-5 3.5 3 5.5-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+  <!-- the signals, used on the coach's priority cards and the panel heads -->
+  <symbol id="i-pace" viewBox="0 0 24 24"><path d="M4 16a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 16l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-pausesig" viewBox="0 0 24 24"><path d="M3 12h4M17 12h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10 6v12M14 6v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-pitch" viewBox="0 0 24 24"><path d="M3 15c3 0 3-8 6-8s3 10 6 10 3-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-level" viewBox="0 0 24 24"><path d="M5 14v-3M9.7 17V7M14.3 19V5M19 15v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-shape" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7.4V12l3.2 2.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-filler" viewBox="0 0 24 24"><path d="M4 5.5h16v10H12l-4.5 4v-4H4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 10.5h.01M12 10.5h.01M15 10.5h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-ear" viewBox="0 0 24 24"><path d="M12 4.5a6.5 6.5 0 0 0-6.5 6.5c0 2.4 1.4 3.4 1.4 5.6A3.4 3.4 0 0 0 10.3 20c2 0 2.6-1.4 2.6-3 0-1.6 1.4-1.8 2.6-2.6a5.4 5.4 0 0 0 2.9-4.9A6.5 6.5 0 0 0 12 4.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 11a2.2 2.2 0 1 1 3.6 1.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+
+</svg>
+
+<header id="topbar">
+  <button class="iconbtn" id="topBack" hidden aria-label="Back"><svg><use href="#i-back"/></svg></button>
+  <h1 id="topTitle">Greenroom</h1>
+  <button class="iconbtn" id="topSettings" aria-label="Settings"><svg><use href="#i-gear"/></svg></button>
+</header>
+
+<main id="views">
+
+  <!-- ============================ STAGE ============================ -->
+  <section id="v-stage" class="view on">
+    <div class="wrap stagger">
+
+      <!-- The signature: the greenroom itself, a warm cone of light standing on
+           an empty stage with one microphone in it. The same shape is the
+           launcher icon, and the same scene is drawn live behind an empty-room
+           take. Everything moves on transform and opacity only. -->
+      <div class="stagebox">
+        <svg class="scene" viewBox="0 0 390 214" role="img" aria-label="An empty stage with one microphone standing in a cone of warm light">
+          <defs>
+            <linearGradient id="sc-room" x1="0.2" y1="0" x2="0.8" y2="1">
+              <stop offset="0" stop-color="#16603F"/>
+              <stop offset="0.5" stop-color="#0B3020"/>
+              <stop offset="1" stop-color="#04160E"/>
+            </linearGradient>
+            <linearGradient id="sc-beam" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FFF7E6" stop-opacity="0.95"/>
+              <stop offset="0.24" stop-color="#FFE2B4" stop-opacity="0.66"/>
+              <stop offset="0.66" stop-color="#F7BE60" stop-opacity="0.27"/>
+              <stop offset="1" stop-color="#F5B44C" stop-opacity="0.05"/>
+            </linearGradient>
+            <!-- The ceiling above the lamp. It keeps the top of the room dark
+                 enough for the caption to sit on, and it is what makes the box
+                 read as a room with one light rather than a green panel. -->
+            <linearGradient id="sc-top" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#03130C" stop-opacity="0.78"/>
+              <stop offset="0.55" stop-color="#03130C" stop-opacity="0.2"/>
+              <stop offset="1" stop-color="#03130C" stop-opacity="0"/>
+            </linearGradient>
+            <radialGradient id="sc-glow" cx="0.5" cy="0.14" r="0.62">
+              <stop offset="0" stop-color="#FFDDA8" stop-opacity="0.34"/>
+              <stop offset="1" stop-color="#F5B44C" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="sc-pool" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0" stop-color="#FFEFD8" stop-opacity="0.85"/>
+              <stop offset="0.4" stop-color="#F5B44C" stop-opacity="0.28"/>
+              <stop offset="1" stop-color="#F5B44C" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="sc-body" x1="0.15" y1="0" x2="0.9" y2="1">
+              <stop offset="0" stop-color="#1B4630"/>
+              <stop offset="0.4" stop-color="#061D11"/>
+              <stop offset="1" stop-color="#02100A"/>
+            </linearGradient>
+            <linearGradient id="sc-shade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#F6C877"/>
+              <stop offset="1" stop-color="#B87418"/>
+            </linearGradient>
+            <mask id="sc-grille">
+              <rect width="390" height="214" fill="#fff"/>
+              <path d="M182 88h26M182 103h26M182 118h26" stroke="#000" stroke-width="5.5" stroke-linecap="round"/>
+            </mask>
+            <filter id="sc-drop" filterUnits="userSpaceOnUse" x="0" y="0" width="390" height="214">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+              <feOffset dy="7" result="o"/>
+              <feFlood flood-color="#010B06" flood-opacity="0.7"/>
+              <feComposite in2="o" operator="in"/>
+              <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          <rect width="390" height="214" fill="url(#sc-room)"/>
+          <rect width="390" height="214" fill="url(#sc-glow)"/>
+          <rect width="390" height="82" fill="url(#sc-top)"/>
+
+          <!-- the back wall meeting the boards -->
+          <path d="M0 154h390" stroke="#1A5638" stroke-width="1.2" opacity="0.75"/>
+          <path d="M0 176h390M0 198h390" stroke="#0E3623" stroke-width="1"/>
+
+          <!-- the beam, breathing -->
+          <g class="sc-beam">
+            <path d="M167 42h56l52 138H115Z" fill="url(#sc-beam)"/>
+            <path d="M167 42 115 180M223 42l52 138" stroke="#FFFAF0" stroke-opacity="0.62" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          </g>
+          <ellipse class="sc-pool" cx="195" cy="180" rx="86" ry="19" fill="url(#sc-pool)"/>
+
+          <!-- the microphone, dark in the light, lit from above -->
+          <g class="sc-mic">
+            <g filter="url(#sc-drop)">
+              <path d="M170 181h50" stroke="#04150C" stroke-width="12" stroke-linecap="round" fill="none"/>
+              <path d="M195 178V143" stroke="#04150C" stroke-width="13.5" stroke-linecap="butt" fill="none"/>
+              <rect x="183" y="134" width="24" height="14" rx="4.5" fill="#04150C"/>
+              <rect x="170" y="62" width="50" height="74" rx="25" fill="url(#sc-body)" mask="url(#sc-grille)"/>
+            </g>
+            <path d="M177 78a23.5 23.5 0 0 1 36 0" stroke="#FFEBC8" stroke-opacity="0.98" stroke-width="6.5" stroke-linecap="round" fill="none"/>
+            <path d="M174 177h42" stroke="#FFEBC8" stroke-opacity="0.55" stroke-width="4" stroke-linecap="round" fill="none"/>
+            <path d="M190 176v-27" stroke="#BFE0CC" stroke-opacity="0.4" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+          </g>
+
+          <!-- the lamp itself -->
+          <path d="M174 18h42l9 20h-60Z" fill="url(#sc-shade)" filter="url(#sc-drop)"/>
+          <rect x="163" y="35.5" width="64" height="7" rx="3.5" fill="#FFFBF0"/>
+          <path d="M178 21h34" stroke="#FFF1D6" stroke-opacity="0.8" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+
+          <!-- dust in the beam -->
+          <g fill="#FFF8EC">
+            <circle class="mote m1" cx="160" cy="120" r="2" opacity="0.55"/>
+            <circle class="mote m2" cx="236" cy="84" r="1.6" opacity="0.45"/>
+            <circle class="mote m3" cx="238" cy="152" r="2.2" opacity="0.34"/>
+            <circle class="mote m4" cx="146" cy="164" r="1.6" opacity="0.3"/>
+            <circle class="mote m5" cx="252" cy="126" r="1.8" opacity="0.26"/>
+          </g>
+        </svg>
+        <p class="caption">The greenroom</p>
+      </div>
+
+      <div class="stagefoot">
+        <button id="recBtn" class="recbtn" aria-label="Start recording a take"><span class="recdot"></span></button>
+        <p class="reclabel">Start a take</p>
+        <p id="recSub" class="recsub"></p>
+        <button class="link" id="recDemo" hidden>No microphone? See an example take</button>
+      </div>
+
+      <!-- Anything that stops a take from starting is said here and stays said,
+           with the way out attached. A message that vanishes in two seconds is
+           indistinguishable from a button that did nothing. -->
+      <div id="micCard" class="miccard" hidden>
+        <p class="eyebrow" id="micCardKick">The microphone</p>
+        <p class="miccard-title" id="micCardTitle"></p>
+        <p class="miccard-body" id="micCardBody"></p>
+        <div class="actions" id="micCardActions"></div>
+      </div>
+
+      <div id="promptCard" class="prompt" hidden>
+        <p class="eyebrow">Warm-up prompt</p>
+        <p id="promptText" class="prompt-text"></p>
+        <p id="promptSub" class="prompt-sub"></p>
+      </div>
+
+      <div class="field">
+        <div class="field-head">
+          <span class="label">Rehearsing</span>
+          <button class="link" id="newSpeechBtn">New speech</button>
+        </div>
+        <div id="speechChips" class="chiprow"></div>
+      </div>
+
+      <div class="field">
+        <div class="field-head"><span class="label">The room</span></div>
+        <div id="audienceGrid" class="audgrid"></div>
+        <p id="audienceNote" class="hint"></p>
+      </div>
+
+      <div class="field" id="scriptField">
+        <div class="field-head">
+          <span class="label">Teleprompter</span>
+          <button class="link" id="editScriptBtn">Write script</button>
+        </div>
+        <div class="seg" id="scriptSeg" role="group" aria-label="Teleprompter">
+          <button data-scroll="off">Off</button>
+          <button data-scroll="pace">Follow my pace</button>
+          <button data-scroll="fixed">Fixed speed</button>
+        </div>
+        <p id="scriptHint" class="hint"></p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================ SPEECHES ============================ -->
+  <section id="v-speeches" class="view">
+    <div class="wrap">
+      <div id="speechList" class="stagger"></div>
+      <div id="speechEmpty" class="empty" hidden>
+        <svg viewBox="0 0 190 130" role="img" aria-label="Three script pages waiting under a stage light">
+          <defs>
+            <linearGradient id="em1-page" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#1B4230"/>
+              <stop offset="1" stop-color="#102A1D"/>
+            </linearGradient>
+            <radialGradient id="em1-glow" cx="0.5" cy="0.2" r="0.75">
+              <stop offset="0" stop-color="#F5B44C" stop-opacity="0.3"/>
+              <stop offset="1" stop-color="#F5B44C" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="95" cy="112" rx="74" ry="14" fill="url(#em1-glow)"/>
+          <g transform="rotate(-8 60 70)">
+            <rect x="30" y="34" width="58" height="76" rx="6" fill="url(#em1-page)" stroke="#25573E" stroke-width="1.5"/>
+            <path d="M41 52h34M41 62h30M41 72h34M41 82h22" stroke="#4E7A62" stroke-width="2.4" stroke-linecap="round"/>
+          </g>
+          <g transform="rotate(5 118 70)">
+            <rect x="96" y="28" width="60" height="80" rx="6" fill="url(#em1-page)" stroke="#2C6647" stroke-width="1.5"/>
+            <path d="M107 46h36M107 57h30M107 68h36M107 79h26M107 90h32" stroke="#5C8C72" stroke-width="2.4" stroke-linecap="round"/>
+          </g>
+          <path d="M95 108V72" stroke="#F5B44C" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+          <rect x="87" y="40" width="17" height="30" rx="8.5" fill="#F7C169"/>
+          <path d="M91 47h9M91 53h9M91 59h9" stroke="#A96C16" stroke-opacity="0.55" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <p class="empty-title">Nothing rehearsed yet.</p>
+        <p class="empty-body">A speech is a folder for takes of the same thing. Make one for the talk, the toast or the defence you are dreading, then record it as many times as it takes.</p>
+        <button class="btn" id="emptyNewBtn">Start a speech</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ PROGRESS ============================ -->
+  <section id="v-progress" class="view">
+    <div class="wrap">
+      <div id="progressBody" class="stagger"></div>
+    </div>
+  </section>
+
+  <!-- ============================ SPEECH DETAIL ============================ -->
+  <section id="v-speech" class="view">
+    <div class="wrap">
+      <div id="speechHead"></div>
+      <div id="takeList" class="stagger"></div>
+    </div>
+  </section>
+
+  <!-- ============================ COACH'S NOTES ============================ -->
+  <section id="v-notes" class="view full">
+    <div class="wrap notes-wrap">
+      <div id="notesHead"></div>
+      <div id="notesBody" class="stagger"></div>
+    </div>
+    <div id="transport">
+      <button class="iconbtn big" id="playBtn" aria-label="Play take"><svg><use href="#i-play"/></svg></button>
+      <div class="tline">
+        <canvas id="waveCanvas"></canvas>
+        <div id="playhead"></div>
+      </div>
+      <div class="tmeta"><span id="tNow">0:00</span></div>
+      <button class="markbtn" id="markBtn">Mark<br><small>filler</small></button>
+    </div>
+  </section>
+
+  <!-- ============================ COMPARE ============================ -->
+  <section id="v-compare" class="view">
+    <div class="wrap">
+      <div id="compareBody"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================ REHEARSE (full screen) ============================ -->
+<div id="rehearse" hidden>
+  <canvas id="roomCanvas"></canvas>
+
+  <div id="meters">
+    <div class="mrow">
+      <span id="mTime" class="mtime">0:00</span>
+      <span id="mPace" class="mpill">listening</span>
+      <span id="mPause" class="mpill quiet"></span>
+    </div>
+    <div class="levelbar"><i id="levelFill"></i></div>
+  </div>
+
+  <div id="silentBanner" hidden></div>
+
+  <div id="prompter" hidden>
+    <div id="prompterInner"></div>
+    <div class="prompter-line"></div>
+  </div>
+
+  <div id="countdown" hidden><span id="countNum">3</span></div>
+
+  <div id="recFoot">
+    <button class="ghostbtn" id="metersToggle">Hide meters</button>
+    <button id="stopBtn" class="stopbtn" aria-label="Stop recording"><span></span></button>
+    <button class="ghostbtn" id="cancelBtn">Discard</button>
+  </div>
+
+  <!-- Stopping a take always lands somewhere. When there was nothing to read in
+       it, this says what happened and what to do, instead of dropping the user
+       back on the first screen with a toast. -->
+  <div id="takeResult" hidden>
+    <div class="trwrap">
+      <p class="eyebrow">That take</p>
+      <h2 id="trTitle"></h2>
+      <p class="sheet-body" id="trBody"></p>
+      <div class="actions" id="trActions"></div>
+    </div>
+  </div>
+
+  <div id="analysing" hidden>
+    <div class="anwrap">
+      <svg class="anmark" viewBox="18 14 72 72" role="img" aria-label="Greenroom">
+      <defs>
+        <linearGradient id="an-room" x1="0.2" y1="0" x2="0.8" y2="1">
+          <stop offset="0" stop-color="#1A7049"/><stop offset="0.48" stop-color="#0C3924"/><stop offset="1" stop-color="#03160E"/>
+        </linearGradient>
+        <radialGradient id="an-glow" cx="0.5" cy="0.26" r="0.66">
+          <stop offset="0" stop-color="#FFDDA8" stop-opacity="0.55"/>
+          <stop offset="0.38" stop-color="#F5B44C" stop-opacity="0.17"/>
+          <stop offset="1" stop-color="#F5B44C" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="an-beam" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FFF7E6" stop-opacity="0.97"/>
+          <stop offset="0.24" stop-color="#FFE2B4" stop-opacity="0.72"/>
+          <stop offset="0.66" stop-color="#F7BE60" stop-opacity="0.30"/>
+          <stop offset="1" stop-color="#F5B44C" stop-opacity="0.06"/>
+        </linearGradient>
+        <radialGradient id="an-pool" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#FFEFD8" stop-opacity="0.9"/>
+          <stop offset="0.4" stop-color="#F5B44C" stop-opacity="0.32"/>
+          <stop offset="1" stop-color="#F5B44C" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="an-body" x1="0.15" y1="0" x2="0.9" y2="1">
+          <stop offset="0" stop-color="#1B4630"/><stop offset="0.4" stop-color="#061D11"/><stop offset="1" stop-color="#02100A"/>
+        </linearGradient>
+        <linearGradient id="an-shade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#F6C877"/><stop offset="1" stop-color="#B87418"/>
+        </linearGradient>
+        <mask id="an-grille">
+          <rect x="18" y="14" width="72" height="72" fill="#fff"/>
+          <path d="M49.6 44h8.8M49.6 49.6h8.8M49.6 55.2h8.8" stroke="#000" stroke-width="2.1" stroke-linecap="round"/>
+        </mask>
+      </defs>
+      <rect x="18" y="14" width="72" height="72" fill="url(#an-room)"/>
+      <rect x="18" y="14" width="72" height="72" fill="url(#an-glow)"/>
+      <path d="M18 79.5h72" stroke="#16492F" stroke-width="1.2" opacity="0.9"/>
+      <path d="M44 30.6h20l11 45.4H33Z" fill="url(#an-beam)"/>
+      <path d="M44 30.6 33 76M64 30.6 75 76" stroke="#FFFAF0" stroke-opacity="0.7" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      <ellipse cx="54" cy="76" rx="22" ry="5.6" fill="url(#an-pool)"/>
+      <path d="M44 76.6h20" stroke="#04150C" stroke-width="4.8" stroke-linecap="round" fill="none"/>
+      <path d="M54 75.6V62" stroke="#04150C" stroke-width="5.4" fill="none"/>
+      <rect x="49.4" y="59" width="9.2" height="5.6" rx="1.8" fill="#04150C"/>
+      <rect x="44.4" y="33.4" width="19.2" height="28.4" rx="9.6" fill="url(#an-body)" mask="url(#an-grille)"/>
+      <path d="M47.1 39.8a9 9 0 0 1 13.8 0" stroke="#FFEBC8" stroke-opacity="0.98" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+      <path d="M45.6 75h16.8" stroke="#FFEBC8" stroke-opacity="0.6" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <path d="M46.8 22h14.4l4.4 8H42.4Z" fill="url(#an-shade)"/>
+      <rect x="42" y="28.6" width="24" height="2.6" rx="1.3" fill="#FFFBF0"/>
+    </svg>
+      <div class="anbar"><i id="anFill"></i></div>
+      <p id="anText">Listening back.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Every wait longer than a blink gets this, so no control is ever the only
+     thing on screen while something slow happens behind it. -->
+<div id="busy" hidden>
+  <div class="anwrap">
+    <div class="spin" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p id="busyText">Working.</p>
+    <div class="anbar" id="busyBarWrap" hidden><i id="busyBar"></i></div>
+    <button class="ghostbtn" id="busyCancel" hidden>Cancel</button>
+  </div>
+</div>
+
+<!-- ============================ SHEETS ============================ -->
+<div id="scrim" hidden></div>
+
+<div class="sheet" id="introSheet" hidden>
+  <div class="sheet-in">
+    <svg class="mark-in-sheet" viewBox="18 14 72 72" role="img" aria-label="Greenroom">
+      <defs>
+        <linearGradient id="mk-room" x1="0.2" y1="0" x2="0.8" y2="1">
+          <stop offset="0" stop-color="#1A7049"/><stop offset="0.48" stop-color="#0C3924"/><stop offset="1" stop-color="#03160E"/>
+        </linearGradient>
+        <radialGradient id="mk-glow" cx="0.5" cy="0.26" r="0.66">
+          <stop offset="0" stop-color="#FFDDA8" stop-opacity="0.55"/>
+          <stop offset="0.38" stop-color="#F5B44C" stop-opacity="0.17"/>
+          <stop offset="1" stop-color="#F5B44C" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="mk-beam" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FFF7E6" stop-opacity="0.97"/>
+          <stop offset="0.24" stop-color="#FFE2B4" stop-opacity="0.72"/>
+          <stop offset="0.66" stop-color="#F7BE60" stop-opacity="0.30"/>
+          <stop offset="1" stop-color="#F5B44C" stop-opacity="0.06"/>
+        </linearGradient>
+        <radialGradient id="mk-pool" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stop-color="#FFEFD8" stop-opacity="0.9"/>
+          <stop offset="0.4" stop-color="#F5B44C" stop-opacity="0.32"/>
+          <stop offset="1" stop-color="#F5B44C" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="mk-body" x1="0.15" y1="0" x2="0.9" y2="1">
+          <stop offset="0" stop-color="#1B4630"/><stop offset="0.4" stop-color="#061D11"/><stop offset="1" stop-color="#02100A"/>
+        </linearGradient>
+        <linearGradient id="mk-shade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#F6C877"/><stop offset="1" stop-color="#B87418"/>
+        </linearGradient>
+        <mask id="mk-grille">
+          <rect x="18" y="14" width="72" height="72" fill="#fff"/>
+          <path d="M49.6 44h8.8M49.6 49.6h8.8M49.6 55.2h8.8" stroke="#000" stroke-width="2.1" stroke-linecap="round"/>
+        </mask>
+      </defs>
+      <rect x="18" y="14" width="72" height="72" fill="url(#mk-room)"/>
+      <rect x="18" y="14" width="72" height="72" fill="url(#mk-glow)"/>
+      <path d="M18 79.5h72" stroke="#16492F" stroke-width="1.2" opacity="0.9"/>
+      <path d="M44 30.6h20l11 45.4H33Z" fill="url(#mk-beam)"/>
+      <path d="M44 30.6 33 76M64 30.6 75 76" stroke="#FFFAF0" stroke-opacity="0.7" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      <ellipse cx="54" cy="76" rx="22" ry="5.6" fill="url(#mk-pool)"/>
+      <path d="M44 76.6h20" stroke="#04150C" stroke-width="4.8" stroke-linecap="round" fill="none"/>
+      <path d="M54 75.6V62" stroke="#04150C" stroke-width="5.4" fill="none"/>
+      <rect x="49.4" y="59" width="9.2" height="5.6" rx="1.8" fill="#04150C"/>
+      <rect x="44.4" y="33.4" width="19.2" height="28.4" rx="9.6" fill="url(#mk-body)" mask="url(#mk-grille)"/>
+      <path d="M47.1 39.8a9 9 0 0 1 13.8 0" stroke="#FFEBC8" stroke-opacity="0.98" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+      <path d="M45.6 75h16.8" stroke="#FFEBC8" stroke-opacity="0.6" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <path d="M46.8 22h14.4l4.4 8H42.4Z" fill="url(#mk-shade)"/>
+      <rect x="42" y="28.6" width="24" height="2.6" rx="1.3" fill="#FFFBF0"/>
+    </svg>
+    <h2>What are you rehearsing?</h2>
+    <p class="sheet-body">Greenroom records a run-through and listens to how you said it: your pace, where you paused, how much life is in your voice and whether you kept your volume up. It all happens on this phone.</p>
+    <div class="occ" id="occGrid"></div>
+    <div class="sheet-foot">
+      <button class="btn ghost" id="introSkip">Skip for now</button>
+      <button class="btn ghost" id="introDemo">See an example take</button>
+    </div>
+    <p class="hint" style="margin-top:10px">The example is generated on this phone so you can see every screen without recording anything. It is not a recording of you.</p>
+  </div>
+</div>
+
+<div class="sheet" id="speechSheet" hidden>
+  <div class="sheet-in">
+    <h2 id="speechSheetTitle">New speech</h2>
+    <label class="lab" for="spTitle">Title</label>
+    <input id="spTitle" class="input" type="text" placeholder="Thesis defence" maxlength="60" autocomplete="off">
+    <label class="lab">Occasion</label>
+    <div class="chiprow" id="spOcc"></div>
+    <label class="lab" for="spDate">Event date, if there is one</label>
+    <input id="spDate" class="input" type="date">
+    <label class="lab" for="spTarget">Target length in minutes, optional</label>
+    <input id="spTarget" class="input" type="number" min="1" max="120" placeholder="20" inputmode="numeric">
+    <p id="spErr" class="err" hidden></p>
+    <button class="btn danger wide" id="spDelete" style="margin-top:20px" hidden>Delete this speech</button>
+    <div class="sheet-foot">
+      <button class="btn ghost" data-close>Cancel</button>
+      <button class="btn" id="spSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet tall" id="scriptSheet" hidden>
+  <div class="sheet-in">
+    <h2>Script</h2>
+    <p class="sheet-body" id="scriptSheetSub">Paste or type what you plan to say. The teleprompter shows it a few lines at a time while you record.</p>
+    <textarea id="scriptText" class="input area" placeholder="Good evening. I want to tell you about the moment the numbers flipped..."></textarea>
+    <div class="sheet-foot">
+      <button class="btn ghost" data-close>Cancel</button>
+      <button class="btn" id="scriptSave">Save script</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet tall" id="settingsSheet" hidden>
+  <div class="sheet-in">
+    <h2>Settings</h2>
+    <div id="settingsBody"></div>
+    <div class="sheet-foot"><button class="btn ghost" data-close>Done</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="confirmSheet" hidden>
+  <div class="sheet-in">
+    <h2 id="cfTitle">Are you sure?</h2>
+    <p class="sheet-body" id="cfBody"></p>
+    <div class="sheet-foot">
+      <button class="btn ghost" data-close>Keep it</button>
+      <button class="btn danger" id="cfGo">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="pickSheet" hidden>
+  <div class="sheet-in">
+    <h2 id="pickTitle">Compare with</h2>
+    <div id="pickBody"></div>
+    <div class="sheet-foot"><button class="btn ghost" data-close>Cancel</button></div>
+  </div>
+</div>
+
+<nav id="tabs">
+  <button data-tab="stage" class="on" aria-label="Stage"><svg><use href="#i-tab-stage"/></svg><span>Stage</span><i></i></button>
+  <button data-tab="speeches" aria-label="Speeches"><svg><use href="#i-tab-speeches"/></svg><span>Speeches</span><i></i></button>
+  <button data-tab="progress" aria-label="Progress"><svg><use href="#i-tab-progress"/></svg><span>Progress</span><i></i></button>
+</nav>
+
+<div id="bootfail" hidden>
+  <div class="bfwrap">
+    <h2>Greenroom did not finish opening.</h2>
+    <p id="bootfailWhy"></p>
+    <p>Close Greenroom and open it again. Nothing you have saved is affected.</p>
+  </div>
+</div>
+
+<div id="toast" hidden></div>
+
+<script src="js/store.js"></script>
+<script src="js/content.js"></script>
+<script src="js/dsp.js"></script>
+<script src="js/coach.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/room.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/demo.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EchoDepths: to see is to be seen</title>
+<meta name="description" content="EchoDepths is a roguelite played in total darkness. Ping to see. Stay silent to survive. Built to be played with your eyes closed.">
+<meta property="og:title" content="EchoDepths: to see is to be seen">
+<meta property="og:description" content="A roguelite played in total darkness. Ping to see. Stay silent to survive.">
+<meta name="theme-color" content="#050d16">
+<link rel="icon" href="shots/icon.png">
+<style>
+  /* Design read: consumer game launch page for atmosphere-first mobile players and blind gamers.
+     Dark-instrument language: deep navy water is the ground, bioluminescent cyan is the only accent, ember marks noise.
+     Sharp corners everywhere, sonar motion only. */
+  @font-face { font-family: "Space Grotesk"; src: url("fonts/SpaceGrotesk.ttf") format("truetype"); font-weight: 300 700; font-display: swap; }
+  :root { --bg:#050d16; --bg-2:#09182a; --phos:#6ef0ff; --phos-dim:#1f7686; --ember:#ff7a3d; --fg:#d9f1f6; --muted:#74a5b0; --line:#123240; --glow:rgba(110,240,255,.34); --ease:cubic-bezier(.22,.61,.36,1); }
+  * { box-sizing:border-box; }
+  html { background:var(--bg); color:var(--fg); font-family:"Space Grotesk", "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing:antialiased; scroll-behavior:smooth; }
+  body { margin:0; letter-spacing:.02em; }
+  a { color:var(--phos); text-decoration:none; }
+  .wrap { max-width:1200px; margin:0 auto; padding:0 24px; }
+  header.top { display:flex; justify-content:space-between; align-items:center; padding:22px 0; border-bottom:1px solid var(--line); }
+  .brand { font-size:15px; letter-spacing:.24em; text-transform:lowercase; color:var(--phos); }
+  .brand span { color:color-mix(in srgb, var(--phos) 20%, var(--phos-dim)); }
+  nav.top { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px 22px; }
+  nav.top a { font-size:13px; letter-spacing:.14em; color:var(--muted); text-transform:lowercase; white-space:nowrap; }
+  nav.top a:hover { color:var(--phos); }
+
+  /* hero: type left, live sonar right */
+  .hero { display:grid; grid-template-columns: minmax(0,7fr) minmax(0,5fr); gap:48px; align-items:center; padding:64px 0 72px; }
+  .eyebrow { font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--muted); margin:0 0 28px; }
+  h1 { font-weight:300; font-size:clamp(44px, 8vw, 104px); line-height:.95; letter-spacing:-.02em; margin:0 0 28px; color:#eafdff; text-wrap:balance; }
+  h1 em { font-style:italic; color:var(--phos); }
+  .lede { font-size:clamp(17px,1.6vw,21px); line-height:1.55; max-width:52ch; color:#a9c8d1; margin:0 0 36px; }
+  .cta { display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+  .btn { display:inline-flex; align-items:center; gap:10px; padding:16px 22px; border:1px solid var(--phos); color:var(--phos); font-size:14px; letter-spacing:.18em; text-transform:lowercase; transition:background .25s var(--ease), color .25s var(--ease); }
+  .btn:hover, .btn:focus-visible { background:var(--phos); color:var(--bg); outline:none; }
+  .btn.ghost { border-color:var(--phos-dim); color:var(--fg); }
+  .btn.ghost:hover { background:transparent; border-color:var(--phos); color:var(--phos); }
+  .fine { font-size:12px; letter-spacing:.14em; color:var(--muted); text-transform:lowercase; }
+  .sonar { position:relative; aspect-ratio:9/16; max-height:72vh; width:100%; border:1px solid var(--line); background:var(--bg); overflow:hidden; box-shadow:0 30px 60px -40px var(--glow); }
+  .sonar canvas { width:100%; height:100%; display:block; }
+  .sonar .cap { position:absolute; left:14px; bottom:12px; font-size:11px; letter-spacing:.2em; color:var(--muted); text-transform:lowercase; }
+
+  section { padding:96px 0; border-top:1px solid var(--line); }
+  h2 { font-weight:300; font-size:clamp(30px,4vw,52px); letter-spacing:-.01em; line-height:1.05; margin:0 0 18px; color:#eafdff; text-wrap:balance; }
+  h2 em { font-style:italic; color:var(--phos); }
+  .sub { color:var(--muted); font-size:14px; letter-spacing:.2em; text-transform:uppercase; margin:0 0 40px; }
+  p { line-height:1.65; max-width:62ch; }
+
+  /* how it plays: a horizontal timeline, not three cards */
+  .steps { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:0; border-top:1px solid var(--line); }
+  .step { padding:32px 28px 32px 0; border-right:1px solid var(--line); position:relative; }
+  .step:last-child { border-right:0; }
+  .step + .step { padding-left:28px; }
+  .step .n { font-size:12px; letter-spacing:.3em; color:var(--muted); }
+  .step h3 { font-weight:400; font-size:26px; margin:14px 0 10px; color:var(--phos); letter-spacing:.06em; text-transform:lowercase; }
+  .step p { margin:0; color:#a9c8d1; font-size:15px; }
+  .step .noise { margin-top:18px; display:flex; gap:5px; }
+  .step .noise i { width:10px; height:10px; border:1px solid var(--ember); display:block; }
+  .step .noise i.f { background:var(--ember); }
+
+  /* eyes closed: big statement, asymmetric */
+  .eyes { display:grid; grid-template-columns: minmax(0,5fr) minmax(0,7fr); gap:56px; align-items:start; }
+  .eyes .stmt { font-size:clamp(24px,3vw,38px); font-weight:300; line-height:1.25; color:#eafdff; margin:0; text-wrap:balance; }
+  .eyes .stmt em { font-style:italic; color:var(--phos); }
+  .list { list-style:none; margin:0; padding:0; }
+  .list li { padding:18px 0; border-top:1px solid var(--line); display:grid; grid-template-columns: 140px 1fr; gap:20px; font-size:15px; color:#a9c8d1; }
+  .list li:last-child { border-bottom:1px solid var(--line); }
+  .list b { font-weight:400; color:var(--phos); letter-spacing:.1em; text-transform:lowercase; }
+
+  .evos { display:grid; grid-template-columns: repeat(3, 1fr); gap:40px 48px; }
+  .evos h3 { font-weight:400; font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:var(--muted); margin:0 0 14px; }
+  .evos .e { padding:14px 0; border-top:1px solid var(--line); }
+  .evos .e b { display:block; font-weight:400; color:var(--phos); letter-spacing:.1em; text-transform:lowercase; margin-bottom:4px; }
+  .evos .e span { color:#a9c8d1; font-size:14px; }
+
+  .pledge { display:grid; grid-template-columns: minmax(0,7fr) minmax(0,5fr); gap:56px; align-items:center; }
+  .price { font-size:clamp(44px,6vw,84px); font-weight:300; line-height:1; color:#eafdff; margin:0; }
+  .price small { font-size:14px; letter-spacing:.2em; color:var(--muted); display:block; margin-top:12px; text-transform:lowercase; }
+
+  .strip { display:grid; grid-template-columns: repeat(6, 1fr); gap:14px; }
+  .strip figure { margin:0; }
+  .strip img { display:block; width:100%; height:auto; border:1px solid var(--line); box-shadow:0 30px 50px -36px var(--glow); }
+  .strip figcaption { margin-top:10px; font-size:12px; letter-spacing:.16em; color:var(--muted); text-transform:lowercase; }
+  .iconrow { display:flex; align-items:center; gap:22px; margin-top:44px; }
+  .iconrow img { width:72px; height:72px; border-radius:18px; box-shadow:0 14px 30px -14px var(--glow); }
+  .iconrow p { margin:0; color:#a9c8d1; font-size:15px; }
+  footer { padding:40px 0 60px; border-top:1px solid var(--line); display:flex; flex-wrap:wrap; gap:18px 36px; justify-content:space-between; align-items:center; font-size:12px; letter-spacing:.14em; color:var(--muted); text-transform:lowercase; }
+  footer a { color:var(--muted); } footer a:hover { color:var(--phos); }
+
+  /* sonar motion: pure CSS ring on the section markers */
+  .ring { display:inline-block; width:10px; height:10px; border:1px solid var(--phos); border-radius:50%; position:relative; margin-right:12px; vertical-align:middle; }
+  .ring::after { content:""; position:absolute; inset:-1px; border:1px solid var(--phos); border-radius:50%; animation:ping 3.2s var(--ease) infinite; }
+  @keyframes ping { 0% { transform:scale(1); opacity:.8; } 100% { transform:scale(5); opacity:0; } }
+  @media (prefers-reduced-motion: reduce) { .ring::after { animation:none; } html { scroll-behavior:auto; } }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns:1fr; min-height:0; padding-top:40px; }
+    .sonar { max-height:60vh; }
+    .steps { grid-template-columns:1fr; }
+    .step { border-right:0; border-bottom:1px solid var(--line); padding:26px 0; }
+    .step + .step { padding-left:0; }
+    .eyes, .pledge { grid-template-columns:1fr; gap:28px; }
+    .evos { grid-template-columns:1fr; gap:28px; }
+    .strip { grid-template-columns: repeat(3, 1fr); }
+    section { padding:64px 0; }
+    header.top { flex-direction:column; align-items:flex-start; gap:14px; }
+    nav.top { justify-content:flex-start; gap:8px 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">echo<span>depths</span></div>
+    <nav class="top"><a href="#how">how it plays</a><a href="#look">screens</a><a href="#eyes">eyes closed</a><a href="#grotto">the grotto</a><a href="play/">play in browser</a></nav>
+  </header>
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow">A roguelite played in total darkness</p>
+      <h1>To see<br>is to be <em>seen.</em></h1>
+      <p class="lede">You are a blind cave salamander a kilometer under the earth. Tap, and a ring of sound paints the cavern in fading bioluminescent lines: the ledge above, the tunnel splitting left, the shape of something large that just turned toward the noise. Every ping buys you vision and sells your position.</p>
+      <div class="cta">
+        <a class="btn" href="play/">play in browser</a>
+        <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.echodepths">google play</a>
+        <span class="fine">headphones · one thumb · 5 to 15 minute runs</span>
+      </div>
+    </div>
+    <div class="sonar" aria-hidden="true"><canvas id="sonar"></canvas><div class="cap">live sonar · this is the whole game</div></div>
+  </div>
+
+  <section id="how">
+    <p class="sub"><span class="ring"></span>How it plays</p>
+    <h2>Three ways to make noise. <em>One</em> way to stay alive.</h2>
+    <div class="steps">
+      <div class="step"><div class="n">01 · tap</div><h3>click</h3><p>Three meters of wall, faintly, for two seconds. Cheap. Quiet. Barely enough.</p><div class="noise" aria-label="noise 1 of 8"><i class="f"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="step"><div class="n">02 · hold</div><h3>chirp</h3><p>Eight meters, clearly. The map you actually need, and the sound that wakes a bristlemaw two tunnels over.</p><div class="noise" aria-label="noise 3 of 8"><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="step"><div class="n">03 · hold longer</div><h3>shout</h3><p>The whole chamber, for six seconds. It echoes. Everything hears it. The Warden gets faster, permanently.</p><div class="noise" aria-label="noise 8 of 8"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></div></div>
+    </div>
+    <p style="margin-top:36px;color:#a9c8d1">Then the walls fade, bright to dim to nothing, and you swim through what you remember, one thumb on the glass, a soft buzz when you graze a surface. Predators hunt by hearing. Drift silently, throw a pebble somewhere else, and evolve new senses between runs.</p>
+  </section>
+
+  <section id="look">
+    <p class="sub"><span class="ring"></span>What it looks like</p>
+    <h2>Six frames from <em>the dark.</em></h2>
+    <div class="strip">
+      <figure><img src="shots/01-title.png" width="1080" height="1920" alt="Title screen: a lamp hangs in a cave and a ring of sound has lit the walls around it, above the word echodepths and four menu buttons" loading="lazy"><figcaption>the title, live</figcaption></figure>
+      <figure><img src="shots/02-chirp.png" width="1080" height="1920" alt="A chirp has revealed the cave walls around the salamander in cyan lines" loading="lazy"><figcaption>a chirp</figcaption></figure>
+      <figure><img src="shots/03-shout.png" width="1080" height="1920" alt="A shout has lit the whole chamber; an ember ring around the salamander shows how loud you were" loading="lazy"><figcaption>a shout, and its noise</figcaption></figure>
+      <figure><img src="shots/04-throat.png" width="1080" height="1920" alt="The throat chamber, a winding tunnel revealed by a shout" loading="lazy"><figcaption>the throat</figcaption></figure>
+      <figure><img src="shots/05-death.png" width="1080" height="1920" alt="The death screen: the sonar art of the run, the path you swam and every sound you made, above the run's numbers" loading="lazy"><figcaption>sonar art of a run</figcaption></figure>
+      <figure><img src="shots/06-grotto.png" width="1080" height="1920" alt="The grotto: a drawn cave cross-section with three tunnel branches and six evolution cards" loading="lazy"><figcaption>the grotto</figcaption></figure>
+    </div>
+    <div class="iconrow"><img src="shots/icon.png" width="512" height="512" alt="EchoDepths launcher icon: a lamp with three rings of sound leaving it, cyan on deep navy"><p>The icon is the first screen: a lamp in the dark, and the ring of sound leaving it.</p></div>
+  </section>
+
+  <section id="eyes">
+    <p class="sub"><span class="ring"></span>Eyes closed mode</p>
+    <div class="eyes">
+      <p class="stmt">This is not an accessibility toggle bolted on at the end. <em>Sound and touch are the canonical game.</em> Sighted players are the ones adapting.</p>
+      <ul class="list">
+        <li><b>spatial audio</b><span>Predator clicks, lure hums, the downdraft of the exit: every sound is panned and attenuated by where it actually is. Drips are pitched to the size of the room.</span></li>
+        <li><b>haptic language</b><span>Wall brush, predator bearing, current, damage: a designed vocabulary with amplitude control on devices that support it, and a calibration slider on the rest.</span></li>
+        <li><b>spoken cues</b><span>In Eyes Closed mode, predator bearings are spoken through the screen reader: “clicks, ahead-left, close.” Menus are real buttons, navigable with TalkBack.</span></li>
+        <li><b>no flashing</b><span>Nothing on screen ever flashes above threshold. The brightest thing in the game is a line.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="grotto">
+    <p class="sub"><span class="ring"></span>The grotto</p>
+    <h2>Evolve <em>senses</em>, not stats.</h2>
+    <p style="margin-bottom:40px">Death is permanent for the run. You keep otoliths, ear stones, and spend them between dives. Every evolution changes how the cave <em>feels</em>, and you can long-press to feel one before you buy it.</p>
+    <div class="evos">
+      <div><h3>Sense</h3><div class="e"><b>lateral line</b><span>feel moving creatures within 8 m as bearing pulses.</span></div><div class="e"><b>heat pits</b><span>predators within 6 m glow faint red. no ping required.</span></div></div>
+      <div><h3>Body</h3><div class="e"><b>fat reserves</b><span>one extra hit before the dark keeps you.</span></div><div class="e"><b>slick skin</b><span>wall brushes make no noise. you glide farther.</span></div></div>
+      <div><h3>Voice</h3><div class="e"><b>vocal sac</b><span>your tap becomes a whisper: a third of the noise.</span></div><div class="e"><b>deep lungs</b><span>shouts stop echoing so long.</span></div></div>
+    </div>
+  </section>
+
+  <section id="pledge">
+    <p class="sub"><span class="ring"></span>The pledge</p>
+    <div class="pledge">
+      <div>
+        <h2>No ads. No energy timers. <em>No accounts.</em></h2>
+        <p>EchoDepths runs entirely offline and collects nothing. The app does not even ask for internet permission. Your save lives on your phone. The daily descent uses the date as its seed, so everyone dives the same cave.</p>
+        <p class="fine" style="margin-top:20px">rootwater shallows through the warden's throat, three predator behaviours, six evolutions, eyes closed mode, a daily descent kept on your phone. no leaderboard, no unlock, nothing to buy.</p>
+      </div>
+      <p class="price">free<small>1.0.1 · android 8 and up · under a megabyte</small></p>
+    </div>
+  </section>
+
+  <footer>
+    <div>echodepths · mohd shayan · 2026</div>
+    <div><a href="/privacy-policies/echodepths-privacy-policy.html">privacy policy</a> &nbsp;·&nbsp; <a href="mailto:shayanm2002@gmail.com">contact</a> &nbsp;·&nbsp; <a href="play/">play in browser</a></div>
+  </footer>
+</div>
+
+<script>
+// Live sonar: expanding rings reveal a procedural cave polyline that fades phosphor -> ember -> black.
+(() => {
+  const c = document.getElementById('sonar'); if (!c) return;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ctx = c.getContext('2d'); let W = 0, H = 0, walls = [], pings = [], t = 0, last = performance.now();
+  const PH = [110,240,255], EM = [36,150,172];
+  function seed(n){ let a = n; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let x = Math.imul(a ^ a >>> 15, 1 | a); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
+  function build(){ const r = c.getBoundingClientRect(); W = c.width = r.width * devicePixelRatio; H = c.height = r.height * devicePixelRatio; walls = []; const rnd = seed(11);
+    for (let k = 0; k < 7; k++) { let x = -20, y = H * (0.12 + k * 0.13) + (rnd() - .5) * H * .06; const pts = [[x, y]]; while (x < W + 20) { x += 18 + rnd() * 50; y += (rnd() - .5) * H * .05; if (rnd() < .18) { pts.push([x, y]); y += (rnd() < .5 ? -1 : 1) * (10 + rnd() * 40); } pts.push([x, y]); } for (let i = 0; i < pts.length - 1; i++) walls.push({ a: pts[i], b: pts[i+1], m: [(pts[i][0]+pts[i+1][0])/2, (pts[i][1]+pts[i+1][1])/2] }); } }
+  function frame(now){ const dt = Math.min(.05, (now - last) / 1000); last = now; t += dt; ctx.fillStyle = '#050d16'; ctx.fillRect(0, 0, W, H);
+    const px = W * .5, py = H * .58;
+    if (!reduce && (pings.length === 0 || t - pings[pings.length-1].t0 > 4.2)) pings.push({ x: px + (Math.random()-.5) * W * .3, y: py + (Math.random()-.5) * H * .25, t0: t, big: Math.random() < .3 });
+    pings = pings.filter(p => t - p.t0 < 7);
+    ctx.lineCap = 'round';
+    for (const s of walls) { let b = 0; for (const p of pings) { const d = Math.hypot(s.m[0]-p.x, s.m[1]-p.y); const R = p.big ? W * 1.2 : W * .55; const el = t - p.t0, arr = d / (W * .28); if (el < arr || d > R) continue; const age = el - arr; const dur = p.big ? 5.5 : 3.5; if (age > dur) continue; b = Math.max(b, (1 - (d/R)**2) * Math.pow(1 - age/dur, 1.5)); }
+      if (reduce) b = Math.max(b, .35 - Math.hypot(s.m[0]-px, s.m[1]-py) / (W * 1.4));
+      if (b < .015) continue; const m = b > .45 ? (b - .45) / .55 : 0; const col = m ? PH.map((v,i) => v + (EM[i]-v) * (1-m)) : EM; const a = b > .45 ? .35 + .65 * m : .35 * Math.pow(b/.45, 1.2);
+      ctx.strokeStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a*.22})`; ctx.lineWidth = 5 * devicePixelRatio; ctx.beginPath(); ctx.moveTo(s.a[0], s.a[1]); ctx.lineTo(s.b[0], s.b[1]); ctx.stroke();
+      ctx.strokeStyle = `rgba(${col[0]|0},${col[1]|0},${col[2]|0},${a})`; ctx.lineWidth = 1.5 * devicePixelRatio; ctx.stroke(); }
+    for (const p of pings) { const el = t - p.t0; const R = el * W * .28; const Rmax = p.big ? W * 1.2 : W * .55; if (R > Rmax) continue; ctx.strokeStyle = `rgba(110,240,255,${.4 * (1 - R/Rmax)})`; ctx.lineWidth = devicePixelRatio; ctx.beginPath(); ctx.arc(p.x, p.y, R, 0, Math.PI*2); ctx.stroke(); }
+    ctx.strokeStyle = 'rgba(110,240,255,.7)'; ctx.lineWidth = 1.5 * devicePixelRatio; ctx.beginPath(); ctx.moveTo(px - 9*devicePixelRatio, py); ctx.quadraticCurveTo(px, py - 4*devicePixelRatio, px + 9*devicePixelRatio, py); ctx.quadraticCurveTo(px, py + 4*devicePixelRatio, px - 9*devicePixelRatio, py); ctx.stroke();
+    if (!reduce) requestAnimationFrame(frame); }
+  build(); addEventListener('resize', build); requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

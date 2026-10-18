@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rowmark</title>
+<meta name="description" content="Rowmark counts knitting and crochet rows while your hands stay on the yarn: linked counters, volume key and shutter remote counting, repeat alerts. Free, offline, one optional unlock.">
+<style>
+  @font-face { font-family: "Gabarito"; src: url("fonts/gabarito_variable.ttf") format("truetype"); font-weight: 400 900; font-display: swap; }
+  @font-face { font-family: "Nunito Sans"; src: url("fonts/nunito_sans_variable.ttf") format("truetype"); font-weight: 200 1000; font-display: swap; }
+  :root {
+    --heather: #F3EEF2; --skein: #FBF8FA; --ink: #241A25; --twist: #625565; --fuchsia: #A32689; --on-fuchsia: #FBF8FA; --line: rgba(98,85,101,0.24);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --heather: #1A1519; --skein: #251E24; --ink: #EEE6EC; --twist: #B3A5B2; --fuchsia: #E486CF; --on-fuchsia: #251E24; --line: rgba(179,165,178,0.24); }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--heather); color: var(--ink); font: 17px/1.6 "Nunito Sans", sans-serif; }
+  h1, h2, h3 { font-family: "Gabarito", sans-serif; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+  a { color: var(--fuchsia); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  header { padding: 28px 0; display: flex; align-items: center; justify-content: space-between; }
+  header .brand { font-family: "Gabarito", sans-serif; font-weight: 800; font-size: 24px; color: var(--ink); text-decoration: none; }
+  header nav a { color: var(--twist); text-decoration: none; margin-left: 22px; font-weight: 600; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 48px; align-items: center; padding: 32px 0 72px; }
+  .hero h1 { font-size: clamp(32px, 3.4vw, 44px); font-weight: 800; max-width: 26ch; }
+  .hero p { font-size: 20px; color: var(--twist); max-width: 32ch; margin: 20px 0 28px; }
+  .cta { display: inline-block; background: var(--fuchsia); color: var(--on-fuchsia); font-family: "Gabarito", sans-serif; font-weight: 700; font-size: 18px; padding: 16px 28px; border-radius: 14px; text-decoration: none; }
+  .cta:active { transform: translateY(1px); }
+  .note { display: block; margin-top: 14px; color: var(--twist); font-size: 15px; }
+  .phone { width: 100%; max-width: 340px; height: auto; justify-self: center; border-radius: 28px; display: block; }
+  .drum { background: var(--skein); border-radius: 28px; padding: 56px 24px; text-align: center; margin: 24px 0 72px; }
+  .drum .digits { font-family: "Gabarito", sans-serif; font-weight: 800; font-size: clamp(96px, 18vw, 180px); letter-spacing: -0.04em; line-height: 1; }
+  .drum .digits span:last-child { color: var(--fuchsia); }
+  .drum p { color: var(--twist); margin: 12px auto 0; max-width: 48ch; }
+  .rows { margin: 0 0 72px; }
+  .rows h2 { font-size: 34px; margin-bottom: 8px; }
+  .rows ul { list-style: none; margin: 24px 0 0; padding: 0; }
+  .rows li { padding: 16px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
+  .rows li strong { font-family: "Gabarito", sans-serif; font-weight: 700; }
+  .rows li span { color: var(--twist); }
+  .unlock { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; margin: 0 0 72px; }
+  .unlock h2 { font-size: 34px; }
+  .unlock p { color: var(--twist); }
+  .unlock .list { display: grid; gap: 12px; }
+  .unlock .list div { background: var(--skein); border-radius: 14px; padding: 14px 18px; }
+  .shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 0 0 72px; }
+  .shots img { width: 100%; height: auto; border-radius: 20px; display: block; }
+  .offline { text-align: center; padding: 56px 24px; border-top: 1px solid var(--line); }
+  .offline h2 { font-size: 30px; }
+  .offline p { color: var(--twist); max-width: 54ch; margin: 12px auto 0; }
+  footer { padding: 28px 0 56px; color: var(--twist); font-size: 15px; display: flex; gap: 24px; flex-wrap: wrap; }
+  footer a { color: var(--twist); }
+  @media (max-width: 760px) {
+    .hero, .unlock { grid-template-columns: minmax(0, 1fr); }
+    .shots { grid-template-columns: minmax(0, 1fr); }
+    .rows li { grid-template-columns: 1fr; gap: 4px; }
+    header nav { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="#">Rowmark</a>
+    <nav><a href="#free">What is free</a><a href="#unlock">The unlock</a><a href="/privacy-policies/rowmark-privacy-policy.html">Privacy</a></nav>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>Count rows with the yarn still in your hands.</h1>
+      <p>Linked counters, a volume key or a shutter remote to count with, and a bell when the cable cross is due.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.rowmark">Get it on Google Play</a>
+      <span class="note">Free on Google Play, unlock everything once for USD 2.99. Works fully offline.</span>
+    </div>
+    <img class="phone" src="shots/01-counter.png" alt="The Rowmark counter: a large row drum reading 6 with the repeat drum beside it" width="1080" height="1920">
+  </section>
+
+  <section class="drum" aria-label="The barrel drum">
+    <div class="digits"><span>1</span><span>7</span></div>
+    <p>The row sits on a drum modelled on the barrel counter knitters slide onto a needle. Each count rolls one digit, and a repeat drum turns beside it when the row returns to 1.</p>
+  </section>
+
+  <section class="rows" id="free">
+    <h2>What you get without paying</h2>
+    <ul>
+      <li><strong>Linked counters</strong><span>Rows roll into repeats and repeats into sections by themselves. Total rows never rolls over.</span></li>
+      <li><strong>Hands-off counting</strong><span>Volume up counts a row while the counter is open. Most Bluetooth camera shutter remotes send volume up or Enter, and both count.</span></li>
+      <li><strong>A bell every N rows</strong><span>Label the alert, hear the bell, feel the buzz. Undo takes back any count, a rolled-over repeat included.</span></li>
+      <li><strong>Unlimited projects</strong><span>Name, craft, needle, yarn, notes, target rows and a cover photo. The screen stays awake while you count.</span></li>
+      <li><strong>Widget and backup</strong><span>A home screen widget with the current row and a plus one, and a backup file you can restore on any phone.</span></li>
+    </ul>
+  </section>
+
+  <section class="unlock" id="unlock">
+    <div>
+      <h2>One optional purchase, once, for good</h2>
+      <p>The unlock adds what pattern followers pay for. No subscription, no account, and your counters stay free either way.</p>
+    </div>
+    <div class="list">
+      <div>Your PDF or photo pattern on screen, with a row ruler that moves as you count</div>
+      <div>Highlighter on pattern pages, with pinch zoom</div>
+      <div>Shaping schedules, with a bell when a step is due</div>
+      <div>Time and stats per project and session</div>
+      <div>A Quick Settings tile, CSV export of the journal, and a yarn and needle stash</div>
+    </div>
+  </section>
+
+  <section class="shots" aria-label="Screenshots">
+    <img src="shots/02-repeats.png" alt="Row, repeat and section drums side by side" width="1080" height="1920">
+    <img src="shots/03-alert.png" alt="A Cable cross alert banner above the row drum" width="1080" height="1920">
+    <img src="shots/05-projects.png" alt="The project list with each project's row and repeat" width="1080" height="1920">
+  </section>
+
+  <section class="offline">
+    <h2>Everything stays on your phone</h2>
+    <p>No account, no analytics, no internet permission. Buying or restoring the unlock goes through Google Play and needs a connection once; after that everything works offline, and the unlock belongs to the Google account that bought it.</p>
+  </section>
+
+  <footer>
+    <span>SocialSure Private Limited</span>
+    <a href="/privacy-policies/rowmark-privacy-policy.html">Privacy policy</a>
+    <a href="mailto:mohdshayan.honeybeeevals@gmail.com">Support</a>
+  </footer>
+</div>
+</body>
+</html>

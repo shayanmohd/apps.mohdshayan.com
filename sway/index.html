@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sway. Help that arrives in two seconds.</title>
+<meta name="description" content="Panic attack first aid for Android. Tap the icon and the phone is already pulsing a slow breathing rhythm you can follow with your eyes shut. Offline, no account, free.">
+<meta property="og:title" content="Sway. Help that arrives in two seconds.">
+<meta property="og:description" content="A breathing rhythm you can feel through your pocket, grounding tools, and a card you can hand to a stranger. Works in airplane mode.">
+<meta property="og:type" content="website">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0B1526; --surface: #12203A; --surface-hi: #182B4A; --surface-2: #1B2F4E;
+    --fg: #EEF3F8; --muted: #9BB0C4; --hair: #26405F; --accent: #F2B45C; --accent-ink: #0B1526;
+    --cool: #6FB2CE;
+    --font: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; color: var(--fg); font-family: var(--font);
+         font-size: 18px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+         font-variant-numeric: tabular-nums;
+         background:
+           radial-gradient(90% 40% at 50% 0%, rgba(242, 180, 92, .07), rgba(242, 180, 92, 0) 62%),
+           linear-gradient(180deg, #14243F 0%, var(--bg) 44%, #081527 100%);
+         background-attachment: fixed; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  img.shot { width: 100%; height: auto; display: block; border: 1px solid var(--hair); border-radius: 18px;
+             box-shadow: 0 30px 60px -34px rgba(2, 8, 18, 1); }
+
+  .cta { display: inline-block; text-decoration: none; color: var(--accent-ink);
+         background: linear-gradient(180deg, #F7C778, var(--accent));
+         padding: 15px 28px; border-radius: 14px; font-size: 17px; font-weight: 500;
+         border: 1px solid rgba(255, 226, 175, .5);
+         box-shadow: 0 16px 30px -22px rgba(242, 180, 92, .8), inset 0 1px 0 rgba(255, 244, 224, .5);
+         transition: transform .15s ease; }
+  .cta:active { transform: translateY(1px); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 78px; }
+  .mark { display: flex; align-items: center; gap: 12px; font-size: 18px; }
+  .mark svg { width: 46px; height: 24px; display: block; }
+  nav a { color: var(--muted); text-decoration: none; font-size: 15px; margin-left: 22px; }
+  nav a:hover { color: var(--fg); }
+
+  /* 1. hero: copy left, phone right */
+  .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 60px; align-items: center; padding: 32px 0 104px; }
+  .hero h1 { font-size: clamp(40px, 5.6vw, 66px); line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 22px; font-weight: 700; }
+  .hero p { font-size: 20px; color: var(--muted); margin: 0 0 32px; max-width: 32ch; }
+  .hero .under { font-size: 15px; color: var(--muted); margin: 18px 0 0; }
+  .hero img { max-width: 320px; margin-left: auto; }
+
+  /* 2. manifesto band: centred type between hairlines */
+  .band { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 108px 0; text-align: center; }
+  .band p.big { font-size: clamp(27px, 3.8vw, 42px); line-height: 1.24; margin: 0 auto; max-width: 21ch;
+                letter-spacing: -0.02em; }
+  .band p.after { font-size: 18px; color: var(--muted); max-width: 50ch; margin: 28px auto 0; }
+
+  /* 3. mechanism: phone left, timing rows right */
+  .mech { display: grid; grid-template-columns: .8fr 1.2fr; gap: 64px; align-items: center; padding: 104px 0; }
+  h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.14; letter-spacing: -0.025em; margin: 0 0 16px; font-weight: 700; }
+  .mech p.sub { color: var(--muted); margin: 0 0 34px; max-width: 46ch; }
+  .beat { display: grid; grid-template-columns: 8.5rem 1fr; gap: 24px; padding: 22px 0; border-top: 1px solid var(--hair); }
+  .beat:last-child { border-bottom: 1px solid var(--hair); }
+  .beat .t { color: var(--accent); font-size: 17px; }
+  .beat .d { margin: 0; color: var(--muted); font-size: 17px; }
+  .mech img { max-width: 300px; }
+
+  /* 4. gallery strip */
+  .gallery { padding: 40px 0 104px; }
+  .gallery p.sub { color: var(--muted); max-width: 54ch; margin: 0 0 52px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--muted); font-size: 16px; margin-top: 16px; }
+
+  /* 5. shelf: copy left, sand card right */
+  .shelf { display: grid; grid-template-columns: 1fr .8fr; gap: 64px; align-items: center;
+           padding: 104px 0; border-top: 1px solid var(--hair); }
+  .shelf ol { margin: 26px 0 0; padding-left: 1.3rem; color: var(--muted); }
+  .shelf li { margin-bottom: 12px; }
+  .shelf li b { color: var(--fg); font-weight: 700; }
+  .shelf img { max-width: 300px; margin-left: auto; }
+
+  /* 6. plain fact rows */
+  .facts { padding: 96px 0; border-top: 1px solid var(--hair); }
+  .eyebrow { font-size: 14px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+  .facts .row { display: grid; grid-template-columns: 14rem 1fr; gap: 34px; padding: 28px 0;
+                border-top: 1px solid var(--hair); align-items: start; }
+  .facts .row:last-child { border-bottom: 1px solid var(--hair); }
+  .facts .k { color: var(--accent); font-size: 17px; }
+  .facts .v { margin: 0; color: var(--muted); }
+  .facts .v b { color: var(--fg); font-weight: 700; }
+
+  /* 7. close */
+  .close { text-align: center; padding: 96px 0 40px; }
+  .close p.line { font-size: clamp(24px, 3vw, 32px); max-width: 24ch; margin: 0 auto 34px; letter-spacing: -0.02em; }
+  .note { background: linear-gradient(180deg, var(--surface-hi), var(--surface));
+          border-left: 3px solid var(--accent); border-radius: 0 12px 12px 0;
+          padding: 22px 24px; font-size: 16px; color: var(--muted); max-width: 56ch; margin: 60px auto 0; text-align: left; }
+  .note b { color: var(--fg); font-weight: 700; }
+
+  footer { border-top: 1px solid var(--hair); padding: 36px 0 64px; color: var(--muted); font-size: 15px; margin-top: 60px; }
+  footer .row { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; }
+  footer a { color: var(--muted); text-decoration: none; margin-right: 20px; }
+  footer a:hover { color: var(--fg); }
+
+  .reveal { transition: opacity .6s ease, transform .6s ease; }
+  html.js .reveal:not(.in) { opacity: 0; transform: translateY(14px); }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    html.js .reveal:not(.in) { opacity: 1; transform: none; }
+    .reveal { transition: none; }
+  }
+
+  @media (max-width: 880px) {
+    .hero, .mech, .shelf { grid-template-columns: 1fr; gap: 44px; }
+    .hero { padding-bottom: 72px; }
+    .mech, .shelf { padding: 72px 0; }
+    .hero img, .mech img, .shelf img { max-width: 290px; margin: 0 auto; }
+    .strip { grid-template-columns: 1fr; gap: 44px; max-width: 320px; margin: 0 auto; }
+    .facts .row { grid-template-columns: 1fr; gap: 10px; }
+    .band { padding: 76px 0; }
+    nav a { margin-left: 14px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark">
+      <svg viewBox="0 0 68 36" aria-hidden="true" fill="none" stroke-linecap="round">
+        <path d="M3 12 C13 2 23 2 34 12 S55 22 65 12" stroke="#F2B45C" stroke-width="5"/>
+        <path d="M7 28 C16 21 25 21 34 28 S52 35 61 28" stroke="#6FB2CE" stroke-width="3.4"/>
+      </svg>
+      Sway
+    </span>
+    <span>
+      <a href="#how">How it works</a>
+      <a href="/privacy-policies/sway-privacy-policy.html">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Help that arrives in two seconds.</h1>
+      <p>Tap the icon. Before the screen has finished brightening, your phone is already pulsing a slow breathing rhythm you can follow with your eyes shut.</p>
+      <p class="under" style="margin:0 0 26px">Version 1.0.1: a new face drawn from the icon, and the fixes behind it.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.sway">Get it on Google Play</a>
+      <p class="under">Free and complete. No account, no subscription, works in airplane mode.</p>
+    </div>
+    <img class="shot reveal" src="shots/01-session.png" width="1080" height="1920"
+         alt="The session screen: a warm wave of light riding over cool water under a field of stars, with the words Breathe in.">
+  </header>
+</div>
+
+<section class="band">
+  <div class="wrap">
+    <p class="big">During a panic attack, a splash screen is a locked door.</p>
+    <p class="after">So are logins, mood check ins, content libraries and the question "what would you like to do
+      today?" Working memory is gone, and the app you need is the one that has already started helping by the
+      time you look at it.</p>
+  </div>
+</section>
+
+<section class="mech wrap" id="how">
+  <img class="shot reveal" src="shots/02-fork.png" width="1080" height="1920"
+       alt="The screen after a session: Still stormy, or passing, as two large buttons.">
+  <div>
+    <h2>A rhythm you can feel, not one you have to watch</h2>
+    <p class="sub">Every other breathing app puts a circle on a screen. Sway puts the rhythm in the vibration
+      motor, so you can follow it lying in the dark, on a train, or with the phone still in your pocket.
+      Nobody has to see you doing it. When you do look, the screen is one warm wave of light over cool
+      water, rising as you breathe in and settling as you breathe out.</p>
+    <div class="beat"><span class="t">Breathe in</span><p class="d">A gathering swell. The vibration rises like a wave coming in, and you rise with it.</p></div>
+    <div class="beat"><span class="t">Hold</span><p class="d">Nothing at all. Stillness is the instruction, and it starts at zero seconds because holding your breath can make an attack worse.</p></div>
+    <div class="beat"><span class="t">Breathe out</span><p class="d">A long train of pulses that fade and spread apart. The out breath is the longer half, always.</p></div>
+    <div class="beat"><span class="t">Then slower</span><p class="d">Sessions open a little quicker than comfortable, to meet a racing breath where it is, and decelerate over three minutes.</p></div>
+  </div>
+</section>
+
+<section class="gallery wrap">
+  <h2>The second half is what happens afterwards</h2>
+  <p class="sub">Sway never dumps you back into a menu when the wave passes. It asks one question, with two
+    answers, and follows whichever one you gave it.</p>
+  <div class="strip">
+    <figure class="reveal">
+      <img class="shot" src="shots/03-grounding.png" width="1080" height="1920"
+           alt="The grounding menu: name what is here, something cold, or left right left, as three large cards.">
+      <figcaption>Still stormy: three ways down. Counting the senses, cold water on the wrists, or slow
+        alternating taps kept in time by the phone. Each one is a single instruction per screen, in type you
+        can read through tears, advanced by tapping anywhere.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/04-log.png" width="1080" height="1920"
+           alt="The storm log: five waves of increasing size, and context chips for home, transit, work, night and social.">
+      <figcaption>Passing: two taps, both optional. How big it was, where you were, and then a closing card.
+        There are no streaks here and nothing you can fail.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/05-almanac.png" width="1080" height="1920"
+           alt="The Almanac showing ten storms saved, when they arrive, where you were, and how long they last.">
+      <figcaption>Months later, the Almanac says things like "6 of 10 storms began with transit marked", and
+        quietly tracks whether you are riding them out faster.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="shelf wrap">
+  <div>
+    <h2>For the worst nights, and for the strangers</h2>
+    <p class="sub">One tap from the session screen opens a shelf with three things on it, and none of
+      them need a network.</p>
+    <ol>
+      <li><b>Your person.</b> One number you chose on a calm day, one tap to the dialler at 3am.</li>
+      <li><b>A crisis line for where you are.</b> Bundled inside the app, with the month it was last checked
+        printed underneath, because these numbers do change.</li>
+      <li><b>A card you can hand to someone.</b> Full screen, large type: what is happening, what to do, what
+        not to say, and when to get medical help instead. It exists so you do not have to explain any of it
+        while it is happening.</li>
+    </ol>
+  </div>
+  <img class="shot reveal" src="shots/06-bystander.png" width="1080" height="1920"
+       alt="The bystander card: I am having a panic attack. It will pass. Please stay with me.">
+</section>
+
+<section class="facts wrap">
+  <p class="eyebrow">The promises, and how to check them</p>
+  <h2>Nothing here can leave your phone</h2>
+  <div class="row">
+    <div class="k">No network</div>
+    <p class="v">Sway does not request the internet permission, which you can verify on the Play listing before
+      you install it. Android will not let it open a connection at all, so the two second promise holds in a
+      basement, a plane and a subway car. <b>Point a packet sniffer at it. That is an invitation.</b></p>
+  </div>
+  <div class="row">
+    <div class="k">No account</div>
+    <p class="v">There is no sign up, no email, no cloud and no analytics. Your storm log, your person and your
+      settings live in this phone's private app storage and nowhere else. Export them as plain text whenever
+      you want, or erase everything in two taps.</p>
+  </div>
+  <div class="row">
+    <div class="k">No price on the bad moment</div>
+    <p class="v"><b>The whole app is free, and none of it is a trial.</b> There is no subscription, no in app
+      purchase and no advertising. A recurring bill attached to panic would be both bad ethics and bad
+      software, and an ad after a panic attack would be an obscenity.</p>
+  </div>
+  <div class="row">
+    <div class="k">No dark patterns</div>
+    <p class="v">No streaks, no flame counters, no notification implying you have let yourself down, no mood
+      score, no anxiety inventory. There is no number in this app you can fail. A bad month is a bad month, not
+      a broken chain.</p>
+  </div>
+</section>
+
+<section class="close wrap">
+  <p class="line">Built to be used four times a year and trusted every single time.</p>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.sway">Get it on Google Play</a>
+  <p class="note"><b>Sway is a self help wellness tool.</b> It is not a medical device, it does not diagnose
+    anything, and it is not a treatment for panic disorder or any other condition. If you are in danger, or if
+    what you are feeling is new, different or involves chest pain, call your local emergency number or one of
+    the lines in the app rather than opening this.</p>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <span>
+      <a href="/privacy-policies/sway-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Try it in a browser</a>
+    </span>
+    <span>SocialSure Private Limited</span>
+  </div>
+</footer>
+
+<script>
+  // Nothing is hidden unless this runs, and anything already scrolled past is revealed straight away.
+  document.documentElement.classList.add('js');
+  const els = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  let queued = false;
+  function check() {
+    queued = false;
+    for (let i = els.length - 1; i >= 0; i--) {
+      if (els[i].getBoundingClientRect().top < window.innerHeight - 40) {
+        els[i].classList.add('in'); els.splice(i, 1);
+      }
+    }
+  }
+  addEventListener('scroll', function () {
+    if (!queued) { queued = true; requestAnimationFrame(check); }
+  }, { passive: true });
+  addEventListener('resize', check, { passive: true });
+  check();
+</script>
+</body>
+</html>

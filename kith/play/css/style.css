@@ -1,0 +1,549 @@
+/* Kith. Warm cream paper, one coral ember, a humanist serif for names and for the
+   things people told you. The whole app is drawn out of one idea: two rings that
+   overlap, warm where they meet. One radius system: 3px for controls, 14px for
+   cards, full round only for the monogram chips and the rings themselves. */
+
+:root {
+  --paper:     #FAF5EC;   /* the page */
+  --paper-2:   #F2EADC;   /* a card lifted off it */
+  --paper-3:   #EADFCC;   /* a card lifted off that */
+  --ink:       #201A14;
+  --ink-soft:  #5A5145;
+  --ink-faint: #6B6154;
+  --hair:      #E0D5C2;
+  --hair-soft: #EAE0CF;
+  --ember:     #AA4028;   /* the accent, used for text and strokes: AA on every surface */
+  --coral:     #D9583A;   /* the same accent opened up, for fills and glow only */
+  --ember-ink: #FDF8F0;
+  --danger:    #8A2F26;
+  --lift:      rgba(120, 74, 44, .10);   /* warm, never grey: shadows are tinted here */
+  --lift-far:  rgba(120, 74, 44, .22);
+  --top:       rgba(255, 253, 248, .72); /* the highlight edge on a raised surface */
+  --glow:      rgba(217, 88, 58, .12);
+  --grain-a: .05;
+  --r: 3px;
+  --rc: 14px;
+  --serif: "Newsreader", Iowan Old Style, Palatino, Georgia, serif;
+  --sans: "Karla", "Helvetica Neue", system-ui, -apple-system, sans-serif;
+  --measure: 33rem;
+  --tabh: 0px;
+  --ease: cubic-bezier(.2, .7, .3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper:     #171310;
+    --paper-2:   #211B15;
+    --paper-3:   #2B231B;
+    --ink:       #F0E8D9;
+    --ink-soft:  #B4AA9A;
+    --ink-faint: #9A8F7E;
+    --hair:      #3A3128;
+    --hair-soft: #2E271F;
+    --ember:     #EE9E76;
+    --coral:     #F2764F;
+    --ember-ink: #171310;
+    --danger:    #E7938A;
+    --lift:      rgba(0, 0, 0, .34);
+    --lift-far:  rgba(0, 0, 0, .5);
+    --top:       rgba(255, 226, 196, .07);
+    --glow:      rgba(242, 118, 79, .17);
+    --grain-a: .055;
+  }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0; height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* Laid paper. Real fractal noise rather than a repeating pattern, because a repeat at this
+   scale moires against the device pixel grid and turns the whole screen into woven cloth. */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: var(--grain-a); mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+/* A wide, quiet warmth in the top corner of every screen. */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(120% 46% at 78% 0%, var(--glow), transparent 62%);
+}
+#stage, #tabs, .toast, .sheet { position: relative; z-index: 1; }
+
+#stage { position: fixed; inset: 0 0 var(--tabh) 0; z-index: 1; }
+body.has-tabs { --tabh: calc(62px + var(--sab, 0px)); }
+
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.screen[hidden] { display: none !important; }
+
+.scroller {
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 20px 22px 48px;
+  max-width: var(--measure); width: 100%; margin: 0 auto;
+}
+
+/* ---------- type ---------- */
+.eyebrow {
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-faint); margin: 0 0 2px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.title {
+  font-family: var(--serif); font-size: 31px; font-weight: 400;
+  letter-spacing: -0.018em; margin: 0; line-height: 1.06; text-wrap: balance;
+}
+.title.small { font-size: 22px; letter-spacing: -0.012em; }
+.sub {
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase; font-weight: 600;
+  color: var(--ink-faint); margin: 34px 0 12px; padding-bottom: 7px;
+  border-bottom: 1px solid var(--hair);
+}
+.scroller > .sub:first-child { margin-top: 6px; }
+.lede {
+  font-family: var(--serif); font-size: 20px; line-height: 1.4; letter-spacing: -0.004em;
+  margin: 4px 0 22px; color: var(--ink); text-wrap: balance;
+}
+.help { font-size: 13px; color: var(--ink-faint); margin: 6px 0 0; line-height: 1.45; }
+.help.long { margin-top: 16px; max-width: 34rem; }
+.empty {
+  font-family: var(--serif); font-size: 18px; line-height: 1.5; color: var(--ink-soft);
+  margin: 18px 0; text-wrap: balance;
+}
+.colophon { font-size: 12px; color: var(--ink-faint); margin-top: 40px; line-height: 1.6; }
+.plainlist { padding-left: 1.05rem; margin: 8px 0 0; color: var(--ink-soft); font-size: 14px; }
+.plainlist li { margin-bottom: 8px; }
+
+/* ---------- bars ---------- */
+.topbar {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 14px;
+  padding: calc(16px + var(--sat, 0px)) 22px 14px;
+  border-bottom: 1px solid var(--hair);
+  max-width: var(--measure); width: 100%; margin: 0 auto;
+}
+.topbar .title.small { margin-bottom: 1px; }
+
+/* The Hearth wears the mark: a warm band with the two rings alive in the corner. */
+.hearthbar {
+  position: relative; overflow: hidden;
+  padding: calc(14px + var(--sat, 0px)) 22px 18px;
+  border-bottom: 1px solid var(--hair);
+  max-width: var(--measure); width: 100%; margin: 0 auto;
+}
+.hearthbar::before {
+  content: ""; position: absolute; right: -40px; top: -80px; width: 300px; height: 240px;
+  border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 68%);
+  pointer-events: none;
+}
+.hearthbar .row1 { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.hearthbar .row2 { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-top: 2px; }
+.hearthbar .title { font-size: 36px; }
+.hearthmark { flex: none; width: 92px; height: 56px; margin-bottom: 2px; }
+
+#tabs {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  height: calc(62px + var(--sab, 0px));
+  padding-bottom: var(--sab, 0px); padding-top: 8px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--paper); border-top: 1px solid var(--hair);
+  align-items: start; z-index: 10;
+}
+#tabs[hidden] { display: none !important; }
+.tab {
+  background: none; border: 0; font: inherit; font-size: 10px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint);
+  cursor: pointer; padding: 4px 0 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  transition: color .16s ease;
+}
+.tab svg { width: 22px; height: 22px; display: block; }
+.tab svg .fill { fill: currentColor; stroke: none; }
+.tab .lens { fill: currentColor; opacity: 0; transition: opacity .2s ease; }
+.tab.is-on { color: var(--ember); }
+.tab.is-on .lens { opacity: .22; }
+.tab:active { transform: translateY(1px); }
+
+/* ---------- controls ---------- */
+.btn {
+  font: inherit; font-size: 14px; font-weight: 500; letter-spacing: .01em;
+  background: var(--ink); color: var(--paper); border: 1px solid var(--ink);
+  border-radius: var(--r); padding: 8px 16px; cursor: pointer;
+  box-shadow: 0 1px 2px var(--lift);
+  transition: transform .11s var(--ease), box-shadow .11s var(--ease), opacity .12s ease, background .12s ease;
+}
+.btn:active { transform: translateY(1px) scale(.985); box-shadow: 0 0 0 var(--lift); }
+.btn[disabled] { opacity: .35; cursor: default; transform: none; box-shadow: none; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--hair); box-shadow: none; }
+.btn.ghost:active { background: var(--paper-2); }
+.btn.ember { background: var(--ember); border-color: var(--ember); color: var(--ember-ink); }
+.btn.small { padding: 6px 12px; font-size: 13px; }
+.btn.danger { color: var(--danger); border-color: var(--danger); background: transparent; box-shadow: none; }
+.btn.bare { background: none; border: 0; color: var(--ink-faint); padding: 6px 4px; font-size: 13px; box-shadow: none; }
+.btn.bare:hover { color: var(--ink); }
+.filelabel { display: inline-block; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; align-items: center; }
+.btnrow.end { justify-content: flex-end; margin-top: 20px; }
+.btnrow.tight { margin-top: 0; }
+
+:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; border-radius: 2px; }
+.tab:focus-visible { outline-offset: -2px; }
+
+label { display: block; font-size: 13px; font-weight: 500; color: var(--ink-soft); margin-bottom: 5px; }
+label.mt { margin-top: 16px; }
+input[type=text], input[type=tel], input[type=number], input[type=time], input[type=search], select, textarea {
+  font: inherit; font-size: 15px; width: 100%;
+  background: var(--paper-2); color: var(--ink);
+  border: 1px solid var(--hair); border-radius: var(--r); padding: 9px 11px; outline: 0;
+  box-shadow: inset 0 1px 2px var(--lift);
+  transition: border-color .14s ease, box-shadow .14s ease;
+}
+textarea { resize: vertical; line-height: 1.5; font-family: var(--serif); font-size: 17px; }
+input::placeholder, textarea::placeholder { color: var(--ink-faint); opacity: 1; }
+input:focus, select:focus, textarea:focus { border-color: var(--ember); box-shadow: inset 0 1px 2px var(--lift), 0 0 0 3px var(--glow); }
+input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--ember); flex: none; margin-top: 4px; box-shadow: none; }
+select { -webkit-appearance: none; appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-faint) 50%), linear-gradient(135deg, var(--ink-faint) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 18px, calc(100% - 11px) 18px;
+  background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 30px; }
+input[type=number], input[type=time] { font-variant-numeric: tabular-nums; }
+
+.field { margin-bottom: 20px; }
+.sheet-panel .field { margin-top: 16px; }
+#pRingNote, #obRingNote { margin-bottom: 16px; }
+.field.tightfield { margin: 14px 0; }
+.field.row { display: flex; gap: 14px; align-items: flex-start; }
+.field.row.spread { justify-content: space-between; }
+.field .half { flex: 1; min-width: 0; }
+#search { margin-bottom: 18px; }
+
+/* Names, notes and moments are the user's own words: 60 characters of name with no
+   space in it is legal, so every slot that carries typed text breaks rather than
+   pushing its row off the screen. */
+.drift, .detail, .ctx, .empty, .sheet-title, .lasttime, .lasttime .q,
+.moment .txt, .stone .d2, .stone .d3, .daterow .dl .who, .daterow .dl .lb,
+.shelfrow .nm, .groupname, #countLine, #openRemember .detail {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- inline errors ---------- */
+.err { font-size: 13px; color: var(--danger); margin: 5px 0 0; }
+.err[hidden] { display: none !important; }
+input.bad, textarea.bad, select.bad { border-color: var(--danger); }
+
+/* ---------- chips and ring picker ---------- */
+.chiprow { display: flex; flex-wrap: wrap; gap: 7px; margin: 8px 0 0; }
+.chip {
+  font: inherit; font-size: 13px; background: var(--paper); color: var(--ink-soft);
+  border: 1px solid var(--hair); border-radius: 999px; padding: 5px 13px; cursor: pointer;
+  transition: transform .11s var(--ease), background .14s ease, color .14s ease, border-color .14s ease;
+}
+.chip:active { transform: scale(.96); }
+.chip.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.chip.on.warm { background: var(--ember); border-color: var(--ember); color: var(--ember-ink); }
+
+.ringpick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 4px; }
+.ringpick .rb {
+  font: inherit; font-size: 13px; background: var(--paper); color: var(--ink-soft);
+  border: 1px solid var(--hair); border-radius: var(--r); padding: 9px 4px; cursor: pointer; text-align: center;
+  transition: transform .11s var(--ease), background .14s ease, color .14s ease, border-color .14s ease;
+}
+.ringpick .rb:active { transform: scale(.97); }
+.ringpick .rb.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+/* ---------- the monogram ---------- */
+.mono {
+  display: inline-flex; align-items: center; justify-content: center; position: relative;
+  background: var(--mono); color: #FBF6EE; border-radius: 50%;
+  font-family: var(--sans); font-weight: 600; letter-spacing: .02em; flex: none;
+  box-shadow: 0 1px 2px var(--lift), 0 5px 12px -6px var(--lift-far),
+              inset 0 1px 0 rgba(255, 255, 255, .28), inset 0 -2px 5px rgba(0, 0, 0, .1);
+}
+
+/* ---------- the mark: two rings, warm where they meet ---------- */
+.markwrap { display: block; }
+.kithmark { display: block; width: 100%; height: 100%; overflow: visible; }
+.kithmark .ringA { fill: none; stroke: var(--ink); stroke-width: 2.4; }
+.kithmark .ringB { fill: none; stroke: var(--ember); stroke-width: 2.4; }
+.kithmark .lensfill { stroke: none; }
+.kithmark .marklabel {
+  fill: var(--ink-soft); font-family: var(--sans); font-size: 8px; font-weight: 600;
+  letter-spacing: .14em; text-anchor: middle; text-transform: uppercase;
+}
+.kithmark .markinitials {
+  fill: var(--ink); font-family: var(--sans); font-size: 13px; font-weight: 600;
+  text-anchor: middle; letter-spacing: .02em;
+  /* the letters sit on the warm lens, so they carry the paper colour as an outline */
+  stroke: var(--paper); stroke-width: 2.1; paint-order: stroke fill;
+}
+@keyframes breatheA { 0%, 100% { transform: translateX(0) } 50% { transform: translateX(1.6px) } }
+@keyframes breatheB { 0%, 100% { transform: translateX(0) } 50% { transform: translateX(-1.6px) } }
+.alive .gA { animation: breatheA 9s ease-in-out infinite; }
+.alive .gB { animation: breatheB 9s ease-in-out infinite; }
+.paused .alive .gA, .paused .alive .gB { animation-play-state: paused; }
+
+/* the drawn empty states */
+.scene { display: block; width: 124px; height: 92px; margin: 0 auto; overflow: visible; }
+.scene .s-line { fill: none; stroke: var(--hair); stroke-width: 2; stroke-linecap: round; }
+.scene .s-ink { fill: none; stroke: var(--ink-faint); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.scene .s-warm { fill: none; stroke: var(--ember); stroke-width: 2; stroke-linecap: round; }
+.scene .s-fill { fill: var(--coral); stroke: none; opacity: .2; }
+.scene .s-dash { stroke-dasharray: 4 5; }
+.emptybox { padding: 18px 0 6px; text-align: center; max-width: 27rem; margin: 0 auto; }
+.emptybox .empty { margin: 10px 0 0; font-size: 17px; }
+
+/* ---------- nudge cards ---------- */
+.nudge {
+  position: relative;
+  background: linear-gradient(178deg, var(--paper-2), var(--paper-3));
+  border: 1px solid var(--hair); border-radius: var(--rc);
+  padding: 16px 16px 12px; margin-bottom: 14px;
+  box-shadow: inset 0 1px 0 var(--top), 0 1px 2px var(--lift), 0 14px 26px -18px var(--lift-far);
+  animation: drift .55s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+.nudge::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  border-radius: var(--rc) var(--rc) 0 0;
+  background: linear-gradient(90deg, var(--coral), transparent 62%); opacity: .5;
+}
+@keyframes drift { from { opacity: 0; transform: translateY(11px) } to { opacity: 1; transform: none } }
+.nudge-head { display: flex; align-items: center; gap: 11px; }
+.nudge-head .who { min-width: 0; }
+.nudge-head .nm { font-family: var(--serif); font-size: 21px; line-height: 1.2; display: block;
+  letter-spacing: -0.008em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nudge-head .rg { font-size: 11px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-faint);
+  font-variant-numeric: tabular-nums; }
+.drift { font-size: 15px; color: var(--ink-soft); margin: 11px 0 0; }
+.detail {
+  font-family: var(--serif); font-size: 17px; line-height: 1.45; margin: 9px 0 0;
+  padding-left: 12px; border-left: 2px solid var(--ember); color: var(--ink);
+}
+.nudge .actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; align-items: center; }
+.nudge .actions .spacer { flex: 1; }
+
+/* ---------- lists and rows ---------- */
+.prow {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  background: none; border: 0; border-bottom: 1px solid var(--hair-soft);
+  padding: 13px 2px; font: inherit; color: inherit; cursor: pointer;
+  border-radius: 8px;
+  transition: background .14s ease, transform .11s var(--ease);
+  animation: rowin .4s var(--ease) both; animation-delay: calc(var(--i, 0) * 26ms);
+}
+@keyframes rowin { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+.prow:active { background: var(--paper-2); transform: scale(.995); }
+.prow:last-child { border-bottom: 0; }
+.prow .who { flex: 1; min-width: 0; }
+.prow .nm { font-family: var(--serif); font-size: 19px; display: block; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prow .sec { font-size: 13px; color: var(--ink-faint); display: block; font-variant-numeric: tabular-nums; }
+.prow .state { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); flex: none; }
+.prow .state.adrift { color: var(--ember); }
+.groupname { font-family: var(--serif); font-size: 15px; color: var(--ink-faint); margin: 26px 0 2px; font-style: italic; }
+
+/* ---------- ring map ---------- */
+#ringWrap { margin: 4px 0 8px; }
+.ringmap { width: 100%; height: auto; display: block; touch-action: manipulation; max-width: 420px; margin: 0 auto; }
+.mapnote { text-align: center; max-width: 26rem; margin: 2px auto 0; }
+.ringband { stroke: none; }
+.ringband.b-hearth  { fill: var(--paper-3); }
+.ringband.b-table   { fill: var(--paper-2); }
+.ringband.b-village { fill: var(--paper-2); opacity: .55; }
+.ringband.b-horizon { fill: var(--paper-2); opacity: .28; }
+.ringline { fill: none; stroke: var(--hair); stroke-width: 1.25; }
+.ringline.r-hearth { stroke-width: 1.9; stroke: var(--hair); }
+.ringlabelbg { fill: var(--paper); }
+.ringlabel { fill: var(--ink-faint); font-family: var(--sans); font-size: 9.5px; font-weight: 600;
+  letter-spacing: .14em; text-anchor: middle; text-transform: uppercase; }
+.ringmore { fill: var(--ink-faint); font-family: var(--sans); font-size: 9px; text-anchor: middle; }
+.youring { fill: none; stroke: var(--ember); stroke-width: 2.4; }
+.youglow { fill: var(--coral); opacity: .13; }
+.youlabel { fill: var(--ink-faint); font-family: var(--sans); font-size: 9px; font-weight: 600;
+  letter-spacing: .16em; text-anchor: middle; text-transform: uppercase; }
+.dot { cursor: pointer; transition: transform .16s var(--ease); transform-origin: center; }
+.dot .dothalo { fill: var(--paper); }
+.dot .dotshadow { fill: var(--lift-far); }
+.dot .dotring { fill: none; stroke: var(--paper); stroke-width: 1.4; opacity: .55; }
+/* Drift fades the colour, never the letters: paper-on-faded-hue collapses to
+   about 1.6:1, so a drifted chip carries its initials in ink instead. */
+.dot.adrift .dotfill { opacity: .4; }
+.dot.adrift .dotletters { fill: var(--ink); }
+.dot.adrift .dotring { stroke: var(--hair); stroke-dasharray: 3 3; opacity: 1; }
+.dotletters { fill: #FBF6EE; font-family: var(--sans); font-weight: 600; text-anchor: middle; }
+.dot:focus { outline: none; }
+.dot:focus-visible .dothalo { stroke: var(--ember); stroke-width: 2.5; }
+.dot:active { transform: scale(.93); }
+
+/* ---------- person page ---------- */
+.phead { display: flex; align-items: center; gap: 14px; margin-bottom: 4px; }
+.phead .who { min-width: 0; }
+.phead .nm { font-family: var(--serif); font-size: 30px; line-height: 1.08; margin: 0; font-weight: 400;
+  letter-spacing: -0.016em; overflow-wrap: anywhere; }
+.phead .rg { font-size: 12px; color: var(--ink-faint); margin: 4px 0 0; font-variant-numeric: tabular-nums; }
+.lensbox {
+  position: relative; margin: 18px 0 6px; padding: 14px 0 8px; border-radius: var(--rc);
+  background: radial-gradient(120% 130% at 50% 40%, var(--glow), transparent 70%);
+}
+.lensbox .kithmark { height: 116px; }
+.warmline { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--ink-faint);
+  font-variant-numeric: tabular-nums; }
+.warmline b { color: var(--ink); font-weight: 600; }
+.lasttime { font-family: var(--serif); font-size: 18px; line-height: 1.5; margin: 18px 0 0; }
+.lasttime .q { color: var(--ink); }
+
+.moment { padding: 14px 0; border-bottom: 1px solid var(--hair-soft);
+  animation: rowin .4s var(--ease) both; animation-delay: calc(var(--i, 0) * 30ms); }
+.moment:last-child { border-bottom: 0; }
+.moment .when { font-size: 11px; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-faint);
+  font-variant-numeric: tabular-nums; }
+.moment .txt { font-family: var(--serif); font-size: 17px; line-height: 1.5; margin: 5px 0 0; }
+.moment .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tag { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint);
+  border: 1px solid var(--hair); border-radius: 999px; padding: 2px 9px; }
+.tag.warm { color: var(--ember); border-color: var(--ember); background: var(--glow); }
+.moment .del { float: right; }
+
+/* discreet view: what people told you, blurred until touched */
+body.discreet .detail, body.discreet .moment .txt, body.discreet .lasttime .q, body.discreet .ctx {
+  filter: blur(5px); transition: filter .18s ease; cursor: pointer;
+}
+body.discreet .revealed { filter: none !important; }
+
+.daterow { display: flex; align-items: baseline; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--hair-soft);
+  width: 100%; text-align: left; background: none; border-left: 0; border-right: 0; border-top: 0;
+  font: inherit; color: inherit; border-radius: 8px;
+  transition: background .14s ease; }
+button.daterow { cursor: pointer; }
+button.daterow:active { background: var(--paper-2); }
+.daterow:last-child { border-bottom: 0; }
+.daterow .dd { font-family: var(--serif); font-size: 17px; color: var(--ink-faint); flex: none; width: 3.6rem;
+  font-variant-numeric: tabular-nums; }
+.daterow .dl { flex: 1; min-width: 0; }
+.daterow .dl b { font-weight: 500; }
+.daterow .dl .who { font-family: var(--serif); font-size: 17px; display: block; }
+.daterow .dl .lb { font-size: 13px; color: var(--ink-soft); display: block; }
+.daterow.tender .dd { color: var(--ember); }
+
+/* ---------- dates river ---------- */
+.month { margin-bottom: 6px; }
+.monthname { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--ink-faint);
+  margin: 22px 0 2px; padding-left: 30px; }
+.stones { position: relative; padding-left: 30px; }
+.stones::before { content: ""; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(180deg, var(--hair), var(--hair-soft)); border-radius: 2px; }
+.stone { position: relative; padding: 12px 0; border-bottom: 1px solid var(--hair-soft); cursor: pointer;
+  animation: rowin .42s var(--ease) both; animation-delay: calc(var(--i, 0) * 30ms); }
+.stone:last-child { border-bottom: 0; }
+.stone::before { content: ""; position: absolute; left: -24px; top: 20px; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--paper); border: 2px solid var(--ink-faint); }
+.stone.tender::before { background: var(--coral); border-color: var(--coral);
+  box-shadow: 0 0 0 4px var(--glow); }
+.stone .d1 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin: 0;
+  font-variant-numeric: tabular-nums; }
+.stone .d2 { font-family: var(--serif); font-size: 19px; line-height: 1.3; margin: 3px 0 2px; }
+.stone .d3 { font-size: 13px; color: var(--ink-soft); margin: 0; line-height: 1.45; }
+
+/* ---------- shelves ---------- */
+.ctx { font-family: var(--serif); font-size: 16px; line-height: 1.45; color: var(--ink-soft); margin: 4px 0 0; }
+.shelfrow { display: flex; gap: 12px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--hair-soft);
+  width: 100%; text-align: left; background: none; border-left: 0; border-right: 0; border-top: 0;
+  font: inherit; color: inherit; cursor: pointer; border-radius: 8px;
+  transition: background .14s ease;
+  animation: rowin .42s var(--ease) both; animation-delay: calc(var(--i, 0) * 40ms); }
+.shelfrow:active { background: var(--paper-2); }
+.shelfrow:last-child { border-bottom: 0; }
+.shelfrow .who { flex: 1; min-width: 0; }
+.shelfrow .nm { font-family: var(--serif); font-size: 19px; display: block; }
+.shelfrow .when { font-size: 11px; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-faint); }
+.effort { font-size: 13px; color: var(--ink-faint); margin-top: 34px; padding-top: 14px; border-top: 1px solid var(--hair); }
+
+/* ---------- onboarding ---------- */
+#onboard { justify-content: space-between; }
+.ob-track { flex: 1; overflow-y: auto; padding: calc(26px + var(--sat, 0px)) 26px 10px;
+  max-width: var(--measure); width: 100%; margin: 0 auto; }
+.ob-card[hidden] { display: none !important; }
+.ob-card { animation: obin .42s var(--ease) both; }
+@keyframes obin { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+.ob-mark { width: 132px; height: 78px; margin: 0 0 20px; }
+.ob-kicker { font-family: var(--serif); font-size: 13px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--ember); margin: 0 0 14px; }
+.ob-line { font-family: var(--serif); font-size: 34px; font-weight: 400; line-height: 1.1;
+  letter-spacing: -0.022em; margin: 0 0 16px; text-wrap: balance; }
+.ob-line.small { font-size: 27px; letter-spacing: -0.018em; }
+.ob-sub { font-size: 16px; color: var(--ink-soft); margin: 0 0 14px; max-width: 28rem; }
+.ob-note { font-size: 13px; color: var(--ink-faint); margin: 8px 0 0; min-height: 1.4em; }
+.addrow { display: flex; gap: 8px; margin: 18px 0 12px; }
+.addrow input { flex: 1; }
+.oblist { list-style: none; padding: 0; margin: 18px 0 0; }
+.oblist li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--hair-soft);
+  animation: rowin .35s var(--ease) both; }
+.oblist .nm { font-family: var(--serif); font-size: 18px; flex: 1; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oblist .rg { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); }
+.oblist .x { background: none; border: 0; color: var(--ink-faint); font: inherit; font-size: 13px; cursor: pointer; padding: 4px; }
+.ob-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 16px 26px calc(26px + var(--sab, 0px)); border-top: 1px solid var(--hair);
+  max-width: var(--measure); width: 100%; margin: 0 auto; }
+.ob-dots { display: flex; gap: 7px; }
+.ob-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--hair); transition: background .2s ease, transform .2s var(--ease); }
+.ob-dot.on { background: var(--coral); transform: scale(1.35); }
+
+/* ---------- sheets ---------- */
+.sheet { position: fixed; inset: 0; background: rgba(28, 18, 12, .5); display: flex; align-items: flex-end; z-index: 30;
+  animation: fadein .18s ease both; }
+@keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
+.sheet[hidden] { display: none !important; }
+.sheet-panel {
+  background: var(--paper); width: 100%; max-width: var(--measure); margin: 0 auto;
+  border-top: 1px solid var(--hair); border-radius: var(--rc) var(--rc) 0 0;
+  padding: 22px 22px calc(24px + var(--sab, 0px));
+  max-height: 92%; overflow-y: auto;
+  box-shadow: 0 -2px 4px var(--lift), 0 -22px 44px -20px var(--lift-far);
+  animation: rise .28s var(--ease) both;
+}
+.sheet-panel::before {
+  content: ""; display: block; width: 38px; height: 4px; border-radius: 2px;
+  background: var(--hair); margin: -8px auto 14px;
+}
+@keyframes rise { from { transform: translateY(26px); opacity: .4 } to { transform: none; opacity: 1 } }
+.sheet-title { font-family: var(--serif); font-size: 22px; margin: 0 0 4px; letter-spacing: -0.012em; text-wrap: balance; }
+.sheet-sub { font-size: 14px; color: var(--ink-faint); margin: 0 0 14px; }
+#openRemember .detail { margin: 0 0 16px; }
+
+/* ---------- toast ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: calc(78px + var(--sab, 0px)); transform: translateX(-50%);
+  background: var(--ink); color: var(--paper); font-size: 14px; padding: 10px 16px;
+  border-radius: 8px; z-index: 40; max-width: 86vw; text-align: center; margin: 0;
+  box-shadow: 0 6px 18px -6px var(--lift-far);
+  animation: toastin .24s var(--ease) both;
+}
+@keyframes toastin { from { opacity: 0; transform: translate(-50%, 8px) } to { opacity: 1; transform: translate(-50%, 0) } }
+.toast[hidden] { display: none !important; }
+
+/* ---------- screen change ---------- */
+.view:not([hidden]) .scroller > * { animation: viewin .34s var(--ease) both; }
+.view:not([hidden]) .scroller > *:nth-child(n+6) { animation: none; }
+@keyframes viewin { from { opacity: 0; transform: translateY(7px) } to { opacity: 1; transform: none } }
+
+/* Android maps "animations off" to this. Motion stops; nothing disappears. Every ring,
+   wave and card is still drawn, and the breathing mark holds at its middle position. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: .001ms !important;
+  }
+  .alive .gA, .alive .gB { animation: none !important; transform: none; }
+  .btn:active, .chip:active, .prow:active, .dot:active { transform: none; }
+}

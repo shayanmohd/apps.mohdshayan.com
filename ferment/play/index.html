@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Ferment</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main id="stage">
+
+  <!-- ==================== first run ==================== -->
+  <section class="screen" id="s-welcome" hidden>
+    <div class="scroller pad">
+      <div class="welcome">
+        <div class="wordmark" id="wm"></div>
+        <h1 class="serif xl">Ferment</h1>
+        <p class="lede">A lab notebook for the living things in your kitchen. Batches with real
+          timelines, cultures with real ages, and numbers you write down instead of guessing at.</p>
+        <p class="eyebrow mt">What is alive in your kitchen?</p>
+        <div class="stack" id="welcomePaths"></div>
+        <p class="fineprint">Everything stays on this phone. Ferment has no account, no network permission
+          and nothing to buy.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== kitchen ==================== -->
+  <section class="view" id="v-kitchen" hidden>
+    <div class="scroller">
+      <header class="shelf grain">
+        <div>
+          <p class="eyebrow" id="kDate"></p>
+          <h1 class="serif xl">Kitchen</h1>
+          <p class="shelf-line" id="kLine"></p>
+        </div>
+        <div class="shelf-right">
+          <button class="iconbtn" id="settingsBtn" aria-label="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 7.6h8M17 7.6h3.4M3.6 16.4h3.4M12.6 16.4h7.8"/><circle cx="14" cy="7.6" r="2.6"/><circle cx="9.6" cy="16.4" r="2.6"/></svg>
+          </button>
+          <div class="shelf-jar" id="kJar"></div>
+        </div>
+      </header>
+      <div id="kBody"></div>
+    </div>
+  </section>
+
+  <!-- ==================== recipes ==================== -->
+  <section class="view" id="v-recipes" hidden>
+    <div class="scroller">
+      <header class="vhead viewband grain">
+        <div>
+          <p class="eyebrow">Twelve, in the order they get harder</p>
+          <h1 class="serif xl">The ladder</h1>
+        </div>
+      </header>
+      <div id="rBody"></div>
+    </div>
+  </section>
+
+  <!-- ==================== cultures ==================== -->
+  <section class="view" id="v-cultures" hidden>
+    <div class="scroller">
+      <header class="vhead viewband grain">
+        <div>
+          <p class="eyebrow">Things that outlive their batches</p>
+          <h1 class="serif xl">Cultures</h1>
+        </div>
+      </header>
+      <div id="cBody"></div>
+    </div>
+  </section>
+
+  <!-- ==================== guide ==================== -->
+  <section class="view" id="v-guide" hidden>
+    <div class="scroller">
+      <header class="vhead viewband grain">
+        <div>
+          <p class="eyebrow">Read this part before the first jar</p>
+          <h1 class="serif xl">Guide</h1>
+        </div>
+      </header>
+      <div id="gBody"></div>
+    </div>
+  </section>
+
+  <!-- ==================== pushed detail screens ==================== -->
+  <section class="screen page" id="s-batch" hidden>
+    <div class="topbar"><button class="backbtn" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 8 12l6.5 7"/></svg></button><span class="topbar-t" id="batchTop"></span></div>
+    <div class="scroller" id="batchBody"></div>
+  </section>
+
+  <section class="screen page" id="s-culture" hidden>
+    <div class="topbar"><button class="backbtn" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 8 12l6.5 7"/></svg></button><span class="topbar-t" id="cultureTop"></span></div>
+    <div class="scroller" id="cultureBody"></div>
+  </section>
+
+  <section class="screen page" id="s-recipe" hidden>
+    <div class="topbar"><button class="backbtn" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 8 12l6.5 7"/></svg></button><span class="topbar-t" id="recipeTop"></span></div>
+    <div class="scroller" id="recipeBody"></div>
+  </section>
+
+  <section class="screen page" id="s-topic" hidden>
+    <div class="topbar"><button class="backbtn" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 8 12l6.5 7"/></svg></button><span class="topbar-t" id="topicTop"></span></div>
+    <div class="scroller" id="topicBody"></div>
+  </section>
+
+  <section class="screen page" id="s-settings" hidden>
+    <div class="topbar"><button class="backbtn" data-back aria-label="Back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 8 12l6.5 7"/></svg></button><span class="topbar-t">Settings</span></div>
+    <div class="scroller" id="settingsBody"></div>
+  </section>
+
+  <!-- ==================== capture ==================== -->
+  <section class="screen capture" id="s-capture" hidden>
+    <div class="topbar cap"><button class="backbtn" id="capBack" aria-label="Close the camera"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 5.5 18.5 18.5M18.5 5.5 5.5 18.5"/></svg></button><span class="topbar-t" id="capTitle">Capture</span></div>
+    <div class="capwrap">
+      <div class="capstage" id="capStage">
+        <div class="camframe" id="camFrame">
+          <video id="camVideo" playsinline muted autoplay></video>
+          <img id="camGhost" alt="" hidden>
+          <div class="marks" id="camMarks" hidden></div>
+          <div class="camwait"><span></span>Waking the camera</div>
+        </div>
+      </div>
+      <p class="capsub" id="capSub"></p>
+      <div class="capread" id="capRead" hidden></div>
+      <div class="chips" id="capModes">
+        <button data-mode="journal" class="chip is-on" aria-pressed="true">Journal photo</button>
+        <button data-mode="rise" class="chip" aria-pressed="false">Rise check</button>
+        <button data-mode="mark" class="chip" aria-pressed="false">Set the lines</button>
+      </div>
+      <div class="capfoot">
+        <button class="ghostbtn" id="capGhostBtn" aria-pressed="true" hidden>Ghost on</button>
+        <button class="shutter" id="capShoot"><span>Take the photo</span></button>
+      </div>
+      <div class="fallback" id="capFallback" hidden>
+        <p id="capFbNote"></p>
+        <label class="btn ghost wide">Pick a photo from the device
+          <input type="file" id="capFile" accept="image/*" hidden>
+        </label>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<nav id="tabs" hidden>
+  <button class="tab is-on" data-view="kitchen"><svg viewBox="0 0 24 24" aria-hidden="true"><g id="ti-kitchen"></g></svg><i>Kitchen</i></button>
+  <button class="tab" data-view="recipes"><svg viewBox="0 0 24 24" aria-hidden="true"><g id="ti-recipes"></g></svg><i>Recipes</i></button>
+  <button class="capfab" id="capFab" aria-label="Capture a photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.6h3.4l1.5-2.4h6.2l1.5 2.4H20a1.5 1.5 0 0 1 1.5 1.5v7.4A1.5 1.5 0 0 1 20 19H4a1.5 1.5 0 0 1-1.5-1.5v-7.4A1.5 1.5 0 0 1 4 8.6z"/><circle cx="12" cy="13.6" r="3.4"/></svg></button>
+  <button class="tab" data-view="cultures"><svg viewBox="0 0 24 24" aria-hidden="true"><g id="ti-cultures"></g></svg><i>Cultures</i></button>
+  <button class="tab" data-view="guide"><svg viewBox="0 0 24 24" aria-hidden="true"><g id="ti-guide"></g></svg><i>Guide</i></button>
+</nav>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 class="serif" id="sheetTitle"></h2>
+      <button class="iconbtn" id="sheetX" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="sheetBody"></div>
+    <div class="sheet-foot" id="sheetFoot"></div>
+  </div>
+</div>
+
+<p id="toast" class="toast" hidden></p>
+
+<script src="js/content.js"></script>
+<script src="js/store.js"></script>
+<script src="js/photos.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/capture.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

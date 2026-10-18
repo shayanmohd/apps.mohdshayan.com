@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snarewall, a maze tower defense for Android</title>
+<meta name="description" content="Build walls that bend the enemy route and chain traps. Paid once, no ads, fully offline.">
+<meta name="color-scheme" content="light dark">
+<style>
+  @font-face { font-family: "Bungee"; src: url("fonts/bungee_regular.ttf") format("truetype"); font-display: swap; }
+  @font-face { font-family: "Lexend"; src: url("fonts/lexend_regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Lexend"; src: url("fonts/lexend_semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+
+  :root {
+    --limestone: #E3E7E1; --flag: #F3F5F1; --ink: #17211D; --lichen: #4D5B54;
+    --emerald: #1A7550; --on-emerald: #F3F5F1; --route: #A63F14; --seam: rgba(77, 91, 84, 0.28);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --limestone: #141C19; --flag: #1E2824; --ink: #E2E8E4; --lichen: #9DAAA3;
+      --emerald: #4DBE8B; --on-emerald: #141C19; --route: #E68E5A; --seam: rgba(157, 170, 163, 0.22);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--limestone); color: var(--ink); font: 400 17px/1.6 "Lexend", system-ui, sans-serif; }
+  img { display: block; max-width: 100%; height: auto; }
+  a { color: var(--emerald); text-underline-offset: 3px; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { margin: 0; }
+  h2 { font-weight: 600; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  .shot { border-radius: 16px; border: 1px solid var(--seam); background: var(--flag); }
+
+  /* The route thread: the app's one signature mark, a dashed line in route orange. */
+  .thread { height: 4px; background: repeating-linear-gradient(90deg, var(--route) 0 20px, transparent 20px 34px); }
+
+  /* 1. Hero: split, copy left, the live route preview right */
+  .hero { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 56px; align-items: center; padding-top: 72px; padding-bottom: 64px; }
+  .mark { font-family: "Bungee", sans-serif; font-size: 22px; letter-spacing: 0.02em; margin-bottom: 28px; }
+  .hero h1 { font-weight: 600; font-size: clamp(40px, 5.6vw, 68px); line-height: 1.04; letter-spacing: -0.02em; max-width: 12ch; }
+  .hero .sub { font-size: 20px; color: var(--lichen); max-width: 34ch; margin: 22px 0 34px; }
+  .cta { display: inline-block; background: var(--emerald); color: var(--on-emerald); font-weight: 600; text-decoration: none;
+         padding: 15px 26px; border-radius: 8px; white-space: nowrap; transition: transform 160ms ease; }
+  .cta:hover { transform: translateY(-1px); }
+  .cta:active { transform: scale(0.98); }
+  .hero figure { margin: 0; justify-self: end; width: min(100%, 380px); }
+
+  /* 2. Chains: asymmetric overlap of two boards, the four combos as a 2x2 grid */
+  .chains { display: grid; grid-template-columns: 5fr 6fr; gap: 64px; align-items: center; padding-top: 96px; padding-bottom: 96px; }
+  .stack { position: relative; min-height: 640px; }
+  .stack img { position: absolute; width: 62%; }
+  .stack img:first-child { left: 0; top: 0; }
+  .stack img:last-child { right: 0; top: 96px; }
+  .chains h2 { max-width: 16ch; }
+  .chains > div > p { color: var(--lichen); max-width: 48ch; margin-top: 16px; }
+  .combos { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 32px; margin-top: 40px; }
+  .combos h3 { font-size: 17px; font-weight: 600; padding-top: 14px; border-top: 3px dashed var(--route); }
+  .combos p { color: var(--lichen); font-size: 15px; margin-top: 6px; }
+
+  /* 3. Counts band on the flag surface */
+  .counts { background: var(--flag); }
+  .counts .wrap { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .counts div > div { padding: 40px 20px 40px 0; }
+  .counts b { display: block; font-family: "Bungee", sans-serif; font-weight: 400; font-size: clamp(44px, 5vw, 64px); line-height: 1; color: var(--emerald); }
+  .counts span { display: block; margin-top: 10px; color: var(--lichen); max-width: 18ch; }
+
+  /* 4. Enemies: one large board with trait lines set against it */
+  .foes { display: grid; grid-template-columns: 7fr 4fr; gap: 64px; align-items: start; padding-top: 96px; padding-bottom: 96px; }
+  .foes h2 { max-width: 18ch; }
+  .traits { display: grid; grid-template-columns: 1fr 1fr; gap: 30px 36px; margin-top: 40px; }
+  .traits p { color: var(--lichen); }
+  .traits strong { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+  .foes figure { margin: 0; }
+
+  /* 5. Every day and every level: text beside two boards */
+  .days { padding-bottom: 96px; }
+  .days .row { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 32px; align-items: start; }
+  .days figure { margin: 0; }
+  .days figcaption { margin-top: 14px; color: var(--lichen); font-size: 15px; max-width: 32ch; }
+  .days .text { align-self: center; }
+  .days .text p { color: var(--lichen); margin-top: 16px; max-width: 40ch; }
+
+  /* 6. The price, stated plainly */
+  .price { border-top: 1px solid var(--seam); padding: 88px 0 72px; }
+  .price .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: end; }
+  .price .amount { font-family: "Bungee", sans-serif; font-size: clamp(48px, 7vw, 92px); line-height: 0.95; }
+  .price .amount small { display: block; font-family: "Lexend", sans-serif; font-weight: 600; font-size: 22px; margin-top: 18px; }
+  .price p { font-size: 19px; max-width: 44ch; }
+  .price p + p { color: var(--lichen); font-size: 16px; margin-top: 16px; }
+
+  footer { padding: 28px 0 56px; color: var(--lichen); font-size: 15px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 28px; justify-content: space-between; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .thread.intro { transform-origin: left; animation: draw 700ms cubic-bezier(0.16, 1, 0.3, 1) both 200ms; }
+    @keyframes draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  }
+  @media (prefers-reduced-motion: reduce) { .cta { transition: none; } }
+
+  @media (max-width: 860px) {
+    .wrap { padding: 0 16px; }
+    .hero, .chains, .foes, .price .wrap { grid-template-columns: 1fr; gap: 40px; }
+    .hero { padding-top: 40px; padding-bottom: 48px; }
+    .hero figure { justify-self: center; width: min(100%, 340px); }
+    .chains, .foes { padding-top: 64px; padding-bottom: 64px; }
+    .stack { min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stack img { position: static; width: 100%; }
+    .combos, .traits { grid-template-columns: 1fr; gap: 22px; }
+    .counts .wrap { grid-template-columns: 1fr 1fr; }
+    .counts div > div { padding: 28px 12px 28px 0; }
+    .foes figure { order: -1; max-width: 340px; }
+    .days { padding-bottom: 64px; }
+    .days .row { grid-template-columns: 1fr 1fr; gap: 16px; }
+    .days .text { grid-column: 1 / -1; grid-row: 1; margin-bottom: 12px; }
+    .price { padding: 56px 0 48px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap hero">
+  <div>
+    <div class="mark">SNAREWALL</div>
+    <h1>Your walls decide the enemy path.</h1>
+    <p class="sub">A maze tower defense for Android. Place a wall and watch the route redraw before you let go.</p>
+    <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.snarewall">Get it on Google Play</a>
+  </div>
+  <figure>
+    <img class="shot" src="shots/01-wall-bends-route.png" width="540" height="960"
+         alt="A Salt Mine level with a wall being placed, the dashed route bending around the maze and a chip reading plus 8 steps">
+  </figure>
+</header>
+
+<div class="wrap"><div class="thread intro" aria-hidden="true"></div></div>
+
+<main>
+  <section class="wrap chains" aria-labelledby="chains-h">
+    <div class="stack">
+      <img class="shot" src="shots/02-pusher-deadfall-combo.png" width="540" height="960" decoding="async"
+           alt="A column of raiders filing down a walled corridor towards a pusher whose link to a deadfall is lit">
+      <img class="shot" src="shots/05-oil-and-ember-3x.png" width="540" height="960" decoding="async"
+           alt="Dark theme board at 3x speed with raiders coming down a walled route, one burning on oil beside an ember grate">
+    </div>
+    <div>
+      <h2 id="chains-h">Build the path, then set the snares.</h2>
+      <p>Ten traps, each with one upgrade. Put two of the right ones side by side and a mark lights up between them, so you know the combo is live.</p>
+      <div class="combos">
+        <div><h3>Pusher into deadfall</h3><p>A shoved enemy lands under the stone for double damage.</p></div>
+        <div><h3>Oil into ember</h3><p>Oil next to an ember grate carries its fire.</p></div>
+        <div><h3>Frost into shatter hammer</h3><p>The hammer deals triple to chilled enemies.</p></div>
+        <div><h3>Snare net onto spike plate</h3><p>A net next to spikes holds enemies on the spikes.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="counts" aria-label="What is in the game">
+    <div class="wrap">
+      <div><b>15</b><span>handmade levels in 3 regions</span></div>
+      <div><b>10</b><span>traps and 4 combos</span></div>
+      <div><b>12</b><span>enemy types</span></div>
+      <div><b>3</b><span>difficulties, each with its own medals</span></div>
+    </div>
+  </section>
+
+  <section class="wrap foes" aria-labelledby="foes-h">
+    <div>
+      <h2 id="foes-h">Lazy mazes get punished.</h2>
+      <div class="traits">
+        <p><strong>Diggers</strong>Tunnel once under your walls when the detour is long.</p>
+        <p><strong>Jumpers</strong>Hop a wall one block thick. Two blocks stop them.</p>
+        <p><strong>Flyers</strong>Head straight for the keep. Only darts reach them.</p>
+        <p><strong>Sappers</strong>Knock down the first wall they touch.</p>
+      </div>
+    </div>
+    <figure>
+      <img class="shot" src="shots/03-diggers-and-jumpers.png" width="540" height="960" decoding="async"
+           alt="Deep Crossing on wave 5 with diggers tunnelling under the walls and jumpers hopping them">
+    </figure>
+  </section>
+
+  <section class="wrap days" aria-labelledby="days-h">
+    <div class="row">
+      <div class="text">
+        <h2 id="days-h">A new map every day.</h2>
+        <p>The daily endless map is built from the UTC date, so everyone playing that day gets the same board, traps and waves. Your best score is kept for every day.</p>
+      </div>
+      <figure>
+        <img class="shot" src="shots/04-daily-map.png" width="540" height="960" decoding="async"
+             alt="The daily map screen with today's board, its six traps and a history of past scores">
+        <figcaption>Waves grow until the keep falls.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="shots/06-levels-and-medals.png" width="540" height="960" decoding="async"
+             alt="The level select in dark theme, three regions with medal pips under each level">
+        <figcaption>Warden, Standard and Iron, each with bronze, silver and gold medals.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="price" aria-labelledby="price-h">
+    <div class="wrap">
+      <h2 id="price-h" class="amount">USD 2.99<small>or INR 150, paid once on Google Play.</small></h2>
+      <div>
+        <p>One-time purchase. No ads, no subscription, no account. Works fully offline.</p>
+        <p>The app has no internet permission. Your progress is kept on your device (and in your Android backup if that is on), and you can export it as a save file through the share sheet whenever you like.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Snarewall by SocialSure Private Limited</span>
+    <a href="/privacy-policies/snarewall-privacy-policy.html">Privacy policy</a>
+  </div>
+</footer>
+
+</body>
+</html>

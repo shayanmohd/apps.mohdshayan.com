@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detour. Get lost on purpose.</title>
+<meta name="description" content="A walking app that hands you a compass bearing instead of a route. Wander your own city by direction and distance, collect small quests for noticing things, and keep the trail you actually walked. Offline, no account, no ads.">
+<meta property="og:title" content="Detour. Get lost on purpose.">
+<meta property="og:description" content="Not the fastest route. A bearing, a distance, and the streets you have never noticed.">
+<meta property="og:type" content="website">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<script>document.documentElement.className = 'js';</script>
+<style>
+  :root {
+    --paper: #F4ECDD; --paper-2: #EBE0CA; --card: #FBF6EB;
+    --ink: #1F211C; --ink-soft: #4E5045; --ink-faint: #6A6C5C;
+    --hair: #D6CBB3; --accent: #B8420E; --on-accent: #FFF6EA;
+    --serif: Fraunces, "Iowan Old Style", Georgia, serif;
+    --sans: "Work Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #15160F; --paper-2: #1D1E16; --card: #1D1E16;
+            --ink: #EDE5D5; --ink-soft: #BCB6A4; --ink-faint: #A9A492;
+            --hair: #33342B; --accent: #F0904F; --on-accent: #15160F; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink);
+         font-family: var(--sans); font-size: 17px; line-height: 1.6;
+         -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  img { max-width: 100%; }
+
+  /* The accent flips from a deep tangerine to a lit one after dark, so the ink on it flips with it. */
+  .cta { display: inline-block; background: var(--accent); color: var(--on-accent); text-decoration: none;
+         padding: 14px 28px; border-radius: 999px; font-size: 16px; letter-spacing: .01em;
+         border: 1px solid var(--accent); transition: transform .15s ease; }
+  .cta:active { transform: translateY(1px); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 74px; }
+  .mark { display: flex; align-items: center; gap: 11px; font-family: var(--serif);
+          font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+  .mark img { width: 30px; height: 30px; border-radius: 8px; display: block; }
+  nav a { color: var(--ink-soft); text-decoration: none; font-size: 15px; margin-left: 22px; }
+  nav a:hover { color: var(--ink); }
+
+  /* 1. hero: type left, one screen right */
+  .hero { display: grid; grid-template-columns: 1.06fr .94fr; gap: 60px; align-items: center;
+          padding: 36px 0 100px; }
+  .hero h1 { font-family: var(--serif); font-size: clamp(40px, 5.6vw, 66px); line-height: 1.03;
+             letter-spacing: -.028em; margin: 0 0 22px; font-weight: 600; }
+  .hero p { font-size: 19.5px; color: var(--ink-soft); margin: 0 0 32px; max-width: 34ch; }
+  .hero .under { font-size: 14.5px; color: var(--ink-faint); margin: 18px 0 0; max-width: 34ch; }
+  .shot { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--hair); display: block; }
+  .hero .shot { max-width: 330px; margin-left: auto; }
+
+  /* 2. manifesto: one full width band of type */
+  .manifesto { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair);
+               padding: 108px 0; text-align: center; background: var(--paper-2); }
+  .manifesto p { font-family: var(--serif); font-size: clamp(27px, 3.7vw, 42px); line-height: 1.24;
+                 margin: 0 auto; max-width: 21ch; letter-spacing: -.018em; }
+  .manifesto .after { font-family: var(--sans); font-size: 17.5px; color: var(--ink-soft);
+                      max-width: 50ch; margin: 28px auto 0; letter-spacing: 0; line-height: 1.6; }
+
+  h2 { font-family: var(--serif); font-size: clamp(28px, 3.5vw, 40px); line-height: 1.12;
+       letter-spacing: -.02em; margin: 0 0 14px; font-weight: 600; }
+  .sub { color: var(--ink-soft); max-width: 54ch; margin: 0 0 46px; }
+  .eyebrow { font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+             color: var(--ink-faint); margin: 0 0 10px; }
+
+  /* 3. the walk, as a numbered ladder */
+  .ladder { padding: 96px 0 88px; }
+  .rungs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+  .rungs > div { padding: 30px 26px 10px 0; border-top: 2px solid var(--ink); }
+  .rungs > div + div { padding-left: 26px; }
+  .rungs .n { font-family: var(--serif); font-size: 15px; color: var(--accent); margin: 0 0 12px;
+              letter-spacing: .06em; }
+  .rungs h3 { font-family: var(--serif); font-size: 21px; margin: 0 0 8px; font-weight: 600;
+              letter-spacing: -.01em; }
+  .rungs p { color: var(--ink-soft); margin: 0; font-size: 15.5px; }
+
+  /* 4. gallery: three screens */
+  .gallery { padding: 20px 0 96px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--ink-soft); font-size: 15px; margin-top: 15px; }
+
+  /* 5. the deck: a wall of real cards */
+  .deck { background: var(--paper-2); border-top: 1px solid var(--hair);
+          border-bottom: 1px solid var(--hair); padding: 96px 0; }
+  .cards { columns: 2; column-gap: 22px; margin-top: 40px; }
+  .cards p { break-inside: avoid; background: var(--card); border: 1px solid var(--hair);
+             border-radius: 14px; padding: 18px 20px; margin: 0 0 22px;
+             font-family: var(--serif); font-size: 19px; line-height: 1.34; letter-spacing: -.005em; }
+  .deck .tail { color: var(--ink-soft); max-width: 56ch; margin: 8px 0 0; }
+
+  /* 6. plain speech: two columns with a rule between */
+  .plain { padding: 96px 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; margin-top: 38px; }
+  .cols > div:first-child { padding-right: 44px; border-right: 1px solid var(--hair); }
+  .cols > div:last-child { padding-left: 44px; }
+  .cols h3 { font-size: 18px; margin: 0 0 12px; font-weight: 600; }
+  .cols ul { margin: 0; padding-left: 1.1rem; color: var(--ink-soft); }
+  .cols li { margin-bottom: 10px; }
+
+  /* 7. facts as rows */
+  .facts { padding: 0 0 96px; }
+  .facts .row { display: grid; grid-template-columns: 14rem 1fr; gap: 34px;
+                padding: 26px 0; border-top: 1px solid var(--hair); align-items: start; }
+  .facts .row:last-child { border-bottom: 1px solid var(--hair); }
+  .facts .k { font-size: 14px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-faint); }
+  .facts .v { color: var(--ink); margin: 0; }
+
+  .close { text-align: center; padding: 10px 0 112px; }
+  .close p { font-family: var(--serif); font-size: clamp(24px, 3vw, 32px); line-height: 1.24;
+             max-width: 24ch; margin: 0 auto 30px; letter-spacing: -.015em; }
+
+  footer { border-top: 1px solid var(--hair); padding: 34px 0 64px; color: var(--ink-faint); font-size: 15px; }
+  footer .row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer a { color: var(--ink-soft); text-decoration: none; margin-right: 18px; }
+  footer a:hover { color: var(--ink); }
+
+  /* The hidden state is only ever applied when scripting is on, so a page without it reads normally. */
+  .js .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .js .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .js .reveal { opacity: 1; transform: none; transition: none; }
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; padding-bottom: 70px; }
+    .hero .shot { max-width: 300px; margin: 0 auto; }
+    .rungs { grid-template-columns: 1fr 1fr; }
+    .rungs > div + div { padding-left: 0; }
+    .rungs > div:nth-child(even) { padding-left: 26px; }
+    .strip { grid-template-columns: 1fr; gap: 44px; max-width: 330px; margin: 0 auto; }
+    .cards { columns: 1; }
+    .cols { grid-template-columns: 1fr; }
+    .cols > div:first-child { padding: 0 0 26px; border-right: 0; border-bottom: 1px solid var(--hair); }
+    .cols > div:last-child { padding: 26px 0 0; }
+    .facts .row { grid-template-columns: 1fr; gap: 8px; }
+    nav a { margin-left: 14px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark"><img src="shots/icon.png" alt=""> Detour</span>
+    <span>
+      <a href="#walk">How a walk goes</a>
+      <a href="/privacy-policies/detour-privacy-policy.html">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Get lost<br>on purpose.</h1>
+      <p>Maps has one opinion: the fastest way there. Detour has the opposite one. It gives you a
+        direction and a distance, and lets you find your own way through it.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.detour">Get it on Google Play</a>
+      <p class="under">Free and complete. No account, no ads, no subscription, and no internet permission.</p>
+    </div>
+    <img class="shot reveal" src="shots/01-set-out.png" width="1080" height="1920"
+         alt="The Set out screen: an ink compass card at the top, a dial set to forty five minutes, five mood chips, and a Wander button.">
+  </header>
+</div>
+
+<section class="manifesto">
+  <div class="wrap">
+    <p>Eleven minutes, head down, arrived, saw nothing.</p>
+    <p class="after">Navigation optimised the walk out of walking. Detour puts the deciding back in your
+      hands: it knows compass bearings, not streets, so which alley you take and which side of the road
+      you cross is a choice you make over and over, the whole way round.</p>
+  </div>
+</section>
+
+<section class="ladder wrap" id="walk">
+  <p class="eyebrow">How a walk goes</p>
+  <h2>An hour, a mood, and no route at all</h2>
+  <p class="sub">Set the length, pick a mood, press Wander, and wait for the receiver to find you.
+    Everything after that happens outside, with the phone mostly in your pocket.</p>
+  <div class="rungs">
+    <div class="reveal">
+      <p class="n">One</p>
+      <h3>Say what you have</h3>
+      <p>Twenty minutes to three hours, and one of five moods. Quiet takes long lazy legs. Lively turns
+        every corner it can.</p>
+    </div>
+    <div class="reveal">
+      <p class="n">Two</p>
+      <h3>Take the bearing</h3>
+      <p>North east, three hundred metres. A pulse in your pocket says a new one has landed, so you can
+        keep your eyes on the street.</p>
+    </div>
+    <div class="reveal">
+      <p class="n">Three</p>
+      <h3>Get it wrong</h3>
+      <p>Walk into a dead end, a canal, a locked gate. Detour recomposes from wherever you actually
+        stand. There is no wrong turn to be scolded for.</p>
+    </div>
+    <div class="reveal">
+      <p class="n">Four</p>
+      <h3>Come back changed</h3>
+      <p>Your own trail draws itself as an ink sketch, with the quests you finished marked where you
+        finished them.</p>
+    </div>
+  </div>
+</section>
+
+<section class="gallery wrap">
+  <div class="strip">
+    <figure class="reveal">
+      <img class="shot" src="shots/02-walk.png" width="1080" height="1920"
+           alt="The walk screen: a black compass card with a tangerine needle, the word East, and seventy metres to go.">
+      <figcaption>One bearing at a time. The card turns with you, and the trail below fills in as you go.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/04-complete.png" width="1080" height="1920"
+           alt="The finished walk: the route drawn as an ink sketch on cream paper with two quest marks on it.">
+      <figcaption>The sketch is the reward. Forty seven minutes, drawn from the ground you covered.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/06-ground.png" width="1080" height="1920"
+           alt="The ground covered map: every forty metre square you have stood in, shaded tangerine, with the walks drawn over them.">
+      <figcaption>Every forty metre square you have stood in, shaded in. Months of walks stack into a private atlas.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="deck">
+  <div class="wrap">
+    <h2>Little quests, for noticing</h2>
+    <p class="sub">Three hundred and sixty two cards, written to be done in under a minute, in public,
+      without spending anything. Two to six arrive on an hour's walk. These are real ones.</p>
+    <div class="cards">
+      <p>Find something older than you.</p>
+      <p>Follow a cat for one block if a cat appears.</p>
+      <p>Stand where two smells meet.</p>
+      <p>Put your hand flat on a wall older than your grandmother.</p>
+      <p>Find a puddle worth photographing and do not photograph it.</p>
+      <p>Find a sign that has been corrected by hand.</p>
+      <p>Find the join between two centuries.</p>
+      <p>Find a queue and work out what it believes in.</p>
+    </div>
+    <p class="tail">Answer with a line of writing, or simply do it and tap done. The ones you love can be
+      starred so they come back.</p>
+  </div>
+</section>
+
+<section class="plain wrap">
+  <h2>What it is, and what it is not</h2>
+  <p class="sub">The honest version, because a walking app that oversells itself sends people somewhere
+    they did not want to be.</p>
+  <div class="cols">
+    <div>
+      <h3>It is</h3>
+      <ul>
+        <li>A compass that composes the next bearing from where you are, how long you have left, and
+          which ground you have never stood in.</li>
+        <li>A memory of your own walked ground, which is why it can lean you toward the unfamiliar.</li>
+        <li>A journal of trails, quests and one line about what you noticed.</li>
+        <li>Entirely offline. It works in a foreign city with the data switched off.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>It is not</h3>
+      <ul>
+        <li>A map. There are no streets on the screen and no turn by turn directions.</li>
+        <li>Able to know that a bearing meets a river, a motorway or a private gate. Press "Not that
+          way" and it hands you another.</li>
+        <li>A fitness tracker. It counts nothing at you and sets no goals.</li>
+        <li>A judge of which streets are safe. That judgement stays yours, and it will recompose from
+          wherever you turn around.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="facts wrap">
+  <h2>Your wandering stays yours</h2>
+  <div class="row">
+    <div class="k">No network</div>
+    <p class="v">Detour does not request the internet permission. It cannot upload where you walked,
+      because Android will not let it open a connection at all. The permission list on the Play page
+      is the proof.</p>
+  </div>
+  <div class="row">
+    <div class="k">Foreground only</div>
+    <p class="v">Location is read while a walk is open on your screen and stops the moment it ends.
+      There is no background location. Approximate location is too coarse to measure a walk with, so
+      Detour says so and offers to hand you bearings you walk by eye instead.</p>
+  </div>
+  <div class="row">
+    <div class="k">Yours to take</div>
+    <p class="v">Export everything as JSON, or as a plain text journal that reads like a notebook.
+      Put a copy back later from that same file. Erase the lot in two taps.</p>
+  </div>
+  <div class="row">
+    <div class="k">No walls</div>
+    <p class="v">Every mood, all three hundred and sixty two cards, the journal and the coverage map
+      are in the free app. There is nothing to unlock.</p>
+  </div>
+</section>
+
+<section class="close wrap">
+  <p>Follow a cat for one block, if a cat appears.</p>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.detour">Get it on Google Play</a>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <span>
+      <a href="/privacy-policies/detour-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Walk it in the browser</a>
+    </span>
+    <span>SocialSure Private Limited</span>
+  </div>
+</footer>
+
+<script>
+  const els = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+  const show = el => el.classList.add('in');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { show(e.target); io.unobserve(e.target); }
+    }, { threshold: 0.12 });
+    els.forEach(el => io.observe(el));
+    // A jump to an anchor, or a flick of a trackpad, can carry an element past the viewport without
+    // one intersecting frame. Anything the scroll has already gone by is simply shown.
+    addEventListener('scroll', () => {
+      for (const el of els) if (el.getBoundingClientRect().top < innerHeight) show(el);
+    }, { passive: true });
+  } else els.forEach(show);
+</script>
+</body>
+</html>

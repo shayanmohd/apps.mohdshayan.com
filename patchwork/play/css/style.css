@@ -1,0 +1,402 @@
+/* Patchwork. The quilt is the idea: cloth, dye and running stitch.
+   Cream and kraft paper, one teal accent, mustard in the fabric, a stitched hairline
+   wherever another app would draw a plain rule. */
+
+:root {
+  /* paper and ink */
+  --paper: #F4EFE2;
+  --paper-2: #EFE8D8;      /* the fold: a second tone of the same cloth */
+  --card: #FCF8EF;
+  --kraft: #E9E0CA;
+  --ink: #1D2321;
+  --soft: #454F4C;
+  --faint: #575F5C;
+  --hair: #D9CEB5;
+  --stitch: #C6B896;       /* the thread on light cloth */
+  --accent: #0A5F55;       /* deep teal: the one accent */
+  --accent-2: #0E7A6C;     /* the lit edge of the same teal */
+  --accent-wash: #0A5F551F;
+  --on-accent: #FCF8EF;
+  --gold: #7E5604;         /* mustard, dyed down far enough to read as text */
+  --gold-cloth: #C08A11;   /* mustard as cloth, never as text */
+  --danger: #8C2F1F;
+  --good: #3A5A41;
+  --shadow: 0 1px 0 #FFFFFFB0 inset, 0 2px 5px -2px #4A3D1E33, 0 10px 22px -14px #4A3D1E4D;
+  --shadow-lift: 0 1px 0 #FFFFFFC0 inset, 0 3px 8px -2px #4A3D1E3D, 0 16px 30px -16px #4A3D1E5C;
+
+  --r: 12px;
+  --r-sm: 8px;
+  --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --slab: "Zilla Slab", Georgia, serif;
+
+  /* the fabric: one bolt of cloth, teal at one end and mustard at the other */
+  --c-make: #217A80;   /* teal, one end of the bolt */
+  --c-admin: #2C6076;  /* deep sea */
+  --c-grow: #4A7A4E;   /* moss */
+  --c-other: #8A7340;  /* flax */
+  --c-teach: #B08608;  /* mustard, the other end */
+  --c-move: #8A6032;   /* kraft */
+  --c-repair: #B4562A; /* rust */
+  --c-care: #97485C;   /* madder */
+  --thread: #FCF8EFCC;     /* the stitch drawn on a patch */
+
+  --fast: .16s;
+  --slow: .34s;
+  --ease: cubic-bezier(.2, .9, .3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #121817;
+    --paper-2: #0E1413;
+    --card: #1A2120;
+    --kraft: #232B29;
+    --ink: #EAE5D7;
+    --soft: #AEB7B2;
+    --faint: #98A29D;
+    --hair: #333C39;
+    --stitch: #3D4643;
+    --accent: #5BC9B4;
+    --accent-2: #7FDCC9;
+    --accent-wash: #5BC9B426;
+    --on-accent: #0E1413;
+    --gold: #E0B44E;
+    --gold-cloth: #D9A93F;
+    --danger: #EE9184;
+    --good: #8FC79C;
+    --shadow: 0 1px 0 #FFFFFF14 inset, 0 2px 6px -2px #00000080, 0 12px 26px -16px #000000A6;
+    --shadow-lift: 0 1px 0 #FFFFFF1F inset, 0 4px 10px -2px #00000099, 0 18px 34px -18px #000000BF;
+    --c-make: #5CC0C7; --c-admin: #74AECA; --c-grow: #85C08A; --c-other: #C7B173;
+    --c-teach: #E5B84E; --c-move: #CE9E63; --c-repair: #E58A56; --c-care: #D68CA0;
+    --thread: #0E141399;
+  }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0; height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The cloth: a woven texture, drawn once and tiled. Two thread directions, very faint,
+   so surfaces read as fabric rather than as flat rectangles. */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: .55;
+  background-image:
+    repeating-linear-gradient(90deg, #8A7A5A0E 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(0deg, #8A7A5A0A 0 1px, transparent 1px 5px),
+    radial-gradient(130% 85% at 50% -12%, #FFFFFF73, transparent 62%);
+}
+@media (prefers-color-scheme: dark) {
+  body::before {
+    opacity: .45;
+    background-image:
+      repeating-linear-gradient(90deg, #FFFFFF05 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(0deg, #FFFFFF04 0 1px, transparent 1px 5px),
+      radial-gradient(130% 85% at 50% -12%, #5BC9B416, transparent 62%);
+  }
+}
+
+#stage { position: fixed; inset: 0 0 var(--tabh, 0px) 0; z-index: 1; }
+body.has-tabs { --tabh: calc(64px + var(--sab, 0px)); }
+.screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.screen[hidden] { display: none !important; }
+
+/* ---------- the running stitch, the app's one line ---------- */
+/* A dashed rule with a shadow thread under it: a real seam, not a border. */
+.seam {
+  height: 2px; flex: none;
+  background-image: repeating-linear-gradient(90deg, var(--stitch) 0 6px, transparent 6px 13px);
+  background-position: 0 0; background-repeat: repeat-x; background-size: 13px 2px;
+}
+
+/* ---------- top bars ---------- */
+.top {
+  position: relative; display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 14px; padding: calc(18px + var(--sat, 0px)) 20px 15px;
+  background-color: var(--paper);
+  background-image: linear-gradient(180deg, var(--card), var(--paper));
+}
+.top::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  background-image: repeating-linear-gradient(90deg, var(--stitch) 0 6px, transparent 6px 13px);
+}
+.top h1 {
+  font-family: var(--slab); font-size: 27px; font-weight: 600; margin: 0;
+  letter-spacing: -0.018em; line-height: 1.1; text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.sub { margin: 4px 0 0; font-size: 14px; color: var(--faint); letter-spacing: .006em; }
+.top .headtext { min-width: 0; }
+.scroller { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px 20px 44px; }
+
+h2.h2 {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--slab); font-size: 18px; font-weight: 600; margin: 26px 0 10px;
+  letter-spacing: -0.008em; text-wrap: balance;
+}
+h2.h2::before { content: ''; flex: none; width: 9px; height: 9px; border-radius: 2px;
+  background: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+h2.h2:first-child { margin-top: 4px; }
+.help { font-size: 14px; color: var(--faint); margin: 8px 0 0; overflow-wrap: anywhere; }
+.colophon { font-size: 13px; color: var(--faint); margin-top: 22px; }
+.rule { border: 0; height: 2px; margin: 26px 0 18px;
+  background-image: repeating-linear-gradient(90deg, var(--stitch) 0 6px, transparent 6px 13px); }
+
+/* ---------- empty states, each with its own drawing ---------- */
+.empty { margin: 26px 0 0; text-align: center; }
+.empty svg { display: block; margin: 0 auto 14px; }
+.empty p { color: var(--faint); font-size: 15px; margin: 0 auto; max-width: 27rem; text-wrap: balance; }
+.empty p.lead { color: var(--soft); font-size: 17px; font-family: var(--slab); font-weight: 600; margin-bottom: 6px; }
+.empty[hidden] { display: none !important; }
+
+/* ---------- controls ---------- */
+.btn {
+  position: relative; font: inherit; font-size: 15px; font-weight: 600;
+  background-color: var(--card);
+  background-image: linear-gradient(180deg, var(--card), var(--paper-2));
+  color: var(--ink); border: 1px solid var(--hair); border-radius: var(--r-sm);
+  padding: 10px 16px; cursor: pointer; letter-spacing: .004em;
+  box-shadow: 0 1px 0 #FFFFFF99 inset, 0 1px 2px #4A3D1E1F;
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease), opacity var(--fast);
+}
+@media (prefers-color-scheme: dark) { .btn { box-shadow: 0 1px 0 #FFFFFF0F inset, 0 1px 2px #00000066; } }
+.btn:active { transform: scale(.965); box-shadow: 0 1px 2px #4A3D1E14; }
+.btn.primary {
+  background-color: var(--accent);
+  background-image: linear-gradient(180deg, var(--accent-2), var(--accent));
+  border-color: var(--accent); color: var(--on-accent);
+  box-shadow: 0 1px 0 #FFFFFF2E inset, 0 2px 6px -1px #0A5F5559;
+}
+.btn.small { padding: 8px 13px; font-size: 14px; }
+.btn.ghost { background-color: transparent; background-image: none; box-shadow: none; }
+.btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--hair));
+  background-color: transparent; background-image: none; box-shadow: none; }
+.btn[disabled] { opacity: .45; cursor: default; transform: none; }
+.btn[disabled]:active { transform: none; }
+.btn:focus-visible, .seg:focus-visible, .tab:focus-visible, .entry:focus-visible, .person:focus-visible,
+input:focus-visible, select:focus-visible, .quilt-btn:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.filelabel { display: inline-block; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+input[type=text], input[type=search], input[type=number], input[type=date], select, textarea {
+  width: 100%; font: inherit; font-size: 16px; background: var(--card); color: var(--ink);
+  border: 1px solid var(--hair); border-radius: var(--r-sm); padding: 11px 13px; outline: 0;
+  box-shadow: 0 1px 2px #4A3D1E14 inset;
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+@media (prefers-color-scheme: dark) {
+  input[type=text], input[type=search], input[type=number], input[type=date], select, textarea {
+    box-shadow: 0 1px 2px #00000059 inset;
+  }
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+input::placeholder, textarea::placeholder { color: var(--faint); }
+.field { margin-bottom: 15px; }
+.field.bad input, .field.bad select { border-color: var(--danger); }
+/* scoped to the form field: a <label> is also used for the file picker, which is a button */
+.field label { display: block; font-size: 13px; font-weight: 600; color: var(--soft);
+  margin-bottom: 6px; letter-spacing: .05em; text-transform: uppercase; }
+.err { display: block; font-size: 13.5px; color: var(--danger); margin: 6px 0 0; }
+.err[hidden] { display: none !important; }
+.note-inline { display: block; font-size: 13.5px; color: var(--faint); margin: 6px 0 0; }
+
+/* search field wears a small magnifier drawn in the same stroke language */
+.searchwrap { position: relative; }
+.searchwrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--faint); pointer-events: none; }
+.searchwrap input { padding-left: 40px; }
+
+.segbar { display: flex; gap: 4px; margin: 14px 0 6px; padding: 4px;
+  background: var(--kraft); border-radius: var(--r); box-shadow: 0 1px 2px #4A3D1E1F inset; }
+@media (prefers-color-scheme: dark) { .segbar { box-shadow: 0 1px 2px #00000066 inset; } }
+.seg { flex: 1; font: inherit; font-size: 14.5px; font-weight: 600; background: transparent;
+  color: var(--soft); border: 0; border-radius: var(--r-sm); padding: 8px; cursor: pointer;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease); }
+.seg.is-on { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px #4A3D1E2E,
+  0 -2px 0 var(--accent) inset; }
+@media (prefers-color-scheme: dark) { .seg.is-on { box-shadow: 0 1px 3px #00000080, 0 -2px 0 var(--accent) inset; } }
+
+/* ---------- the quilt: the signature ---------- */
+.quilt-btn { background: none; border: 0; padding: 0; cursor: pointer; flex: none; line-height: 0;
+  border-radius: var(--r-sm); transition: transform var(--fast) var(--ease); }
+.quilt-btn:active { transform: scale(.94); }
+.quilt-big { width: 100%; height: auto; display: block; }
+.patch { transform-box: fill-box; transform-origin: center; }
+.patch.new { animation: stitchin var(--slow) var(--ease) backwards; }
+@keyframes stitchin { from { opacity: 0; transform: scale(.4) rotate(-20deg); } }
+.quilt-cap { display: flex; align-items: baseline; gap: 10px;
+  margin: 11px 0 0; font-size: 13.5px; color: var(--faint); line-height: 1.4; }
+.quilt-cap b { font-family: var(--slab); font-size: 16px; color: var(--ink); font-weight: 600;
+  white-space: nowrap; flex: none; }
+.quilt-cap span { min-width: 0; }
+
+/* ---------- board rows ---------- */
+.entry {
+  display: flex; align-items: center; gap: 13px; padding: 13px 12px; margin-bottom: 8px;
+  width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  background: var(--card); border: 1px solid var(--hair); border-radius: var(--r);
+  box-shadow: var(--shadow);
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+.entry:active { transform: scale(.985); box-shadow: var(--shadow-lift); }
+.entry.flat { cursor: default; box-shadow: none; }
+.entry.flat:active { transform: none; }
+.entry .body { flex: 1; min-width: 0; }
+.entry .body > * { display: block; }
+.entry .what { font-size: 16px; overflow-wrap: anywhere; line-height: 1.35; }
+.entry .who { font-size: 13.5px; color: var(--faint); margin-top: 3px; overflow-wrap: anywhere; }
+.entry .bal { font-family: var(--slab); font-size: 15px; font-weight: 600; color: var(--accent);
+  white-space: nowrap; flex: none; }
+.entry .bal.neg { color: var(--gold); }
+
+/* a swatch is a scrap of cloth with a stitch through it, not a colour chip */
+.swatch { flex: none; display: block; }
+
+/* staggered entry: the list settles like cloth, never bounces */
+.stagger > * { animation: settle var(--slow) var(--ease) backwards; }
+.stagger > *:nth-child(1) { animation-delay: 0ms }
+.stagger > *:nth-child(2) { animation-delay: 26ms }
+.stagger > *:nth-child(3) { animation-delay: 52ms }
+.stagger > *:nth-child(4) { animation-delay: 78ms }
+.stagger > *:nth-child(5) { animation-delay: 104ms }
+.stagger > *:nth-child(6) { animation-delay: 130ms }
+.stagger > *:nth-child(n+7) { animation-delay: 156ms }
+@keyframes settle { from { opacity: 0; transform: translateY(9px); } }
+
+/* ---------- ledger ---------- */
+.balances { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 10px; }
+.bal-card { position: relative; overflow: hidden; background: var(--card);
+  border: 1px solid var(--hair); border-radius: var(--r); padding: 13px 14px; box-shadow: var(--shadow); }
+.bal-card::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--fab, var(--c-other)); }
+.bal-card .n { font-family: var(--slab); font-size: 26px; font-weight: 600; margin: 0 0 0 6px;
+  letter-spacing: -0.02em; line-height: 1.1; }
+.bal-card .who { font-size: 14px; color: var(--soft); margin: 2px 0 0 6px; overflow-wrap: anywhere; }
+.bal-card.over .n { color: var(--gold); }
+.bal-card .note { font-size: 12.5px; color: var(--faint); margin: 5px 0 0 6px; line-height: 1.35; }
+
+.line { display: flex; gap: 11px; padding: 13px 0; align-items: flex-start; }
+.line .swatch { margin-top: 2px; }
+.line + .line { border-top: 2px solid transparent;
+  background-image: repeating-linear-gradient(90deg, var(--stitch) 0 6px, transparent 6px 13px);
+  background-size: 13px 2px; background-repeat: repeat-x; background-position: 0 0; }
+.line .lbody { flex: 1; min-width: 0; }
+.line p { margin: 0; font-size: 16px; overflow-wrap: anywhere; }
+.line .when { font-size: 13px; color: var(--faint); margin-top: 3px; }
+
+/* ---------- bookings ---------- */
+.card { position: relative; background: var(--card); border: 1px solid var(--hair);
+  border-radius: var(--r); padding: 15px; margin-bottom: 11px; box-shadow: var(--shadow); }
+.card h3 { font-family: var(--slab); font-size: 17.5px; font-weight: 600; margin: 0 0 5px;
+  letter-spacing: -0.008em; overflow-wrap: anywhere; text-wrap: balance; }
+.card .meta { font-size: 13.5px; color: var(--faint); margin: 0 0 11px; overflow-wrap: anywhere; }
+.card .meta b { color: var(--soft); font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+  padding: 4px 10px; border-radius: 999px; background: var(--kraft); color: var(--soft); }
+.pill.wait { background: var(--accent-wash); color: var(--accent); }
+.pill.done { background: color-mix(in srgb, var(--good) 20%, transparent); color: var(--good); }
+.pill.late { background: color-mix(in srgb, var(--gold-cloth) 22%, transparent); color: var(--gold); }
+.confirmed { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600;
+  color: var(--good); padding: 8px 4px; }
+
+/* ---------- people ---------- */
+.person { display: flex; align-items: center; gap: 13px; padding: 13px 12px; margin-bottom: 8px;
+  width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  background: var(--card); border: 1px solid var(--hair); border-radius: var(--r);
+  box-shadow: var(--shadow); transition: transform var(--fast) var(--ease); }
+.person:active { transform: scale(.985); }
+.person .body { flex: 1; min-width: 0; }
+.person .body > * { display: block; }
+.person .nm { font-family: var(--slab); font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+.person .off { font-size: 13.5px; color: var(--faint); margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.person .bal { font-family: var(--slab); font-size: 16px; font-weight: 600; color: var(--accent);
+  white-space: nowrap; flex: none; }
+.person .bal.neg { color: var(--gold); }
+
+/* ---------- onboarding ---------- */
+#onboard { justify-content: space-between; padding: 0; }
+.ob-mark { display: block; line-height: 0; margin-bottom: 30px; }
+.ob-track { flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: calc(20px + var(--sat, 0px)) 26px 0; min-height: 0; }
+.ob-card { display: none; width: 100%; }
+.ob-card.is-on { display: block; animation: rise var(--slow) var(--ease); }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+.ob-card h1 { font-family: var(--slab); font-size: clamp(29px, 8.4vw, 37px); font-weight: 600;
+  line-height: 1.12; margin: 0 0 14px; letter-spacing: -0.022em; text-wrap: balance; }
+.ob-card p { font-size: 17px; color: var(--soft); margin: 0 0 10px; max-width: 30rem; }
+.ob-foot { display: flex; align-items: center; justify-content: space-between; flex: none;
+  padding: 18px 26px calc(26px + var(--sab, 0px)); }
+.ob-dots { display: flex; gap: 7px; }
+.ob-dots i { width: 24px; height: 3px; border-radius: 2px; background: var(--hair);
+  transition: background var(--slow) var(--ease); }
+.ob-dots i.is-on { background: var(--accent); }
+
+/* ---------- tabs: cloth-backed, icons in one stroke ---------- */
+#tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  height: calc(64px + var(--sab, 0px));
+  display: grid; grid-template-columns: repeat(4, 1fr); align-items: start;
+  padding-top: 9px; padding-bottom: var(--sab, 0px);
+  background-color: var(--paper);
+  background-image: linear-gradient(180deg, var(--paper), var(--card));
+}
+#tabs::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background-image: repeating-linear-gradient(90deg, var(--stitch) 0 6px, transparent 6px 13px); }
+#tabs[hidden] { display: none !important; }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: 0; font: inherit; font-size: 11.5px; font-weight: 600;
+  letter-spacing: .05em; color: var(--faint); cursor: pointer; padding: 0;
+  transition: color var(--fast) var(--ease); }
+.tab svg { transition: transform var(--fast) var(--ease); }
+.tab:active svg { transform: scale(.88); }
+.tab.is-on { color: var(--accent); }
+
+/* ---------- sheet + toast ---------- */
+.sheet { position: fixed; inset: 0; background: #1D232199; display: flex; align-items: flex-end; z-index: 20;
+  animation: fade var(--fast) var(--ease); }
+@media (prefers-color-scheme: dark) { .sheet { background: #000000A6; } }
+@keyframes fade { from { opacity: 0 } }
+.sheet[hidden] { display: none !important; }
+.sheet-panel {
+  position: relative; background: var(--paper); width: 100%; max-height: 90%; overflow-y: auto;
+  padding: 12px 20px calc(26px + var(--sab, 0px));
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -12px 40px -12px #00000059;
+  animation: slideup var(--slow) var(--ease);
+}
+@keyframes slideup { from { transform: translateY(22px); opacity: .4 } }
+.sheet-grip { width: 42px; height: 4px; border-radius: 2px; background: var(--hair);
+  margin: 0 auto 14px; flex: none; }
+.sheet-panel h2 { font-family: var(--slab); font-size: 22px; font-weight: 600; margin: 0 0 4px;
+  letter-spacing: -0.015em; text-wrap: balance; overflow-wrap: anywhere; }
+.sheet-panel .sheet-sub { font-size: 14px; color: var(--faint); margin: 0 0 18px; }
+.sheet-panel .sheet-sub b { color: var(--accent); font-weight: 600; }
+.sheet-panel .sheet-sub b.neg { color: var(--gold); }
+
+.toast { position: fixed; left: 50%; bottom: calc(80px + var(--sab, 0px)); transform: translateX(-50%);
+  background: var(--ink); color: var(--paper); font-size: 15px; padding: 11px 17px;
+  border-radius: var(--r-sm); z-index: 30; max-width: 88vw; text-align: center;
+  box-shadow: 0 8px 24px -8px #00000073; animation: toastin var(--fast) var(--ease); }
+@keyframes toastin { from { opacity: 0; transform: translateX(-50%) translateY(8px) } }
+.toast[hidden] { display: none !important; }
+
+/* ---------- animations off: freeze travel, keep every shape ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  .btn:active, .entry:active, .person:active, .tab:active svg, .quilt-btn:active { transform: none; }
+  .patch.new { opacity: 1; }
+}

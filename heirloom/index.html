@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heirloom. One question a week, their voice kept.</title>
+<meta name="description" content="An Android app that interviews your grandparents one question a week and keeps the answers in their own voice. Three hundred hand-written prompts, elder mode, and no cloud at all.">
+<meta property="og:title" content="Heirloom. One question a week, their voice kept.">
+<meta property="og:description" content="Everybody means to record their grandparents. Almost nobody does. This makes it small enough to actually do.">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --paper: #F4EDDC; --card: #FCF7EA; --ink: #2B2115; --soft: #5B4A33; --faint: #857256;
+    --hair: #DCCFB2; --accent: #7C4F12; --accent-ink: #FFF6E3; --gold: #C9932E;
+    --serif: "Fraunces", Iowan Old Style, Palatino, Georgia, serif;
+    --sans: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #1B1206; --card: #241808; --ink: #F2E7CE; --soft: #B49D75; --faint: #8B7A56;
+            --hair: #3A2A12; --accent: #E7B65F; --accent-ink: #1B1206; --gold: #E7B65F; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans);
+         font-size: 18px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.015em; }
+
+  .cta { display: inline-block; background: var(--accent); color: var(--accent-ink); text-decoration: none;
+         padding: 14px 26px; border-radius: 4px; font-size: 16px; border: 1px solid var(--accent);
+         transition: transform .15s ease; }
+  .cta:active { transform: translateY(1px); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 76px; }
+  .mark { display: flex; align-items: center; gap: 12px; font-family: var(--serif); font-size: 19px; }
+  .mark i { display: block; width: 24px; height: 24px; color: var(--gold); }
+  .mark i svg { display: block; }
+  nav a { color: var(--soft); text-decoration: none; font-size: 15px; margin-left: 22px; }
+  nav a:hover { color: var(--ink); }
+
+  /* hero: split */
+  .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; padding: 30px 0 96px; }
+  .hero h1 { font-size: clamp(38px, 5vw, 60px); line-height: 1.08; margin: 0 0 20px; }
+  .hero p { font-size: 20px; color: var(--soft); margin: 0 0 30px; max-width: 32ch; }
+  .shot { width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--hair); display: block; }
+  .hero .shot { max-width: 330px; margin-left: auto; }
+
+  /* the question: a full-width quiet band */
+  .band { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 96px 0; text-align: center; }
+  .band .q { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 38px); line-height: 1.35; margin: 0 auto 10px; max-width: 22ch; }
+  .band .qs { color: var(--faint); font-size: 15px; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 34px; }
+  .band .after { color: var(--soft); max-width: 46ch; margin: 0 auto; }
+
+  /* packs: plain rows, no cards */
+  .packs { padding: 96px 0 40px; }
+  .packs h2 { font-size: clamp(28px, 3.2vw, 36px); margin: 0 0 14px; }
+  .packs .sub { color: var(--soft); max-width: 54ch; margin: 0 0 44px; }
+  .row { display: grid; grid-template-columns: 15rem 1fr; gap: 28px; padding: 22px 0; border-top: 1px solid var(--hair); }
+  .row:last-child { border-bottom: 1px solid var(--hair); }
+  .row h3 { margin: 0; font-size: 18px; }
+  .row p { margin: 0; color: var(--soft); }
+
+  /* gallery */
+  .gallery { padding: 90px 0 20px; }
+  .gallery h2 { font-size: clamp(28px, 3.2vw, 36px); margin: 0 0 44px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--soft); font-size: 15px; margin-top: 14px; }
+
+  /* keeping */
+  .keep { padding: 90px 0; }
+  .keep h2 { font-size: clamp(28px, 3.2vw, 36px); margin: 0 0 20px; max-width: 20ch; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 30px; }
+  .cols > div { padding: 0 40px; }
+  .cols > div:first-child { padding-left: 0; border-right: 1px solid var(--hair); }
+  .cols > div:last-child { padding-right: 0; }
+  .cols h3 { margin: 0 0 10px; font-size: 19px; }
+  .cols p { margin: 0; color: var(--soft); }
+
+  .close { text-align: center; padding: 20px 0 110px; }
+  .close p { font-family: var(--serif); font-size: 24px; max-width: 24ch; margin: 0 auto 28px; }
+
+  footer { border-top: 1px solid var(--hair); padding: 34px 0 60px; color: var(--faint); font-size: 15px; }
+  footer .r { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer a { color: var(--soft); text-decoration: none; margin-right: 18px; }
+
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none } }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 36px; }
+    .hero .shot { max-width: 300px; margin: 0 auto; }
+    .strip { grid-template-columns: 1fr; max-width: 330px; margin: 0 auto; gap: 40px; }
+    .cols { grid-template-columns: 1fr; }
+    .cols > div { padding: 0 0 24px; }
+    .cols > div:first-child { border-right: 0; border-bottom: 1px solid var(--hair); margin-bottom: 24px; }
+    .row { grid-template-columns: 1fr; gap: 6px; }
+    nav a { margin-left: 14px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark"><i><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><path d="M15.2 12.0L15.2 12.4L15.1 12.7L15.0 13.0L14.8 13.4L14.7 13.7L14.5 14.0L14.2 14.2L14.0 14.5L13.7 14.7L13.4 14.9L13.1 15.1L12.7 15.2L12.4 15.2L12.0 15.3L11.6 15.2L11.3 15.1L11.0 15.0L10.6 14.8L10.3 14.7L10.0 14.5L9.8 14.2L9.5 14.0L9.3 13.7L9.1 13.4L9.0 13.1L8.9 12.7L8.7 12.4L8.6 12.0L8.7 11.6L8.8 11.3L9.0 11.0L9.2 10.7L9.5 10.4L9.8 10.2L9.9 9.9L10.0 9.5L10.2 9.2L10.6 9.0L10.9 8.9L11.3 8.8L11.6 8.7L12.0 8.8L12.4 8.8L12.7 8.8L13.1 8.9L13.4 9.1L13.7 9.4L13.9 9.6L14.2 9.8L14.5 10.0L14.7 10.3L14.9 10.6L15.1 10.9L15.2 11.3L15.2 11.6L15.2 12.0Z"/><path d="M18.0 12.0L18.0 12.7L17.8 13.3L17.6 14.0L17.3 14.6L17.0 15.2L16.7 15.7L16.2 16.2L15.7 16.6L15.1 17.0L14.6 17.4L14.0 17.7L13.4 18.0L12.7 18.1L12.0 18.2L11.3 18.1L10.7 17.8L10.1 17.5L9.5 17.3L8.9 17.0L8.3 16.6L7.8 16.2L7.3 15.7L6.9 15.2L6.6 14.6L6.3 14.0L6.1 13.3L5.9 12.7L5.6 12.0L5.7 11.3L6.0 10.6L6.4 10.0L6.8 9.5L7.3 9.1L7.8 8.7L8.1 8.1L8.3 7.3L8.7 6.7L9.3 6.4L9.9 6.1L10.6 5.9L11.3 5.8L12.0 5.9L12.7 6.0L13.4 6.1L14.0 6.2L14.6 6.6L15.1 7.1L15.6 7.5L16.1 7.9L16.6 8.3L17.0 8.8L17.4 9.4L17.8 10.0L18.0 10.6L18.1 11.3L18.0 12.0Z"/><path d="M20.8 12.0L20.7 13.0L20.6 14.0L20.2 14.9L19.8 15.8L19.4 16.6L18.9 17.5L18.2 18.2L17.4 18.8L16.6 19.3L15.8 19.9L14.9 20.4L14.0 20.7L13.0 20.9L12.0 21.0L11.0 20.9L10.0 20.6L9.2 20.1L8.3 19.7L7.4 19.3L6.6 18.8L5.8 18.2L5.1 17.5L4.5 16.7L4.0 15.8L3.7 14.9L3.4 14.0L3.0 13.0L2.7 12.0L2.8 11.0L3.2 10.0L3.8 9.1L4.3 8.3L5.1 7.7L5.9 7.1L6.3 6.3L6.5 5.1L7.1 4.2L8.0 3.7L9.0 3.4L10.0 3.1L11.0 2.9L12.0 3.1L13.0 3.3L14.0 3.3L15.0 3.5L15.8 4.1L16.5 4.8L17.3 5.4L18.1 5.9L18.8 6.6L19.4 7.4L20.0 8.2L20.5 9.0L20.9 10.0L20.9 11.0L20.8 12.0Z"/><path d="M23.1 12.0L22.9 13.2L22.7 14.4L22.3 15.6L21.8 16.7L21.2 17.8L20.6 18.8L19.7 19.7L18.7 20.4L17.7 21.1L16.8 21.9L15.7 22.5L14.5 22.9L13.3 23.2L12.0 23.3L10.7 23.1L9.6 22.7L8.4 22.2L7.3 21.7L6.2 21.2L5.2 20.5L4.3 19.7L3.4 18.8L2.6 17.9L2.0 16.8L1.6 15.6L1.3 14.5L0.7 13.3L0.3 12.0L0.5 10.7L1.1 9.5L1.7 8.4L2.4 7.4L3.4 6.6L4.3 5.9L4.8 4.8L5.2 3.4L5.9 2.3L7.0 1.7L8.2 1.3L9.4 0.8L10.7 0.7L12.0 0.9L13.2 1.1L14.5 1.1L15.7 1.4L16.8 2.1L17.7 3.0L18.6 3.7L19.6 4.4L20.5 5.3L21.2 6.2L22.0 7.2L22.6 8.3L23.1 9.5L23.2 10.7L23.1 12.0Z"/><circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none"/></svg></i> Heirloom</span>
+    <span>
+      <a href="#questions">The questions</a>
+      <a href="/privacy-policies/heirloom-privacy-policy.html">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>One question a week. Their voice, kept.</h1>
+      <p>Everybody means to record their grandparents. Almost nobody does, because the task is enormous.
+        This makes it small enough to actually do.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.heirloom">Get it on Google Play</a>
+    </div>
+    <img class="shot reveal" src="shots/01-elder.png" width="1080" height="1920"
+         alt="Elder mode: one question in large type and a single record button.">
+  </header>
+</div>
+
+<section class="band">
+  <div class="wrap">
+    <p class="qs">This week</p>
+    <p class="q">What did your house smell like when you came home from school?</p>
+    <p class="after">Hand the phone over. One screen, one button, no menus and no way to lose anything.
+      They talk for as long as they want, up to half an hour, and the answer is kept in the voice that
+      said it.</p>
+  </div>
+</section>
+
+<section class="packs wrap" id="questions">
+  <h2>Three hundred questions, written by hand</h2>
+  <p class="sub">Not scraped from a list. Seven packs, so the questions fit the life rather than a
+    template, and the engine leans toward subjects the archive has already touched.</p>
+
+  <div class="row"><h3>The long life</h3><p>Questions that work for anyone, anywhere. Always on.</p></div>
+  <div class="row"><h3>Before the wireless</h3><p>Rationing, coal light, telegrams. For elders born before about 1945.</p></div>
+  <div class="row"><h3>The first television</h3><p>Records, factories, the first family car. Roughly 1945 to 1968.</p></div>
+  <div class="row"><h3>India and South Asia</h3><p>Monsoon roofs, steel trunks, the corner shop that kept a book of credit.</p></div>
+  <div class="row"><h3>Britain and Ireland</h3><p>Washing day, the coalman, the front room kept for visitors.</p></div>
+  <div class="row"><h3>United States and Canada</h3><p>Porches, county fairs, the drive that took a whole day.</p></div>
+  <div class="row"><h3>Leaving and arriving</h3><p>For anyone who built a life in a country they were not born in.</p></div>
+</section>
+
+<section class="gallery wrap">
+  <h2>What it looks like</h2>
+  <div class="strip">
+    <figure class="reveal">
+      <img class="shot" src="shots/02-recording.png" width="1080" height="1920" alt="A recording in progress: a ring being cut into a disc, with the running time below it.">
+      <figcaption>Recording. The voice cuts a ring as it goes, one turn a minute. Pause, resume, or start again.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/03-archive.png" width="1080" height="1920" alt="The archive: answers listed with their questions and dates.">
+      <figcaption>The archive. Every answer kept with the question that produced it.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/06-keepsake.png" width="1080" height="1920" alt="The keepsake screen: the archive drawn as a disc of rings, one for every story.">
+      <figcaption>Keepsake. One ring for every story kept, and the way to get them off this phone.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="keep wrap">
+  <h2>On this phone, and nowhere else</h2>
+  <div class="cols">
+    <div>
+      <h3>No cloud to trust</h3>
+      <p>Heirloom does not request the internet permission, so it cannot upload your family's voices even
+        if it wanted to. No account, no analytics, and no transcription service listening in. You can
+        check that on the Play listing.</p>
+    </div>
+    <div>
+      <h3>So keep a copy</h3>
+      <p>That also means the app is not a backup. Export the whole archive as audio files with a readable
+        manifest of who said what and when, and put it somewhere safe. A new phone can restore that same
+        file, and the stories come back with their tags, their marked moments and their dates.</p>
+    </div>
+  </div>
+</section>
+
+<section class="close wrap">
+  <p>It does not transcribe, and it does not tidy the pauses. The pauses are the recording.</p>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.heirloom">Get it on Google Play</a>
+</section>
+
+<footer>
+  <div class="wrap r">
+    <span>
+      <a href="/privacy-policies/heirloom-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Try it in the browser</a>
+    </span>
+    <span>SocialSure Private Limited</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

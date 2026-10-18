@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Contact Sheet</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="grainfield" id="grainField" aria-hidden="true"></div>
+
+<main id="stage">
+
+  <!-- THE COVENANT -->
+  <section class="screen" id="v-covenant" hidden>
+    <div class="pad cov">
+      <div class="cov-mark" id="covMark" aria-hidden="true"></div>
+      <h1 class="cov-h">Thirty-six chances.<br>No take-backs.</h1>
+      <ul class="cov-list">
+        <li><b>36 exposures.</b> When they are gone, the roll is gone. Frames are never given back.</li>
+        <li><b>No preview.</b> After the shutter there is nothing to look at. Not a thumbnail, not a gallery.</li>
+        <li><b>Tomorrow at eight.</b> The roll goes to the lab and comes back the next morning, developed.</li>
+        <li><b>Then you look.</b> A contact sheet, a loupe, and a grease pencil for the ones worth keeping.</li>
+      </ul>
+      <p class="cov-foot">Free, offline, and it never asks who you are.</p>
+      <button class="btn big" id="covGo">Load your first roll</button>
+    </div>
+  </section>
+
+  <!-- CAMERA -->
+  <section class="screen" id="v-camera" hidden>
+    <div class="vf-shell" id="vfShell">
+    <div class="vf-wrap" id="vfWrap">
+      <video id="vf" playsinline muted></video>
+      <div class="vf-hint" id="vfHint"></div>
+      <div class="vf-grain" id="vfGrain"></div>
+      <div class="vf-mask"></div>
+      <div class="vf-state" id="vfState" hidden><p id="vfStateText"></p><button class="btn ghost" id="vfRetry" hidden>Allow the camera</button></div>
+    </div>
+    </div>
+
+    <div class="topstrip" id="topStrip">
+      <button class="strip-btn" id="toSheets"><span class="ctl-ico" data-ico="sheets"></span>Sheets</button>
+      <button class="counter" id="rollBtn">
+        <span class="counter-stock" id="cStock">No roll</span>
+        <span class="counter-gate" id="counterGate">
+          <span class="counter-num" id="cNum">--</span>
+        </span>
+        <span class="counter-cap" id="cCap">loaded</span>
+      </button>
+      <button class="strip-btn" id="toStocks">Stocks<span class="ctl-ico" data-ico="stocks"></span></button>
+    </div>
+
+    <div class="controls" id="controls">
+      <button class="ctl" id="flashBtn" aria-label="Flash"><span class="ctl-ico" data-ico="flashOff"></span><span class="ctl-lab">Flash</span></button>
+      <button class="shutter" id="shutterBtn" aria-label="Shutter"><span class="shutter-ring"></span><span class="shutter-core"></span></button>
+      <button class="ctl" id="faceBtn" aria-label="Switch lens"><span class="ctl-ico" data-ico="lens"></span><span class="ctl-lab">Lens</span></button>
+    </div>
+
+    <div class="empty-cam" id="fullCam" hidden>
+      <div class="ec-art" id="fullCamArt" aria-hidden="true"></div>
+      <p class="ec-line">The roll is finished.</p>
+      <p class="ec-sub">Thirty-six exposures, all of them used. Hand it in and it comes back developed.</p>
+      <button class="btn big" id="fullHand">Hand it in</button>
+    </div>
+
+    <div class="empty-cam" id="emptyCam" hidden>
+      <div class="ec-art" id="emptyCamArt" aria-hidden="true"></div>
+      <p class="ec-line">The camera is empty.</p>
+      <p class="ec-sub">Choose a stock before you choose a scene. That is the whole discipline.</p>
+      <button class="btn big" id="emptyLoad">Load a roll</button>
+    </div>
+
+    <div class="windon" id="windOn" hidden>
+      <div class="wind-track"><div class="ratchet" id="ratchet"></div></div>
+      <p class="wind-lab">Winding on</p>
+    </div>
+  </section>
+
+  <!-- SHEETS ARCHIVE -->
+  <section class="screen" id="v-sheets" hidden>
+    <header class="bar">
+      <button class="bar-back" data-back aria-label="Back"><span class="ctl-ico" data-ico="back"></span></button>
+      <h1 class="bar-t">Sheets</h1>
+      <button class="bar-act" id="toSettings"><span class="ctl-ico" data-ico="settings"></span>Settings</button>
+    </header>
+    <div class="scroller"><div id="sheetsList"></div>
+      <div class="empty" id="sheetsEmpty" hidden>
+        <div class="empty-art" id="sheetsEmptyArt" aria-hidden="true"></div>
+        <p class="empty-h">Nothing has come back yet.</p>
+        <p class="empty-p">Shoot a roll, hand it in over the counter, and look here in the morning.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ONE CONTACT SHEET -->
+  <section class="screen" id="v-sheet" hidden>
+    <header class="bar">
+      <button class="bar-back" data-back aria-label="Back"><span class="ctl-ico" data-ico="back"></span></button>
+      <h1 class="bar-t" id="shTitle">Sheet</h1>
+      <button class="bar-act" id="shMenu" aria-label="More"><span class="ctl-ico" data-ico="more"></span></button>
+    </header>
+    <div class="scroller" id="shScroll">
+      <div class="sh-head">
+        <p class="sh-stock" id="shStock"></p>
+        <p class="sh-meta" id="shMeta"></p>
+        <p class="sh-marks" id="shMarks"></p>
+      </div>
+      <div class="grid" id="shGrid"></div>
+      <p class="sh-tip" id="shTip"><span class="ctl-ico" data-ico="loupe"></span>Press and hold to bring the loupe over a frame. Tap a frame to open it.</p>
+    </div>
+    <div class="sheetbar">
+      <span class="kept" id="shKept"></span>
+      <button class="btn ghost small" id="shSave"><span class="ctl-ico" data-ico="save"></span>Save sheet</button>
+    </div>
+    <div class="loupe" id="loupe" hidden><canvas id="loupeCv" width="420" height="420"></canvas></div>
+  </section>
+
+  <!-- ONE FRAME -->
+  <section class="screen" id="v-frame" hidden>
+    <header class="bar">
+      <button class="bar-back" data-back aria-label="Back"><span class="ctl-ico" data-ico="back"></span></button>
+      <h1 class="bar-t" id="frTitle">Frame</h1>
+      <span class="bar-act ghosted" id="frStock"></span>
+    </header>
+    <div class="frame-stage">
+      <div class="frame-hold">
+        <img id="frImg" alt="">
+        <svg class="pencil" id="frPencil" viewBox="0 0 200 300" aria-hidden="true"><path id="frPencilPath" fill="none"/></svg>
+      </div>
+      <p class="fr-meta" id="frMeta"></p>
+    </div>
+    <div class="framebar">
+      <button class="btn ghost small" id="frKeep"><span class="ctl-ico" data-ico="keep"></span><span id="frKeepLab">Keep</span></button>
+      <button class="btn ghost small" id="frSave" aria-label="Save frame"><span class="ctl-ico" data-ico="save"></span></button>
+      <button class="btn small" id="frShare"><span class="ctl-ico" data-ico="share"></span><span id="frShareLab">Share this one</span></button>
+    </div>
+  </section>
+
+  <!-- STOCK SHELF -->
+  <section class="screen" id="v-stocks" hidden>
+    <header class="bar">
+      <button class="bar-back" data-back aria-label="Back"><span class="ctl-ico" data-ico="back"></span></button>
+      <h1 class="bar-t">Stocks</h1>
+      <span class="bar-act ghosted">Six</span>
+    </header>
+    <div class="scroller">
+      <p class="shelf-note">Every stock is here from the first day. Nothing is locked, and nothing costs anything.</p>
+      <div class="shelf" id="shelf"></div>
+      <h2 class="h2">What development does</h2>
+      <div class="specs">
+        <div class="row"><span class="k2">Curve</span><span class="v">A response for each colour channel, applied before anything else.</span></div>
+        <div class="row"><span class="k2">Grain</span><span class="v">Synthesised at the frame's own resolution and weighted to the midtones, where silver actually sits.</span></div>
+        <div class="row"><span class="k2">Halation</span><span class="v">Highlights above the stock's threshold bloom and bleed a red edge into the dark beside them.</span></div>
+        <div class="row"><span class="k2">Falloff</span><span class="v">The corners a cheap lens could never quite reach.</span></div>
+        <div class="row"><span class="k2">Quirks</span><span class="v">Leaks, misfires and drift, seeded per frame so no two are wrong the same way.</span></div>
+      </div>
+      <p class="shelf-foot">A stock is a set of numbers, not a filter laid over the top: a response curve for each colour channel, a grain structure, a halation threshold, and whatever quirks it owns up to on the box. Development runs those numbers over your frames on this device, one at a time.</p>
+    </div>
+  </section>
+
+  <!-- ONE STOCK -->
+  <section class="screen" id="v-stock" hidden>
+    <header class="bar">
+      <button class="bar-back" data-back aria-label="Back"><span class="ctl-ico" data-ico="back"></span></button>
+      <h1 class="bar-t" id="stTitle">Stock</h1>
+      <span class="bar-act ghosted" id="stIso"></span>
+    </header>
+    <div class="scroller">
+      <div class="boxstage"><div class="box3d" id="stBox"></div></div>
+      <p class="flip-tip">Tap the box to turn it over.</p>
+      <p class="st-note" id="stNote"></p>
+      <h2 class="h2">Response</h2>
+      <svg class="curve" id="stCurve" viewBox="0 0 260 150" aria-hidden="true"></svg>
+      <p class="curve-cap">Input on the horizontal, what the film gives you on the vertical.</p>
+      <div class="specs" id="stSpecs"></div>
+      <button class="btn big" id="stLoad">Load this roll</button>
+      <p class="st-warn" id="stWarn" hidden></p>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen" id="v-settings" hidden>
+    <header class="bar">
+      <button class="bar-back" data-back aria-label="Back"><span class="ctl-ico" data-ico="back"></span></button>
+      <h1 class="bar-t">Settings</h1>
+      <span class="bar-act ghosted"></span>
+    </header>
+    <div class="scroller">
+      <div class="field">
+        <label for="setHour">Development time</label>
+        <select id="setHour">
+          <option value="6">6:00</option><option value="7">7:00</option>
+          <option value="8">8:00</option><option value="9">9:00</option><option value="10">10:00</option>
+        </select>
+        <p class="help">One batch a day. The counter shuts at 20:00, so a roll handed in after that misses the collection and comes back the morning after next. The app tells you the day and the hour as you hand it over.</p>
+      </div>
+
+      <div class="field">
+        <label>Shutter</label>
+        <div class="segs" id="setSound">
+          <button data-v="full">Full</button><button data-v="quiet">Quiet</button><button data-v="discreet">Discreet</button>
+        </div>
+        <p class="help">Discreet is silent, and any roll with a discreet frame on it is stamped DISCREET in the sheet margin. Accountability is part of the deal.</p>
+      </div>
+
+      <div class="field row">
+        <div><label for="setHaptics">Haptics</label><p class="help">The wind-on ratchet, felt.</p></div>
+        <input type="checkbox" id="setHaptics">
+      </div>
+
+      <div class="field" id="notifyField" hidden>
+        <label>Development notice</label>
+        <p class="help" id="notifyState"></p>
+        <button class="btn ghost small" id="notifyBtn"><span class="ctl-ico" data-ico="bell"></span>Allow notifications</button>
+      </div>
+
+      <hr class="rule">
+      <h2 class="h2">On this device</h2>
+      <p class="help" id="usageLine">Counting what is stored.</p>
+      <p class="help">Frames live in this app's own storage and nowhere else. There is no account, no upload and no internet permission, so nothing can leave unless you export it yourself.</p>
+      <div class="btnrow">
+        <button class="btn ghost small danger" id="eraseBtn"><span class="ctl-ico" data-ico="erase"></span><span id="eraseLab">Erase everything</span></button>
+      </div>
+
+      <hr class="rule">
+      <p class="colophon">Contact Sheet. Thirty-six chances, no take-backs.<br>Free and complete. No accounts, no purchases, no ads.</p>
+    </div>
+  </section>
+
+  <!-- THE LAB -->
+  <section class="screen" id="v-lab" hidden>
+    <div class="lab">
+      <div class="safelight" aria-hidden="true"></div>
+      <div class="lab-spool" id="labSpool" aria-hidden="true"></div>
+      <p class="lab-k">Developing</p>
+      <p class="lab-roll" id="labRoll"></p>
+      <div class="lab-bar"><div class="lab-fill" id="labFill"></div></div>
+      <p class="lab-n" id="labN"></p>
+      <p class="lab-note">Curve, grain, halation, then whatever light got in.</p>
+    </div>
+  </section>
+</main>
+
+<!-- REWIND AND THE COUNTER -->
+<div class="modal" id="rewind" hidden>
+  <div class="modal-panel">
+    <div class="rw-spool" id="spool" aria-hidden="true"></div>
+    <p class="modal-k" id="rwK">Rewinding</p>
+    <p class="modal-h" id="rwH"></p>
+    <div id="rwLab" hidden>
+      <p class="modal-p">Instructions for the lab. You are choosing this blind, before you have seen a single frame, which is the only way it has ever been done.</p>
+      <div class="segs wide" id="pushSeg">
+        <button data-v="-1">Pull 1</button><button data-v="0">Normal</button><button data-v="1">Push 1</button>
+      </div>
+      <p class="modal-help" id="pushHelp"></p>
+      <button class="btn big" id="rwGo">Hand it in</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROLL PANEL -->
+<div class="modal" id="rollPanel" hidden>
+  <div class="modal-panel">
+    <p class="modal-k">In the camera</p>
+    <p class="modal-h" id="rpStock"></p>
+    <p class="modal-p" id="rpMeta"></p>
+    <button class="btn ghost" id="rpHand">Take the roll out</button>
+    <button class="btn ghost" id="rpNew">Load a different stock</button>
+    <button class="btn ghost quiet" id="rpClose">Keep shooting</button>
+  </div>
+</div>
+
+<!-- SHEET MENU -->
+<div class="modal" id="sheetMenu" hidden>
+  <div class="modal-panel">
+    <p class="modal-k">This sheet</p>
+    <p class="modal-h" id="smTitle"></p>
+    <button class="btn ghost" id="smSave">Save the whole sheet</button>
+    <button class="btn ghost danger" id="smDelete">Throw this roll away</button>
+    <button class="btn ghost quiet" id="smClose">Close</button>
+  </div>
+</div>
+
+<p id="toast" class="toast" hidden></p>
+
+<script src="js/mark.js"></script>
+<script src="js/stocks.js"></script>
+<script src="js/db.js"></script>
+<script src="js/store.js"></script>
+<script src="js/film.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/export.js"></script>
+<script src="js/sheet.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

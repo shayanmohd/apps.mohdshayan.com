@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rucksack. Every step is a step somewhere.</title>
+<meta name="description" content="An Android walking game where your real steps carry a wanderer across a hand-drawn continent of 3,500 kilometres. Eleven regions, an authored road, an ending. Free, offline, no account, no internet permission.">
+<meta property="og:title" content="Rucksack. Every step is a step somewhere.">
+<meta property="og:description" content="Your real steps move a wanderer across a hand-drawn continent. 3,500 kilometres, eleven regions, and a road that actually ends.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="shots/01-camp.png">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --paper: #F2E8D3; --paper-2: #EADEC3; --paper-lit: #F8F0DE;
+    --ink: #2A2721; --ink-soft: #4F4A3C; --ink-quiet: #6A6252;
+    --hair: rgba(120, 98, 56, 0.24); --hair-soft: rgba(120, 98, 56, 0.13);
+    --accent: #2F5D50; --accent-lit: #3C7264; --ochre: #B4762A; --ochre-ink: #8A5718;
+    --lift: 0 1px 2px rgba(84, 62, 24, .08), 0 14px 34px -18px rgba(84, 62, 24, .5);
+    --serif: Alegreya, "Iowan Old Style", Georgia, serif;
+    --sans: "Alegreya Sans", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; color: var(--ink);
+    font-family: var(--serif); font-size: 18px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(90% 46% at 14% -4%, rgba(255, 251, 240, .9), rgba(255, 251, 240, 0) 60%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+  h1, h2 { text-wrap: balance; }
+  /* the contour rule: the same three lines that cross the launcher icon */
+  .contours { display: block; width: 128px; height: 26px; margin-bottom: 26px; overflow: visible; }
+  .contours path { fill: none; stroke: var(--ochre); stroke-linecap: round; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  img { max-width: 100%; }
+  h1, h2, h3 { font-weight: 500; letter-spacing: -0.018em; margin: 0; }
+
+  .cta {
+    display: inline-block; text-decoration: none;
+    background: linear-gradient(180deg, var(--accent-lit), var(--accent)); color: #F7F2E4;
+    padding: 15px 28px; border-radius: 12px; font-family: var(--sans); font-size: 16px;
+    border: 0; box-shadow: var(--lift); transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .cta:hover { transform: translateY(-1px); }
+  .cta:active { transform: translateY(1px); box-shadow: none; }
+  .under { display: block; font-family: var(--sans); font-size: 14px; color: var(--ink-quiet); margin-top: 14px; }
+  .eyebrow {
+    font-family: var(--sans); font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--ink-quiet); margin: 0 0 14px;
+  }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 78px; }
+  .mark { display: flex; align-items: center; gap: 11px; font-size: 18px; }
+  .mark img { width: 32px; height: 32px; border-radius: 9px; box-shadow: 0 1px 3px rgba(84,62,24,.3); }
+  nav a { color: var(--ink-soft); text-decoration: none; font-family: var(--sans); font-size: 14px; margin-left: 24px; }
+  nav a:hover { color: var(--ink); }
+
+  /* 1. hero */
+  .hero { display: grid; grid-template-columns: 1.06fr .94fr; gap: 60px; align-items: center; padding: 26px 0 104px; }
+  .hero h1 { font-size: clamp(40px, 5.6vw, 66px); line-height: 1.04; margin-bottom: 22px; }
+  .hero p.sub { font-size: 20px; color: var(--ink-soft); margin: 0 0 32px; max-width: 36ch; text-wrap: pretty; }
+  .shot { width: 100%; height: auto; border-radius: 18px; display: block; box-shadow: var(--lift); }
+  .hero .shot { max-width: 330px; margin-left: auto; }
+
+  /* 2. manifesto band */
+  .manifesto {
+    box-shadow: inset 0 1px 0 var(--hair), inset 0 -1px 0 var(--hair);
+    background: linear-gradient(180deg, var(--paper-lit), var(--paper-2));
+    padding: 108px 0; text-align: center;
+  }
+  .manifesto .contours { margin: 0 auto 30px; }
+  .manifesto p { font-size: clamp(26px, 3.6vw, 42px); line-height: 1.24; margin: 0 auto; max-width: 21ch; text-wrap: balance; }
+  .manifesto .after { font-size: 18px; color: var(--ink-soft); max-width: 50ch; margin: 30px auto 0; }
+
+  /* 3. the road: map left, region table right */
+  .road { padding: 100px 0; }
+  .road-inner { display: grid; grid-template-columns: .82fr 1.18fr; gap: 58px; align-items: center; }
+  .road .shot { max-width: 300px; }
+  h2 { font-size: clamp(28px, 3.4vw, 38px); line-height: 1.14; margin-bottom: 16px; }
+  .road .lede { color: var(--ink-soft); margin: 0 0 28px; max-width: 46ch; }
+  .regions { border-top: 1px solid var(--hair); }
+  .regions div {
+    display: grid; grid-template-columns: 2.4rem 1fr auto; gap: 16px; align-items: baseline;
+    padding: 11px 0; border-bottom: 1px solid var(--hair-soft);
+  }
+  .regions .n { font-family: var(--sans); font-size: 12px; color: var(--ink-quiet); }
+  .regions .km { font-family: var(--sans); font-size: 13.5px; color: var(--ink-quiet); font-variant-numeric: tabular-nums; }
+  .regions .last { color: var(--ochre-ink); }
+
+  /* 4. gallery */
+  .gallery { padding: 0 0 100px; }
+  .gallery .sub { color: var(--ink-soft); max-width: 56ch; margin: 0 0 46px; }
+  .strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--ink-soft); font-size: 16px; margin-top: 16px; }
+
+  /* 5. counting: label and value rows */
+  .counting {
+    background: linear-gradient(180deg, var(--paper-lit), var(--paper-2));
+    box-shadow: inset 0 1px 0 var(--hair), inset 0 -1px 0 var(--hair); padding: 96px 0;
+  }
+  .counting h2 { max-width: 20ch; }
+  .counting .lede { color: var(--ink-soft); max-width: 54ch; margin: 0 0 44px; }
+  .rows .row { display: grid; grid-template-columns: 15rem 1fr; gap: 34px; padding: 24px 0; border-top: 1px solid var(--hair); align-items: start; }
+  .rows .row:last-child { border-bottom: 1px solid var(--hair); }
+  .rows .k { font-family: var(--sans); font-size: 13.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-quiet); }
+  .rows .v { margin: 0; color: var(--ink-soft); }
+  .rows .v b { color: var(--ink); font-weight: 500; }
+
+  /* 6. pledges: two columns of plain rows */
+  .pledge { padding: 96px 0; }
+  .pledge h2 { max-width: 17ch; margin-bottom: 44px; }
+  .plist { display: grid; grid-template-columns: 1fr 1fr; gap: 0 56px; }
+  .plist div { padding: 20px 0; border-top: 1px solid var(--hair); }
+  .plist b { display: block; font-weight: 500; margin-bottom: 4px; }
+  .plist p { margin: 0; color: var(--ink-soft); font-size: 16.5px; }
+
+  /* 7. close */
+  .close { text-align: center; padding: 12px 0 120px; }
+  .close p { font-size: 24px; max-width: 26ch; margin: 0 auto 32px; line-height: 1.38; text-wrap: balance; }
+
+  footer { border-top: 1px solid var(--hair); padding: 34px 0 68px; color: var(--ink-quiet); font-family: var(--sans); font-size: 14px; }
+  footer .row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer a { color: var(--ink-soft); text-decoration: none; margin-right: 22px; }
+  footer a:hover { color: var(--ink); }
+
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+  @media (max-width: 1000px) and (min-width: 641px) {
+    .strip { grid-template-columns: repeat(2, 1fr); gap: 34px; }
+  }
+  @media (max-width: 900px) {
+    .hero, .road-inner { grid-template-columns: 1fr; gap: 40px; }
+    .hero { padding: 18px 0 76px; }
+    .road { padding: 76px 0; }
+    .hero .shot, .road .shot { max-width: 300px; margin: 0 auto; }
+    .strip { grid-template-columns: repeat(2, 1fr); gap: 30px; }
+    .plist { grid-template-columns: 1fr; }
+    .rows .row { grid-template-columns: 1fr; gap: 8px; }
+    nav a { margin-left: 16px; font-size: 13px; }
+    .manifesto, .counting, .pledge { padding: 74px 0; }
+  }
+  @media (max-width: 640px) {
+    .strip { grid-template-columns: 1fr; gap: 44px; max-width: 320px; margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark"><img src="shots/icon.png" alt=""> Rucksack</span>
+    <span>
+      <a href="#road">The road</a>
+      <a href="#counting">How it counts</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <svg class="contours" viewBox="0 0 128 26" aria-hidden="true"><path d="M2 20c14-7 25-5 36-1s21 3 36-5 34-8 52-2" stroke-width="2.1"/><path d="M2 13c14-7 25-5 36-1s21 3 36-5 34-8 52-2" stroke-width="1.9" opacity=".75"/><path d="M2 6c14-7 25-5 36-1s21 3 36-5" stroke-width="1.6" opacity=".5"/></svg>
+      <h1>Every step is a step somewhere.</h1>
+      <p class="sub">Your real walking carries a small hooded wanderer across a hand-drawn continent. Three thousand five hundred kilometres, eleven regions, and a road that actually ends.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.rucksack">Get it on Google Play</a>
+      <span class="under">Free and complete. Nothing to buy, no account, no adverts. Or <a href="play/">walk it in your browser</a> first.</span>
+    </div>
+    <img class="shot" src="shots/01-camp.png" alt="The camp screen at dusk on the shore of Lake Ithra, with a fire, a tent and a dog">
+  </header>
+</div>
+
+<section class="manifesto">
+  <div class="wrap">
+    <svg class="contours" viewBox="0 0 128 26" aria-hidden="true"><path d="M2 20c14-7 25-5 36-1s21 3 36-5 34-8 52-2" stroke-width="2.1"/><path d="M2 13c14-7 25-5 36-1s21 3 36-5 34-8 52-2" stroke-width="1.9" opacity=".75"/><path d="M2 6c14-7 25-5 36-1s21 3 36-5" stroke-width="1.6" opacity=".5"/></svg>
+    <p>A step counter resets at midnight. A road does not.</p>
+    <p class="after">Rucksack takes the steps you were going to take anyway and spends them on distance. Nothing you walk is ever given back, and the map has an end you can reach.</p>
+  </div>
+</section>
+
+<section class="road" id="road">
+  <div class="wrap">
+   <div class="road-inner">
+    <img class="shot" src="shots/02-map.png" alt="The map of Elsewhere, with the walked road inked in and the ground ahead under cartographer's fog">
+    <div>
+      <h2>A continent, not a counter</h2>
+      <p class="lede">Elsewhere is one road through eleven regions, drawn from ink and watercolour on the phone rather than shipped as pictures. Everything ahead of you sits under a cartographer's fog until your own feet lift it.</p>
+      <div class="regions">
+        <div><span class="n">I</span><span>The Reedlands</span><span class="km">0 to 320 km</span></div>
+        <div><span class="n">II</span><span>Ashford Wood</span><span class="km">320 to 620 km</span></div>
+        <div><span class="n">III</span><span>The Salt Road</span><span class="km">620 to 1,000 km</span></div>
+        <div><span class="n">IV</span><span>Kell Downs</span><span class="km">1,000 to 1,320 km</span></div>
+        <div><span class="n">V</span><span>Lake Ithra</span><span class="km">1,320 to 1,650 km</span></div>
+        <div><span class="n">VI</span><span>The Sighing Pass</span><span class="km">1,650 to 1,980 km</span></div>
+        <div><span class="n">VII</span><span>Verrow Steppe</span><span class="km">1,980 to 2,330 km</span></div>
+        <div><span class="n">VIII</span><span>The Amber Fen</span><span class="km">2,330 to 2,600 km</span></div>
+        <div><span class="n">IX</span><span>Lantern Coast</span><span class="km">2,600 to 2,950 km</span></div>
+        <div><span class="n">X</span><span>The Quiet Orchards</span><span class="km">2,950 to 3,250 km</span></div>
+        <div><span class="n last">XI</span><span class="last">Cael-on-the-Mountain</span><span class="km last">3,250 to 3,500 km</span></div>
+      </div>
+    </div>
+   </div>
+  </div>
+</section>
+
+<section class="gallery">
+  <div class="wrap">
+    <p class="eyebrow">The daily ritual</p>
+    <h2>Camp is where your feet stopped</h2>
+    <p class="sub">Open the app in the morning and your wanderer has already moved. Break camp, and the journal writes the day down for you: the distance, the weather over Elsewhere, and whoever you ran into on the way. Under the picture sits the contour ribbon: the whole 3,500 km as a band of contour lines, the part you have walked inked across them, and Cael as a low sun at the far end.</p>
+    <div class="strip">
+      <figure>
+        <img class="shot" src="shots/03-encounter.png" alt="An encounter with Bel, a bell-diver on Lake Ithra">
+        <figcaption>Forty one encounters, gated by kilometres rather than taps. People recur, and they remember you.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="shots/04-journal.png" alt="The journal, a travelogue of days and distances">
+        <figcaption>A travelogue composed from what actually happened. Export the whole thing as plain text whenever you like.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="shots/05-pack.png" alt="The pack, with twelve pieces of gear forged by walking">
+        <figcaption>Twelve pieces of gear, forged by consecutive days walking. Nothing forged is ever taken back.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="shots/06-ledger.png" alt="The step ledger, listing every day the app has counted">
+        <figcaption>Every day the app has counted, and what it did with it. If a number looks wrong, it is the number the app used.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="counting" id="counting">
+  <div class="wrap">
+    <h2>How the counting works, in full</h2>
+    <p class="lede">A walking game only works if you trust its arithmetic, so all of it is on one screen inside the app and all of it is here.</p>
+    <div class="rows">
+      <div class="row">
+        <span class="k">The rate</span>
+        <p class="v"><b>1,300 steps make one kilometre.</b> It is a flat rate. There is no multiplier, no bonus week and nothing that can raise it, because the road is the only thing being measured.</p>
+      </div>
+      <div class="row">
+        <span class="k">The daily cap</span>
+        <p class="v"><b>A single day converts at most 40 kilometres.</b> A walking marathon still counts in full. A phone that spent the afternoon in a car mostly does not.</p>
+      </div>
+      <div class="row">
+        <span class="k">The sensor</span>
+        <p class="v">Android's own step counter reports one number: steps since the phone last started. Rucksack reads it when you open the app and banks whatever is new, so the walking counts while the app is closed. If the phone restarts, the steps between the restart and your next visit are lost, and the ledger says so instead of guessing.</p>
+      </div>
+      <div class="row">
+        <span class="k">No location, ever</span>
+        <p class="v">Rucksack does not request the location permission and never uses GPS. The weather at your camp belongs to Elsewhere, worked out from the date and the region you are standing in, which is exactly why it needs no forecast and no position.</p>
+      </div>
+      <div class="row">
+        <span class="k">No phone counter</span>
+        <p class="v">On a device with no step sensor, or if you would rather not grant the permission, you write today's number into the ledger yourself and the road moves just the same.</p>
+      </div>
+      <div class="row">
+        <span class="k">Rest is modelled</span>
+        <p class="v">Two rest days a week are banked for you automatically, so a streak survives an ordinary life. Gear is forged, not rented, and a broken run never removes anything.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pledge">
+  <div class="wrap">
+    <h2>What this app will not do</h2>
+    <div class="plist">
+      <div><b>It cannot reach the internet</b><p>Rucksack does not declare the internet permission, so Android will not let it open a connection at all. Nothing you walk can be uploaded.</p></div>
+      <div><b>It will not sell you distance</b><p>There is no shop and no in-app purchase. Selling kilometres would empty the only thing the app is about.</p></div>
+      <div><b>It will not ask you to sign in</b><p>No account, no email, no profile. The journey belongs to the phone it was walked on.</p></div>
+      <div><b>It will not show you an advert</b><p>No advertising SDK, no analytics, no crash reporter, no advertising ID.</p></div>
+      <div><b>It will not nag you</b><p>There is no notification of any kind. The app is worth opening in the morning or it is not, and a reminder would not change which.</p></div>
+      <div><b>It will not lock the ending</b><p>All eleven regions, all forty one encounters and all twelve pieces of gear are in the free app. There is no second half to buy.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="close">
+  <div class="wrap">
+    <p>Most walkers take a year. The road does not mind.</p>
+    <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.rucksack">Get it on Google Play</a>
+    <span class="under">You will also meet a dog. He can be yours forever. It takes three days of walking.</span>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <span>Rucksack, by SocialSure Private Limited.</span>
+    <span>
+      <a href="play/">Walk it in your browser</a>
+      <a href="/privacy-policies/rucksack-privacy-policy.html">Privacy policy</a>
+      <a href="mailto:shayanm2002@gmail.com">Contact</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll('.hero, .manifesto, .road, .gallery, .counting, .pledge, .close');
+    if (!('IntersectionObserver' in window)) return;
+    els.forEach(function (el) { el.classList.add('reveal'); });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    els.forEach(function (el) { io.observe(el); });
+  })();
+</script>
+</body>
+</html>

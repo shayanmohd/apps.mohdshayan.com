@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kickset, the fitter's calculator that shows its working</title>
+<meta name="description" content="A paid, fully offline pipe fitter's calculator for Android: offsets with the multiplier shown, ASME takeouts with the cut length after the root gap, and wrap templates that print true to scale.">
+<style>
+  @font-face { font-family: "Archivo Narrow"; src: url("fonts/ArchivoNarrow-SemiBold.ttf"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Archivo"; src: url("fonts/Archivo-Medium.ttf"); font-weight: 500; font-display: swap; }
+  :root {
+    --plate: #EEF1F4; --sheet: #F7F9FB; --ink: #16202B; --scale: #4F5B67;
+    --blue: #2152B0; --onblue: #F7F9FB; --rule: #C9D1D9;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--plate); color: var(--ink);
+    font-family: "Archivo", system-ui, sans-serif; font-weight: 500; font-size: 17px; line-height: 1.6; }
+  h1, h2, h3, .num { font-family: "Archivo Narrow", "Archivo", sans-serif; font-weight: 600; letter-spacing: -0.01em; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* 1. Hero */
+  /* The light stop is #3A53DE, a shade under the icon ground #4762EE: on #4762EE the 21px lead measures
+     4.16:1 and the 15px note 3.93:1, both under 4.5. On #3A53DE they measure 5.09:1 and 4.81:1. */
+  .hero { background: linear-gradient(135deg, #3A53DE 0%, #2733BE 100%); color: var(--onblue); padding: 72px 0 64px; }
+  .hero .wrap { display: grid; grid-template-columns: 132px 1fr; gap: 28px; align-items: start; }
+  .hero h1 { font-size: 58px; line-height: 1.02; margin: 0 0 12px; }
+  .hero p.lead { font-size: 21px; max-width: 34ch; margin: 0 0 24px; color: #E3ECFB; }
+  /* The official Google Play badge, unaltered. Its PNG carries its own clear space, so a negative
+     margin lines the visible badge up with the text above it. The price is the one the console
+     charges (Play rounds INR prices to the nearest 10). */
+  .badge { display: inline-block; vertical-align: top; margin: 0 0 -14px -13px; }
+  .badge img { display: block; }
+  .hero small { display: block; margin-top: 18px; color: #DCE6F7; font-size: 15px; }
+  .mark { width: 132px; height: 132px; }
+
+  /* 2. Three jobs, alternating text and shot */
+  .jobs { padding: 64px 0 8px; }
+  .job { display: grid; grid-template-columns: 1fr 300px; gap: 48px; align-items: center; padding: 40px 0; border-top: 1px solid var(--rule); }
+  .job:first-child { border-top: 0; }
+  .job.flip { grid-template-columns: 300px 1fr; }
+  .job.flip .copy { order: 2; }
+  .job h2 { font-size: 30px; margin: 0 0 10px; }
+  .job p { margin: 0; color: var(--scale); max-width: 58ch; }
+  .job img { width: 100%; border: 1px solid var(--rule); border-radius: 12px; display: block; }
+
+  /* 3. Working band */
+  .band { background: var(--ink); color: var(--sheet); padding: 56px 0; margin-top: 48px; }
+  .band h2 { font-size: 30px; margin: 0 0 20px; color: var(--sheet); }
+  .band .lines { font-family: "Archivo Narrow", sans-serif; font-size: 22px; line-height: 1.9; color: #C9D6E6; }
+  .band .lines b { color: #86A8EA; font-weight: 600; }
+
+  /* 4. Table sources */
+  .trust { padding: 56px 0; }
+  .trust h2 { font-size: 30px; margin: 0 0 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+  .card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; padding: 20px; }
+  .card h3 { font-size: 19px; margin: 0 0 6px; }
+  .card p { margin: 0; color: var(--scale); font-size: 15px; }
+
+  /* 5. Plain list and footer */
+  .plain { padding: 8px 0 56px; }
+  .plain h2 { font-size: 30px; margin: 0 0 16px; }
+  .plain ul { margin: 0; padding-left: 20px; color: var(--scale); }
+  .plain li { margin-bottom: 6px; }
+  footer { border-top: 1px solid var(--rule); padding: 28px 0 56px; color: var(--scale); font-size: 15px; }
+  footer a { color: var(--blue); }
+
+  @media (max-width: 760px) {
+    .hero { padding: 48px 0 44px; }
+    .hero .wrap { grid-template-columns: 96px 1fr; gap: 18px; }
+    .hero h1 { font-size: 42px; }
+    .mark { width: 96px; height: 96px; }
+    .job, .job.flip { grid-template-columns: 1fr; gap: 24px; }
+    .job.flip .copy { order: 0; }
+    .job img { max-width: 300px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <svg class="mark" viewBox="16 16 76 76" aria-hidden="true">
+      <path d="M27 63 L45 63 L63 45 L81 45" fill="none" stroke="#F7F9FB" stroke-width="14" stroke-linecap="butt" stroke-linejoin="round"/>
+      <path d="M27 59.6 L43.6 59.6 L61.6 41.6 L81 41.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="2.6" stroke-linecap="butt" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h1>Kickset</h1>
+      <p class="lead">The pipe fitter's calculator that shows its working, on the phone in your pocket, with no signal.</p>
+      <a class="badge" href="https://play.google.com/store/apps/details?id=com.mohdshayan.kickset"><img src="google-play-badge.png" alt="Get it on Google Play" width="215" height="83"></a>
+      <small>USD 4.99 once, INR 250 in India. No ads, no subscription, no account. Works fully offline.</small>
+    </div>
+  </div>
+</header>
+
+<section class="jobs wrap">
+  <div class="job">
+    <div class="copy">
+      <h2>Cut length after the root gap</h2>
+      <p>Pick the fitting at each end, the size and the centre to centre, and read the cut with every subtraction listed:
+        both takeouts and one root gap per weld. Butt-weld fittings to ASME B16.9, socket-weld fittings to ASME B16.11
+        Class 3000 with the engagement gap, and cut elbows at any angle with their arc marks.</p>
+    </div>
+    <img src="shots/01-cut-length.png" alt="Cut length screen showing a cut of 19 and 9 sixteenths inches after a 6 inch and a 2 and a half inch takeout and two root gaps">
+  </div>
+  <div class="job flip">
+    <div class="copy">
+      <h2>Offsets you can check</h2>
+      <p>Simple offsets at 11.25, 22.5, 30, 45, 60 or any angle. Rolling offsets from set and roll, or the angle solved
+        from a fixed run. Parallel offsets for lines on a rack. Every answer sits on a dimensioned sketch with the
+        arithmetic underneath, in millimetres and fractional inches at once.</p>
+    </div>
+    <img src="shots/02-rolling-offset.png" alt="Rolling offset screen showing a true offset of 20 inches and a travel of 28 and 5 sixteenths inches with its working">
+  </div>
+  <div class="job">
+    <div class="copy">
+      <h2>Wrap templates that print to scale</h2>
+      <p>Miter elbows from two to five pieces, saddle branches and laterals from 30 to 89 degrees, with the header hole
+        layout. The PDF tiles across A4 or Letter sheets with overlap marks, and every sheet carries a 100 mm bar and a
+        4 inch bar. Print at 100 percent with no fit to page, measure the bars, then wrap and trace.</p>
+    </div>
+    <img src="shots/03-saddle-sheets.png" alt="Sheet preview showing four template pages with calibration bars">
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h2>The working is printed under every answer</h2>
+    <div class="lines">
+      True offset = sqrt(set 12 in squared + roll 16 in squared) = <b>20 in</b><br>
+      True offset 20 in x csc 45 degrees (<b>1.4142</b>) = travel <b>28 5/16 in</b><br>
+      True offset 20 in x cot 45 degrees (1.0000) = run <b>20 in</b>
+    </div>
+  </div>
+</section>
+
+<section class="trust wrap">
+  <h2>Table values checked against two catalogues</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>ASME B16.9 takeouts</h3>
+      <p>Weldbend and Hackney Ladish. A row only one catalogue lists is left out rather than guessed.</p>
+    </div>
+    <div class="card">
+      <h3>ASME B16.11 Class 3000</h3>
+      <p>Bonney Forge and Anvil, centre to bottom of socket, with the engagement gap subtracted.</p>
+    </div>
+    <div class="card">
+      <h3>Pipe walls and weights</h3>
+      <p>ASME B36.10M and B36.19M walls from Weldbend, Hackney Ladish and Sandvik, weight from the plain end formula.</p>
+    </div>
+    <div class="card">
+      <h3>Flange bolting</h3>
+      <p>ASME B16.5 Class 150 and 300 bolt counts, circles and stud lengths from Weldbend and USA Fastener. No torque values.</p>
+    </div>
+  </div>
+</section>
+
+<section class="plain wrap">
+  <h2>What it will not do</h2>
+  <ul>
+    <li>Ask for an account, a subscription or a second payment.</li>
+    <li>Ask for a device permission. It has no internet, storage, location, camera or microphone permission, so it cannot reach the network.</li>
+    <li>Show an advertisement or send a single byte anywhere. Android's backup service is switched off for it, so not even the system copies your jobs to a Google account.</li>
+    <li>Claim a value it cannot source, or a scale it has not drawn on the sheet.</li>
+  </ul>
+</section>
+
+<footer class="wrap">
+  <p>Results are reference values for trained fitters. Check them against your drawings and the fittings in hand before
+    you cut. Kickset is not affiliated with ASME or with any manufacturer named here.</p>
+  <p>Published by SocialSure Private Limited. Read the <a href="/privacy-policies/kickset-privacy-policy.html">privacy policy</a>.</p>
+  <p>Google Play and the Google Play logo are trademarks of Google LLC.</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rainfold</title>
+<meta name="description" content="Rainfold makes brown, white, pink and green noise, a fan and rain live on your Android phone, with no loop seam. Free on Google Play.">
+<link rel="icon" type="image/png" href="icon-512.png">
+<style>
+  @font-face { font-family: "Bricolage"; src: url("fonts/bricolagegrotesque_medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Bricolage"; src: url("fonts/bricolagegrotesque_semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Figtree"; src: url("fonts/figtree_regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Figtree"; src: url("fonts/figtree_medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Figtree"; src: url("fonts/figtree_semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+
+  /* App tokens, blueprint section 7. Dark mode carries the brand. */
+  :root {
+    --mist: #E9F1F2; --pane: #F6FAFA; --ink: #12262C; --drizzle: #4A6066;
+    --cyan: #1A7486; --on-cyan: #F6FAFA; --rule: #C6D5D8;
+    --shadow: rgba(18, 50, 58, 0.18);
+    --r-sm: 6px; --r-md: 14px; --r-lg: 28px;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --mist: #0E1E23; --pane: #16292F; --ink: #E1EDEE; --drizzle: #93ABB0;
+      --cyan: #6FC2D3; --on-cyan: #0E1E23; --rule: #27393F;
+      --shadow: rgba(3, 10, 12, 0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --mist: #0E1E23; --pane: #16292F; --ink: #E1EDEE; --drizzle: #93ABB0;
+    --cyan: #6FC2D3; --on-cyan: #0E1E23; --rule: #27393F;
+    --shadow: rgba(3, 10, 12, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--mist); color: var(--ink);
+    font: 400 17px/1.6 "Figtree", system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  img { display: block; max-width: 100%; height: auto; }
+  a { color: var(--cyan); text-underline-offset: 3px; }
+  h1, h2, h3 { font-family: "Bricolage", system-ui, sans-serif; font-weight: 600; margin: 0; letter-spacing: -0.02em; }
+  p { margin: 0; }
+  .wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  @media (min-width: 768px) { .wrap { padding: 0 32px; } }
+
+  /* Header */
+  .top { display: flex; align-items: center; gap: 12px; height: 72px; }
+  .top img { width: 36px; height: 36px; border-radius: var(--r-sm); }
+  .top span { font-family: "Bricolage", sans-serif; font-weight: 600; font-size: 20px; }
+
+  /* Hero: asymmetric split */
+  .hero { display: grid; gap: 40px; padding-top: 24px; padding-bottom: 72px; align-items: center; }
+  .hero h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.04; max-width: 13ch; }
+  .hero p { margin-top: 20px; font-size: 19px; color: var(--drizzle); max-width: 34ch; }
+  .cta {
+    display: inline-flex; align-items: center; justify-content: center; margin-top: 32px;
+    min-height: 52px; padding: 0 26px; border-radius: var(--r-md);
+    background: var(--cyan); color: var(--on-cyan); text-decoration: none; white-space: nowrap;
+    font: 600 16px/1 "Figtree", sans-serif;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  .cta:hover { filter: brightness(1.06); }
+  .cta:active { transform: translateY(1px) scale(0.99); }
+  .cta:focus-visible, a:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+  .phone {
+    border-radius: var(--r-lg); overflow: hidden; background: var(--pane);
+    box-shadow: 0 0 0 1px var(--rule), 0 24px 60px var(--shadow);
+  }
+  .hero .phone { width: min(340px, 82vw); justify-self: center; }
+  @media (min-width: 860px) {
+    .hero { grid-template-columns: 1.15fr 0.85fr; padding-top: 40px; padding-bottom: 112px; }
+    .hero .phone { justify-self: end; margin-right: 24px; }
+  }
+
+  /* The Fold: stacked heading then a strip of three shots */
+  .fold { padding: 88px 0; border-top: 1px solid var(--rule); }
+  .fold h2 { font-size: clamp(28px, 4vw, 42px); line-height: 1.1; max-width: 18ch; }
+  .fold > .wrap > p { margin-top: 16px; color: var(--drizzle); max-width: 56ch; }
+  .strip {
+    margin-top: 48px; display: grid; grid-auto-flow: column; grid-auto-columns: 72%;
+    gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px;
+  }
+  .strip figure { margin: 0; scroll-snap-align: start; }
+  .strip figcaption { margin-top: 14px; font-weight: 500; font-size: 15px; color: var(--drizzle); }
+  @media (min-width: 768px) {
+    .strip { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); overflow: visible; gap: 32px; }
+    .strip figure:nth-child(2) { margin-top: 56px; }
+  }
+
+  /* Free and unlock: two grouped columns with the price above */
+  .tiers { padding: 88px 0; background: var(--pane); }
+  .tiers h2 { font-size: clamp(26px, 3.6vw, 38px); line-height: 1.15; max-width: 24ch; }
+  .groups { display: grid; gap: 40px; margin-top: 48px; }
+  .groups h3 { font-size: 21px; font-weight: 500; padding-bottom: 12px; border-bottom: 2px solid var(--cyan); }
+  .groups ul { list-style: none; margin: 16px 0 0; padding: 0; }
+  .groups li { padding: 7px 0; }
+  .tiers .fine { margin-top: 40px; color: var(--drizzle); font-size: 15px; max-width: 62ch; }
+  @media (min-width: 768px) { .groups { grid-template-columns: 1fr 1fr; gap: 64px; } }
+
+  /* Offline promise: statement plus a four-cell facts grid */
+  .promise { padding: 96px 0; }
+  .promise h2 { font-size: clamp(30px, 4.6vw, 50px); line-height: 1.08; max-width: 20ch; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin-top: 48px; background: var(--rule); border-radius: var(--r-md); overflow: hidden; }
+  .facts div { background: var(--mist); padding: 24px 20px; }
+  .facts dt { font-size: 15px; color: var(--drizzle); }
+  .facts dd { margin: 6px 0 0; font-family: "Bricolage", sans-serif; font-weight: 500; font-size: 24px; }
+  @media (min-width: 768px) { .facts { grid-template-columns: repeat(4, 1fr); } .facts div { padding: 28px 24px; } }
+
+  /* Mixes: text beside a light screenshot */
+  .mixes { padding: 88px 0 104px; border-top: 1px solid var(--rule); }
+  .mixes .wrap { display: grid; gap: 40px; align-items: center; }
+  .mixes h2 { font-size: clamp(26px, 3.6vw, 38px); line-height: 1.15; }
+  .mixes p { margin-top: 16px; color: var(--drizzle); max-width: 46ch; }
+  .mixes .phone { width: min(300px, 76vw); justify-self: center; }
+  @media (min-width: 860px) { .mixes .wrap { grid-template-columns: 0.8fr 1.2fr; } .mixes .phone { justify-self: start; grid-row: 1; } }
+
+  footer { padding: 40px 0 56px; border-top: 1px solid var(--rule); font-size: 15px; color: var(--drizzle); }
+  footer .wrap { display: grid; gap: 12px; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+
+  @media (prefers-reduced-motion: reduce) { .cta { transition: none; } .strip { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <img src="icon-512.png" alt="" width="36" height="36">
+  <span>Rainfold</span>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <div>
+      <h1>Rain, fan and brown noise that never seams</h1>
+      <p>Sound made live on your phone, so there is no loop to hear. It plays through the night.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.rainfold">Get it on Google Play</a>
+    </div>
+    <div class="phone">
+      <img src="shots/01-listen-playing.png" width="1080" height="1920" alt="The Listen screen playing a mix called Desk, with brown noise and rain drawn as two stacked bands">
+    </div>
+  </section>
+
+  <section class="fold">
+    <div class="wrap">
+      <h2>Your mix, drawn as the Fold</h2>
+      <p>Each layer is a band edged with its own spectrum, taken from the same filter maths the audio uses. Drag a band up or down for volume and sideways for tone. Nothing moves unless you touch it.</p>
+      <div class="strip">
+        <figure>
+          <div class="phone"><img src="shots/02-fold-drag.png" width="1080" height="1920" loading="lazy" alt="Dragging the fan band on the Fold, with the fan's volume and tone sliders below"></div>
+          <figcaption>Drag a band for volume and tone</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="shots/03-sleep-timer.png" width="1080" height="1920" loading="lazy" alt="The sleep timer set to 6 hours with a 14 minute fade"></div>
+          <figcaption>A sleep timer with a long, slow fade</figcaption>
+        </figure>
+        <figure>
+          <div class="phone"><img src="shots/04-lock-screen.jpg" width="1080" height="1920" loading="lazy" alt="Rainfold's playback controls on the lock screen"></div>
+          <figcaption>Controls on the lock screen</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="tiers">
+    <div class="wrap">
+      <h2>Free on Google Play, unlock everything once for USD 2.99</h2>
+      <div class="groups">
+        <div>
+          <h3>Free</h3>
+          <ul>
+            <li>White, pink, brown and green noise, a fan and rain</li>
+            <li>Mixes of two layers, each with its own volume and tone</li>
+            <li>Three saved mixes</li>
+            <li>A sleep timer with a long, slow fade</li>
+            <li>Background playback with lock-screen controls</li>
+            <li>A widget that resumes your last mix</li>
+            <li>Export and import of your mixes as a file</li>
+          </ul>
+        </div>
+        <div>
+          <h3>The one purchase adds</h3>
+          <ul>
+            <li>Up to six layers in a mix</li>
+            <li>Unlimited named mixes</li>
+            <li>Storm, wind, surf, stream, fire, air conditioner and train</li>
+            <li>Crickets and cafe murmur</li>
+            <li>Evolving night, so intensity drifts slowly through the hours</li>
+            <li>A Quick Settings tile</li>
+          </ul>
+        </div>
+      </div>
+      <p class="fine">Google Play shows the price in your own currency. The unlock belongs to the Google account that bought it and comes back on a reinstall or a new phone.</p>
+    </div>
+  </section>
+
+  <section class="promise">
+    <div class="wrap">
+      <h2>No ads, no subscription, no account. Works fully offline.</h2>
+      <dl class="facts">
+        <div><dt>Internet permission</dt><dd>None</dd></div>
+        <div><dt>Data collected</dt><dd>None</dd></div>
+        <div><dt>Ads</dt><dd>None</dd></div>
+        <div><dt>Sign-in</dt><dd>None</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="mixes">
+    <div class="wrap">
+      <div>
+        <h2>Mixes you keep</h2>
+        <p>Name a mix like Desk or Night shift and it is one tap away. Export your mixes to a file and import them on your next phone.</p>
+      </div>
+      <div class="phone">
+        <img src="shots/06-mixes-export.png" width="1080" height="1920" loading="lazy" alt="The Mixes screen in light mode with Desk, Night shift and Bus route">
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <nav>
+      <a href="/privacy-policies/rainfold-privacy-policy.html">Privacy policy</a>
+      <a href="OFL-BricolageGrotesque.txt">Bricolage Grotesque licence</a>
+      <a href="OFL-Figtree.txt">Figtree licence</a>
+    </nav>
+    <p>Rainfold is a sound app for focus and rest, not a medical device. Published by SocialSure Private Limited.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Sentence</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="set-letterpress">
+
+<!-- Every icon and the mark, drawn once. One stroke width, round caps, no glyphs. -->
+<svg width="0" height="0" class="defs" aria-hidden="true">
+  <defs>
+    <!-- the mark, in the launcher icon's own coordinates: one line, thin where the nib lands, and a full stop -->
+    <g id="mark-stroke"><path d="M25.5 56.9 C36 51.3 52 47.7 70.5 49.1 A3.9 3.9 0 0 1 69.9 56.9 C52 55.7 36 59.5 26.5 64.6 A3.9 3.9 0 0 1 25.5 56.9 Z"/></g>
+    <g id="mark-stop"><circle cx="81.6" cy="57.4" r="4.3"/><circle cx="80.3" cy="55.9" r="1.25" fill="#fff" opacity=".9"/></g>
+    <!-- the same line stretched into a rule under the date -->
+    <symbol id="mark-line" viewBox="0 0 300 16" preserveAspectRatio="none">
+      <path d="M2 11 C60 6.5 160 3 296 5 C297.5 5.5 297.5 8.5 296 9.5 C160 10.5 60 13.5 2 14 C.5 13.6 .5 11.4 2 11 Z"/>
+    </symbol>
+    <symbol id="i-today" viewBox="0 0 24 24"><path d="M4 12.5h10.5"/><circle cx="19" cy="12.5" r="1.8" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5c-1.9-1.4-4.3-2-7.5-2v13c3.2 0 5.6.6 7.5 2 1.9-1.4 4.3-2 7.5-2v-13c-3.2 0-5.6.6-7.5 2z"/><path d="M12 6.5v13"/></symbol>
+    <symbol id="i-years" viewBox="0 0 24 24"><path d="M5 7h14M5 12h9M5 17h10.5"/><circle cx="18.5" cy="17" r="1.6" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-nib" viewBox="0 0 24 24"><path d="M12 3.5l5.5 8.5-5.5 8.5-5.5-8.5z"/><path d="M12 12.5v8"/><circle cx="12" cy="11" r="1.3" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></symbol>
+  </defs>
+</svg>
+
+<main id="stage">
+
+  <!-- ONBOARDING -->
+  <section class="screen" id="onboard" hidden>
+    <svg class="mark ob-mark" id="obMark" viewBox="20 44 68 22" aria-hidden="true"><use href="#mark-stroke" class="ink"/><use href="#mark-stop" class="stop"/></svg>
+    <div class="ob-track" id="obTrack">
+      <article class="ob-card">
+        <p class="ob-line">One sentence.<br>That is the whole app.</p>
+        <p class="ob-sub">Not the free tier. The whole thing.</p>
+      </article>
+      <article class="ob-card">
+        <p class="ob-line">It cannot be edited tomorrow.</p>
+        <p class="ob-sub">That is the point. What you thought on Tuesday stays yours.</p>
+      </article>
+      <article class="ob-card">
+        <p class="ob-line">In a year, mornings get interesting.</p>
+        <p class="ob-sub">Every morning this app hands you the line you wrote a year ago today.</p>
+      </article>
+      <article class="ob-card">
+        <p class="ob-line">When should your past self write to you?</p>
+        <div class="ob-time"><input type="time" id="obTime" value="08:00" aria-label="Notification time"></div>
+        <p class="ob-sub">It only ever sends your own words. Never a reminder to write.</p>
+      </article>
+    </div>
+    <div class="ob-foot">
+      <div class="ob-dots" id="obDots"></div>
+      <button class="btn" id="obNext">Next</button>
+    </div>
+  </section>
+
+  <!-- TODAY -->
+  <section class="screen view" id="v-today" hidden>
+    <div class="scroller">
+      <header class="daymark">
+        <p class="date" id="todayDate"></p>
+        <p class="chapter" id="chapterLine"></p>
+      </header>
+      <div class="inkline" id="inkline" aria-hidden="true"><svg class="ink"><use href="#mark-line"/></svg><i class="stop"></i></div>
+
+      <div id="writeBlock">
+        <textarea id="line" maxlength="280" rows="3" placeholder="Today I" enterkeyhint="done"
+                  aria-label="Your sentence for today"></textarea>
+        <div class="writebar">
+          <span class="count" id="count"></span>
+          <button class="btn" id="saveBtn" disabled>Save</button>
+        </div>
+      </div>
+
+      <div id="savedBlock" hidden>
+        <p class="entry" id="savedText"></p>
+        <div class="writebar">
+          <span class="count" id="windowNote"></span>
+          <button class="btn ghost" id="editBtn" hidden>Edit</button>
+        </div>
+      </div>
+
+      <div id="backfill" hidden>
+        <hr class="rule faint">
+        <p class="minor">Yesterday is still blank. You can write it once, and it will be marked as written late.</p>
+        <button class="btn ghost" id="backfillBtn">Write yesterday</button>
+      </div>
+
+      <section id="stack" hidden>
+        <hr class="rule faint">
+        <p class="stack-head">From your own hand</p>
+        <div id="stackList"></div>
+      </section>
+    </div>
+  </section>
+
+  <!-- BOOK -->
+  <section class="screen view" id="v-book" hidden>
+    <div class="topbar">
+      <label class="searchwrap" id="searchWrap"><svg class="icon"><use href="#i-search"/></svg><input type="search" id="search" placeholder="Search your sentences" aria-label="Search"></label>
+      <button class="btn ghost small" id="calToggle">Calendar</button>
+    </div>
+    <div class="scroller" id="bookScroll">
+      <div id="bookList"></div>
+      <div id="calWrap" hidden></div>
+      <p class="empty" id="bookNone" hidden></p>
+      <div class="empty-art" id="bookEmpty" hidden>
+        <svg class="art" viewBox="0 0 220 150" aria-hidden="true">
+          <g transform="rotate(-3 110 80)">
+            <rect x="45" y="16" width="130" height="126" rx="2" class="art-page"/>
+            <g class="art-ink" transform="translate(60 44) scale(1.45) translate(-25.5 -56.9)"><use href="#mark-stroke"/><use href="#mark-stop"/></g>
+            <path d="M62 64h96M62 80h96M62 96h96M62 112h68" class="art-rule"/>
+          </g>
+        </svg>
+        <p class="empty">Your book starts with one sentence. Write today's line.</p>
+      </div>
+      <div class="empty-art" id="calEmpty" hidden>
+        <svg class="art" viewBox="0 0 220 150" aria-hidden="true"><rect x="23" y="30" width="20" height="20" rx="2" class="art-cell"/><rect x="49" y="30" width="20" height="20" rx="2" class="art-cell"/><rect x="75" y="30" width="20" height="20" rx="2" class="art-cell"/><rect x="101" y="30" width="20" height="20" rx="2" class="art-cell"/><rect x="127" y="30" width="20" height="20" rx="2" class="art-cell"/><rect x="153" y="30" width="20" height="20" rx="2" class="art-cell"/><rect x="179" y="30" width="20" height="20" rx="2" class="art-cell"/><rect x="23" y="56" width="20" height="20" rx="2" class="art-cell"/><rect x="49" y="56" width="20" height="20" rx="2" class="art-cell"/><rect x="75" y="56" width="20" height="20" rx="2" class="art-cell on"/><rect x="101" y="56" width="20" height="20" rx="2" class="art-cell on"/><rect x="127" y="56" width="20" height="20" rx="2" class="art-cell on"/><rect x="153" y="56" width="20" height="20" rx="2" class="art-cell on"/><rect x="179" y="56" width="20" height="20" rx="2" class="art-cell on"/><rect x="23" y="82" width="20" height="20" rx="2" class="art-cell"/><rect x="49" y="82" width="20" height="20" rx="2" class="art-cell"/><rect x="75" y="82" width="20" height="20" rx="2" class="art-cell"/><rect x="101" y="82" width="20" height="20" rx="2" class="art-cell on"/><rect x="127" y="82" width="20" height="20" rx="2" class="art-cell on"/><rect x="153" y="82" width="20" height="20" rx="2" class="art-cell"/><rect x="179" y="82" width="20" height="20" rx="2" class="art-cell"/><rect x="23" y="108" width="20" height="20" rx="2" class="art-cell"/><rect x="49" y="108" width="20" height="20" rx="2" class="art-cell"/><rect x="75" y="108" width="20" height="20" rx="2" class="art-cell"/><rect x="101" y="108" width="20" height="20" rx="2" class="art-cell"/><rect x="127" y="108" width="20" height="20" rx="2" class="art-cell"/><rect x="153" y="108" width="20" height="20" rx="2" class="art-cell"/><rect x="179" y="108" width="20" height="20" rx="2" class="art-cell"/></svg>
+        <p class="empty">Written days are printed here. Blank days stay blank paper.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- YEARS -->
+  <section class="screen view" id="v-years" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" id="yPrev" aria-label="Previous day">Earlier</button>
+      <p class="date" id="yDate"></p>
+      <button class="btn ghost small" id="yNext" aria-label="Next day">Later</button>
+    </div>
+    <div class="scroller"><div id="yearsList"></div></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen view" id="v-settings" hidden>
+    <div class="scroller">
+      <h1 class="h">Settings</h1>
+
+      <div class="field">
+        <label for="setTime">Morning delivery</label>
+        <input type="time" id="setTime">
+        <p class="help">When your past self writes to you.</p>
+      </div>
+
+      <div class="field row">
+        <div><label for="setDiscreet">Discreet notifications</label>
+          <p class="help">Show only the date on the lock screen, never the sentence.</p></div>
+        <input type="checkbox" id="setDiscreet">
+      </div>
+
+      <div class="field">
+        <label for="setWindow">Typo window</label>
+        <select id="setWindow">
+          <option value="0">None. Locked on save</option>
+          <option value="10">10 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="1440">Until the day closes</option>
+        </select>
+        <p class="help">After this, the day is closed and the sentence is permanent.</p>
+      </div>
+
+      <div class="field">
+        <label for="setTheme">Typographic set</label>
+        <select id="setTheme">
+          <option value="letterpress">Letterpress</option>
+          <option value="typewriter">Typewriter</option>
+          <option value="manuscript">Manuscript</option>
+        </select>
+      </div>
+
+      <hr class="rule faint">
+      <h2 class="h2">Your words</h2>
+      <p class="help">Everything lives on this device. Nothing is uploaded, by anyone, ever.</p>
+      <div class="btnrow">
+        <button class="btn ghost small" id="exTxt">Export text</button>
+        <button class="btn ghost small" id="exCsv">Export CSV</button>
+        <button class="btn ghost small" id="exJson">Export JSON</button>
+      </div>
+      <div class="btnrow">
+        <label class="btn ghost small filelabel">Import<input type="file" id="importFile" accept=".json,.csv,.txt" hidden></label>
+        <button class="btn ghost small danger" id="eraseBtn">Erase everything</button>
+      </div>
+      <p class="help" id="ioNote"></p>
+
+      <hr class="rule faint">
+      <div class="colophon">
+        <svg class="mark small" viewBox="20 44 68 22" aria-hidden="true"><use href="#mark-stroke"/><use href="#mark-stop"/></svg>
+        <p>Sentence. One line a day, forever.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav id="tabs" hidden>
+  <button data-view="today" class="tab is-on"><svg class="icon"><use href="#i-today"/></svg><span>Today</span></button>
+  <button data-view="book" class="tab"><svg class="icon"><use href="#i-book"/></svg><span>Book</span></button>
+  <button data-view="years" class="tab"><svg class="icon"><use href="#i-years"/></svg><span>Years</span></button>
+  <button data-view="settings" class="tab"><svg class="icon"><use href="#i-nib"/></svg><span>Settings</span></button>
+</nav>
+
+<div id="sheet" class="sheet" hidden>
+  <div class="sheet-panel">
+    <p class="sheet-date" id="sheetDate"></p>
+    <p class="entry" id="sheetText"></p>
+    <div class="btnrow">
+      <button class="btn ghost small" id="sheetCopy">Copy</button>
+      <button class="btn ghost small" id="sheetCard">Save as card</button>
+      <button class="btn ghost small" id="sheetClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<p id="toast" class="toast" hidden></p>
+
+<script src="js/store.js"></script>
+<script src="js/share.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

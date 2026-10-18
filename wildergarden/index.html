@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wildergarden. It grows when you put the phone down.</title>
+<meta name="description" content="An Android valley that only grows while your phone is down. Forty species, four biomes, no subscription, no ads, no internet permission, and it never reads which apps you use.">
+<meta property="og:title" content="Wildergarden. It grows when you put the phone down.">
+<meta property="og:description" content="A living valley that grows out of the hours you did not spend scrolling. Free, offline, and it cannot see your other apps.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="shots/01-valley.png">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --paper: #F4EFE2; --paper-2: #EBE4D1; --ink: #1E2418; --ink-soft: #555B47;
+    --ink-quiet: #5A6049; --hair: #D2CAB4; --accent: #3B6B2E; --gold: #7E5514;
+    --serif: Literata, "Iowan Old Style", Georgia, serif;
+    --sans: Archivo, system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--serif); font-size: 18px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  img { max-width: 100%; }
+
+  .cta {
+    display: inline-block; background: var(--accent); color: #F4F1E6; text-decoration: none;
+    padding: 14px 28px; border-radius: 12px; font-family: var(--sans); font-size: 16px;
+    border: 1px solid var(--accent); transition: transform .15s ease;
+  }
+  .cta:active { transform: translateY(1px); }
+  .under { display: block; font-family: var(--sans); font-size: 13.5px; color: var(--ink-quiet); margin-top: 14px; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 76px; }
+  .mark { display: flex; align-items: flex-end; gap: 11px; font-size: 17px; }
+  .mark svg { display: block; }
+  nav a { color: var(--ink-soft); text-decoration: none; font-family: var(--sans); font-size: 14px; margin-left: 22px; }
+  nav a:hover { color: var(--ink); }
+
+  /* 1. hero: text left, one screen right */
+  .hero { display: grid; grid-template-columns: 1.08fr .92fr; gap: 60px; align-items: center; padding: 30px 0 100px; }
+  .hero h1 { font-size: clamp(38px, 5.4vw, 64px); line-height: 1.06; letter-spacing: -0.025em; margin: 0 0 22px; font-weight: 600; }
+  .hero p { font-size: 20px; color: var(--ink-soft); margin: 0 0 32px; max-width: 32ch; }
+  .shot { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--hair); display: block; }
+  .hero .shot { max-width: 330px; margin-left: auto; }
+
+  /* 2. manifesto: full bleed band, centred type only */
+  .manifesto { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); background: var(--paper-2); padding: 104px 0; text-align: center; }
+  .manifesto p { font-size: clamp(25px, 3.5vw, 40px); line-height: 1.28; margin: 0 auto; max-width: 21ch; letter-spacing: -0.018em; }
+  .manifesto .after { font-size: 18px; color: var(--ink-soft); max-width: 48ch; margin: 28px auto 0; letter-spacing: 0; }
+
+  /* 3. the loop: image left, numbered steps right */
+  .loop { display: grid; grid-template-columns: .84fr 1.16fr; gap: 60px; align-items: center; padding: 104px 0; }
+  .loop .shot { max-width: 300px; }
+  h2 { font-size: clamp(27px, 3.4vw, 38px); line-height: 1.16; letter-spacing: -0.02em; margin: 0 0 16px; font-weight: 600; }
+  .steps { list-style: none; padding: 0; margin: 26px 0 0; counter-reset: s; }
+  .steps li { counter-increment: s; padding: 20px 0 20px 52px; border-top: 1px solid var(--hair); position: relative; color: var(--ink-soft); }
+  .steps li:last-child { border-bottom: 1px solid var(--hair); }
+  .steps li b { color: var(--ink); font-weight: 600; display: block; margin-bottom: 3px; }
+  .steps li::before {
+    content: counter(s); position: absolute; left: 0; top: 20px;
+    font-family: var(--sans); font-size: 13px; color: var(--accent);
+    width: 28px; height: 28px; line-height: 27px; text-align: center;
+    border: 1px solid var(--hair); border-radius: 50%;
+  }
+
+  /* 4. gallery: three screens in a row */
+  .gallery { padding: 0 0 100px; }
+  .eyebrow { font-family: var(--sans); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-quiet); margin: 0 0 14px; }
+  .gallery .sub { color: var(--ink-soft); max-width: 54ch; margin: 0 0 46px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--ink-soft); font-size: 15.5px; margin-top: 16px; }
+
+  /* 5. pledge: two columns of plain rows */
+  .pledge { background: var(--paper-2); border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 96px 0; }
+  .pledge h2 { max-width: 18ch; }
+  .pledge .lede { color: var(--ink-soft); max-width: 52ch; margin: 0 0 44px; }
+  .plist { display: grid; grid-template-columns: 1fr 1fr; gap: 0 56px; }
+  .plist div { padding: 20px 0; border-top: 1px solid var(--hair); }
+  .plist b { display: block; font-weight: 600; margin-bottom: 4px; }
+  .plist p { margin: 0; color: var(--ink-soft); font-size: 16.5px; }
+
+  /* 6. limits: label and value rows */
+  .limits { padding: 96px 0; }
+  .limits .row { display: grid; grid-template-columns: 15rem 1fr; gap: 34px; padding: 26px 0; border-top: 1px solid var(--hair); align-items: start; }
+  .limits .row:last-child { border-bottom: 1px solid var(--hair); }
+  .limits .k { font-family: var(--sans); font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-quiet); }
+  .limits .v { margin: 0; }
+
+  .close { text-align: center; padding: 20px 0 116px; }
+  .close p { font-size: 23px; max-width: 27ch; margin: 0 auto 30px; line-height: 1.4; }
+
+  footer { border-top: 1px solid var(--hair); padding: 34px 0 64px; color: var(--ink-quiet); font-family: var(--sans); font-size: 14px; }
+  footer .row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer a { color: var(--ink-soft); text-decoration: none; margin-right: 20px; }
+  footer a:hover { color: var(--ink); }
+
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  @media (max-width: 880px) {
+    .hero, .loop { grid-template-columns: 1fr; gap: 40px; padding: 20px 0 72px; }
+    .hero .shot, .loop .shot { max-width: 290px; margin: 0 auto; }
+    .strip { grid-template-columns: 1fr; gap: 44px; max-width: 320px; margin: 0 auto; }
+    .plist { grid-template-columns: 1fr; }
+    .limits .row { grid-template-columns: 1fr; gap: 8px; }
+    nav a { margin-left: 14px; font-size: 13px; }
+    .manifesto, .pledge { padding: 76px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark">
+      <svg width="30" height="30" viewBox="30 26 52 52" aria-hidden="true">
+        <path d="M54.6 62.5 C 45 64.6 37.4 60.2 34.6 50.6 C 44.6 47.8 53.2 52.6 54.6 62.5 Z" fill="#2C6B1B"/>
+        <path d="M56.4 53.4 C 66.4 49.6 71.4 41.2 69.2 31.4 C 59.4 35 54.6 43.6 56.4 53.4 Z" fill="#4E8C28"/>
+        <g fill="none" stroke="#3B6B2E" stroke-width="5.6" stroke-linecap="round">
+          <path d="M54 76 C 54 66 54.6 57.4 58.6 49.4"/>
+          <path d="M58.6 49.4 C 60.4 43.6 60 39.2 56.4 37.4 C 52.8 35.6 50.6 38.8 52.6 41.2"/>
+        </g>
+        <path d="M34 78 C 42 75 48 74.2 54 74.2 C 60 74.2 66 75 74 78" fill="none" stroke="#20261B"
+              stroke-width="4.4" stroke-linecap="round"/>
+      </svg>
+      Wildergarden
+    </span>
+    <span>
+      <a href="#how">How it works</a>
+      <a href="/privacy-policies/wildergarden-privacy-policy.html">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>It grows when you put the phone down.</h1>
+      <p>A valley that fills with living things out of the hours you did not spend scrolling. Forty species, four biomes, and nothing at all to tap for.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.wildergarden">Get it on Google Play</a>
+      <span class="under">Free and complete. No subscription, no ads, no account.</span>
+    </div>
+    <img class="shot reveal" src="shots/01-valley.png" width="1080" height="1920"
+         alt="The valley screen: a wildflower meadow under a midday sky, birds overhead, and a count of thirty eight species of forty.">
+  </header>
+</div>
+
+<section class="manifesto">
+  <div class="wrap">
+    <p>Every other app on your phone is built to keep you looking at it.</p>
+    <p class="after">This one is built to be closed. The valley grows while the screen is dark, and there is nothing in it you can hurry along by opening the app more often. Time in Wildergarden is not the goal, and the app says so on the second screen you ever see.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="loop" id="how">
+    <img class="shot reveal" src="shots/05-tally.png" width="1080" height="1920"
+         alt="The tally screen: a large one hour, a slider, quick choices, a line reading exactly on your line, and the week below with six days written down and Sunday still blank.">
+    <div>
+      <h2>Two things to do, and one of them takes six seconds.</h2>
+      <ol class="steps">
+        <li><b>Set a line you could actually hit.</b> Minutes a day in the feeds before the valley starts losing colour. Sixty is a normal answer. Three hundred is also an answer.</li>
+        <li><b>Once a day, write down the truth.</b> Read the number off your phone's own screen time dashboard and type it in. Under the line grows the valley. Over the line greys it, starting at the edges.</li>
+        <li><b>Put the phone down when you can.</b> An optional timer marks a stretch of stillness, and evening stretches are worth more than lunchtime ones. It is a bonus, never the engine.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <section class="gallery">
+    <p class="eyebrow">What arrives</p>
+    <h2>Grass first, then everything that grass makes possible.</h2>
+    <p class="sub">Species arrive in a dependency web, the way a real place recovers. Clover before bees, clear water before trout, trout before the heron. The fox needs three clean days running. One species needs a whole day with the feeds untouched, and most people never see it.</p>
+    <div class="strip">
+      <figure class="reveal">
+        <img class="shot" src="shots/04-guide.png" width="1080" height="1920"
+             alt="The field guide: rows of hand drawn species plates with the date each one arrived.">
+        <figcaption>A field guide that fills in as the valley does, with the first arrival date kept like a birder's life list.</figcaption>
+      </figure>
+      <figure class="reveal">
+        <img class="shot" src="shots/02-brookside.png" width="1080" height="1920"
+             alt="Brookside at dusk: a reach of clear water lying across the valley floor with a heron standing in it, trout holding station, and reeds and marsh flowers along both banks.">
+        <figcaption>Brookside opens once enough stillness has gathered. The heron only stays while the water is clear.</figcaption>
+      </figure>
+      <figure class="reveal">
+        <img class="shot" src="shots/06-almanac.png" width="1080" height="1920"
+             alt="The almanac: a hedgerow of stems, one per day, above a written review of the week.">
+        <figcaption>Every week is written up as nature writing, with the one number that matters underneath it.</figcaption>
+      </figure>
+    </div>
+  </section>
+</div>
+
+<section class="pledge">
+  <div class="wrap">
+    <h2>A subscription to help you use your phone less is a conflict of interest.</h2>
+    <p class="lede">So there is not one. This is the whole app, and it is the version you can install today.</p>
+    <div class="plist">
+      <div><b>No subscription, no unlock</b><p>All four biomes and all forty species are already in the build. There is no premium tier and no cosmetic shop.</p></div>
+      <div><b>No advertising</b><p>There is no ad code in the app and no advertising identifier is read.</p></div>
+      <div><b>No account</b><p>Nothing to sign up for, nothing to log into, nothing left behind on a server when you leave.</p></div>
+      <div><b>No internet permission</b><p>The app does not declare INTERNET, so Android will not let it open a connection at all. It opts out of Android backup and device transfer too, so the ledger cannot leave the phone even by accident.</p></div>
+      <div><b>No surveillance</b><p>Wildergarden never reads which apps you use. It asks you once a day and believes you.</p></div>
+      <div><b>One notification</b><p>At a time you pick, to close the day. Nothing in the app is designed to pull you back in.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="limits">
+    <h2>What it will not do, said out loud.</h2>
+    <div class="row">
+      <div class="k">It cannot see your apps</div>
+      <p class="v">There is no usage access permission and no background watching. The daily number is one you type in yourself. That is a real limitation and it is also the reason the privacy claim on this page is worth anything.</p>
+    </div>
+    <div class="row">
+      <div class="k">It will not block anything</div>
+      <p class="v">No app is ever locked, greyed or delayed. Blockers get uninstalled in a weak moment, which makes them a bad place to put the whole design.</p>
+    </div>
+    <div class="row">
+      <div class="k">It will not shame you</div>
+      <p class="v">No red numbers, no broken chains, no streak you can lose forever. Grace covers the first slip every week, and two clean days undo the worst day you can have. That ratio is deliberate.</p>
+    </div>
+    <div class="row">
+      <div class="k">It is not a treatment</div>
+      <p class="v">Wildergarden is a wellbeing toy with an honest mechanic. It makes no medical claim and is not a substitute for help with a compulsion that is hurting you.</p>
+    </div>
+  </section>
+</div>
+
+<section class="close">
+  <div class="wrap">
+    <p>Come back tomorrow without coming back today.</p>
+    <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.wildergarden">Get it on Google Play</a>
+    <span class="under">Or open the valley in this browser from the link below.</span>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <span>
+      <a href="play/">Play it in the browser</a>
+      <a href="/privacy-policies/wildergarden-privacy-policy.html">Privacy policy</a>
+    </span>
+    <span>SocialSure Private Limited</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

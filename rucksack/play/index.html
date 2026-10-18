@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Rucksack</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main id="stage">
+
+  <!-- ------------------------------------------------------------ onboarding -->
+  <section class="screen" id="onboard" hidden>
+    <div class="ob-plate"><canvas id="obCanvas"></canvas></div>
+    <div class="ob-body">
+      <div class="ob-card" data-step="0">
+        <div class="ob-mark" id="obMark"></div>
+        <p class="ob-kicker">Elsewhere</p>
+        <h1>Everything on this map is walked.</h1>
+        <p>There is no fast travel, no boost to buy and no way to skip a kilometre. The only thing that moves your wanderer is your own feet, on ordinary days, in the gaps of an ordinary life.</p>
+      </div>
+      <div class="ob-card" data-step="1" hidden>
+        <p class="ob-kicker">The road</p>
+        <h1>3,500 kilometres. Eleven regions. An ending.</h1>
+        <p>From Fenwarden's Gate to Cael-on-the-Mountain. Most walkers take a year. Some take two. The road does not mind, and it does not reset at midnight.</p>
+      </div>
+      <div class="ob-card" data-step="2" hidden>
+        <p class="ob-kicker">How it counts</p>
+        <h1>Your steps, converted honestly.</h1>
+        <p>1,300 steps make one kilometre. A single day converts at most 40 kilometres, so a long walk counts and a car journey mostly does not.</p>
+        <p class="ob-note">Rucksack never uses location, and it has no way to reach the internet. It reads a step count and nothing else.</p>
+        <div class="ob-choice">
+          <button class="btn" id="obSensor">Use this phone's step counter</button>
+          <button class="btn ghost" id="obManual">I will write my steps down</button>
+        </div>
+        <p class="ob-status" id="obStatus" hidden></p>
+        <div class="ob-backlog" id="obBacklog" hidden>
+          <p id="obBacklogLine"></p>
+          <div class="ob-choice row">
+            <button class="btn small" id="obClaim">Count them</button>
+            <button class="btn ghost small" id="obSkip">Start from zero</button>
+          </div>
+        </div>
+      </div>
+      <div class="ob-card" data-step="3" hidden>
+        <p class="ob-kicker">One last thing</p>
+        <h1>What shall we call you?</h1>
+        <p>It goes on the journal pages and nowhere else. Nobody else ever sees it.</p>
+        <input type="text" id="obName" maxlength="20" placeholder="Wanderer" autocomplete="off" aria-label="Your wanderer's name">
+      </div>
+    </div>
+    <div class="ob-foot">
+      <div class="ob-dots" id="obDots"></div>
+      <button class="btn" id="obNext">Next</button>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------ camp -->
+  <section class="screen view" id="v-camp" hidden>
+    <div class="scroller">
+      <div class="plate">
+        <canvas id="campCanvas"></canvas>
+      </div>
+      <p class="wx"><b>Tonight</b><span id="campWeather"></span></p>
+
+      <div class="arrive" id="arriveBox" hidden>
+        <p id="arriveLine"></p>
+        <button class="btn" id="breakCamp">Break camp</button>
+      </div>
+
+      <header class="camp-head">
+        <p class="eyebrow" id="campDay"></p>
+        <h1 id="campPlace"></h1>
+        <p class="lede" id="campNote"></p>
+      </header>
+
+      <section class="ribbon" aria-label="The whole road">
+        <div class="ribbon-band" id="ribbonBand"></div>
+        <p class="ribbon-ends"><span>Fenwarden's Gate</span><b id="ribbonPct"></b><span>Cael</span></p>
+        <p class="ribbon-line" id="aheadLine"></p>
+      </section>
+
+      <div class="figs">
+        <div class="fig"><b id="figToday"></b><span>today</span></div>
+        <div class="fig"><b id="figTotal"></b><span>walked in all</span></div>
+        <div class="fig"><b id="figStreak"></b><span>day streak</span></div>
+      </div>
+
+      <div id="encList"></div>
+
+      <div class="forge" id="forgeBox">
+        <p class="k">At the hearth</p>
+        <p class="v" id="forgeLine"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------- map -->
+  <section class="screen view" id="v-map" hidden>
+    <canvas id="mapCanvas"></canvas>
+    <div class="map-top">
+      <p class="mt-region" id="mapRegion"></p>
+      <p class="mt-km" id="mapKm"></p>
+    </div>
+    <div class="map-tools">
+      <button class="tool" id="mapMe" aria-label="Centre on my wanderer"></button>
+      <button class="tool" id="mapFit" aria-label="Show the whole continent"></button>
+      <button class="tool" id="mapIn" aria-label="Zoom in"></button>
+      <button class="tool" id="mapOut" aria-label="Zoom out"></button>
+    </div>
+    <div class="map-foot" id="mapFoot"></div>
+    <div class="map-wait" id="mapWait" hidden>Drawing Elsewhere</div>
+  </section>
+
+  <!-- --------------------------------------------------------------- journal -->
+  <section class="screen view" id="v-journal" hidden>
+    <div class="scroller">
+      <header class="page-head">
+        <h1>The journal</h1>
+        <p class="lede" id="journalLede"></p>
+        <button class="btn ghost small" id="journalExport">Export as text</button>
+      </header>
+      <div id="journalList"></div>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------------ pack -->
+  <section class="screen view" id="v-pack" hidden>
+    <div class="scroller">
+      <div class="wanderer">
+        <canvas id="packCanvas"></canvas>
+        <div class="wanderer-side">
+          <h1 id="packName"></h1>
+          <p class="lede" id="packLine"></p>
+        </div>
+      </div>
+
+      <h2 class="sect">Forged by walking</h2>
+      <p class="sect-note">Gear is forged by consecutive days on the road. Two rest days a week are banked for you, and nothing forged is ever taken back.</p>
+      <div class="grid" id="gearGrid"></div>
+
+      <h2 class="sect">Given on the road</h2>
+      <p class="sect-note" id="keepNote"></p>
+      <div class="grid" id="keepGrid"></div>
+
+      <div class="biscuit" id="biscuitCard" hidden></div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------------- ledger -->
+  <section class="screen view" id="v-ledger" hidden>
+    <div class="scroller">
+      <header class="page-head">
+        <h1>The step ledger</h1>
+        <p class="lede">Everything the app has counted, and where it came from. If a number here looks wrong, it is the number the app used.</p>
+      </header>
+
+      <div class="card" id="sourceCard"></div>
+
+      <div class="card" id="manualCard" hidden>
+        <p class="k">Today's step count</p>
+        <div class="row-in">
+          <input type="number" id="manualSteps" min="0" max="120000" step="1" inputmode="numeric" aria-label="Today's step count">
+          <button class="btn small" id="manualSave">Save</button>
+        </div>
+        <p class="err" id="manualErr" role="alert" hidden></p>
+        <p class="fine">Write down the total your phone or watch shows for today. Saving replaces today's number rather than adding to it.</p>
+      </div>
+
+      <h2 class="sect">The last thirty days</h2>
+      <div class="ledger" id="ledgerList"></div>
+
+      <h2 class="sect">Settings</h2>
+      <div class="card">
+        <label class="line" for="setName">Wanderer's name</label>
+        <div class="row-in"><input type="text" id="setName" maxlength="20" autocomplete="off"><button class="btn small" id="setNameSave">Save</button></div>
+      </div>
+      <div class="card">
+        <label class="switch"><input type="checkbox" id="setHaptics"><span>Haptics</span></label>
+        <p class="fine">One warm pulse when you reach a waypoint or forge a piece of gear. Nothing else buzzes.</p>
+      </div>
+      <div class="card">
+        <p class="k">Take it with you</p>
+        <div class="row-in wrap">
+          <button class="btn ghost small" id="expJournal">Journal as text</button>
+          <button class="btn ghost small" id="expData">Everything as JSON</button>
+        </div>
+        <p class="fine">The export is the whole record: every day, every kilometre, every camp. It is yours.</p>
+      </div>
+      <div class="card danger">
+        <p class="k">Start again</p>
+        <p class="fine">This erases the journey, the journal and the ledger from this phone. There is no copy anywhere else, so there is nothing to recover it from.</p>
+        <button class="btn ghost small danger" id="eraseBtn">Erase everything</button>
+      </div>
+
+      <h2 class="sect">About</h2>
+      <div class="card about">
+        <p>Rucksack reads one number from this phone: the step counter built into it. It does not request the internet permission, so it cannot upload anything, and it never asks for location. The weather at your camp is Elsewhere's own weather, worked out from the date and the region you are standing in.</p>
+        <p>Free, finished, and not a subscription. There is nothing to buy inside it.</p>
+        <p class="fine" id="aboutPerms"></p>
+      </div>
+    </div>
+  </section>
+
+  <nav id="tabs" hidden>
+    <button class="tab" data-view="camp" aria-label="Camp"><span class="ti" data-i="camp"></span>Camp</button>
+    <button class="tab" data-view="map" aria-label="Map"><span class="ti" data-i="map"></span>Map</button>
+    <button class="tab" data-view="journal" aria-label="Journal"><span class="ti" data-i="journal"></span>Journal</button>
+    <button class="tab" data-view="pack" aria-label="Pack"><span class="ti" data-i="pack"></span>Pack</button>
+    <button class="tab" data-view="ledger" aria-label="Ledger"><span class="ti" data-i="ledger"></span>Ledger</button>
+  </nav>
+</main>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-scrim" id="sheetScrim"></div>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-grab"></div>
+    <div class="sheet-body" id="sheetBody"></div>
+    <button class="btn" id="sheetClose">Close</button>
+  </div>
+</div>
+
+<p id="toast" role="status" aria-live="polite"></p>
+
+<script src="js/marks.js"></script>
+<script src="js/content.js"></script>
+<script src="js/encounters.js"></script>
+<script src="js/store.js"></script>
+<script src="js/atlas.js"></script>
+<script src="js/paint.js"></script>
+<script src="js/mapview.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

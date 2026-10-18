@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portwarden, a document inspection game on a sea border</title>
+<meta name="description" content="Thirty days at the gate of Port Aldmoor. Check ships, papers and cargo against a rulebook that keeps changing. One purchase, works fully offline.">
+<link rel="icon" href="icon.png">
+<style>
+  @font-face { font-family: "Stencil"; src: url("fonts/big_shoulders_stencil_bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+  @font-face { font-family: "Overpass"; src: url("fonts/overpass_regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Overpass"; src: url("fonts/overpass_semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "OverpassMono"; src: url("fonts/overpass_mono_medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+
+  /* The app's own palette: harbour grey ground, docket paper, ink, signal amber, detain red. */
+  :root {
+    --ground: #DCE3E6;
+    --paper: #F4F6F5;
+    --ink: #16212B;
+    --faded: #4E5B66;
+    --line: #B4C0C6;
+    --signal: #E0A526;
+    --signal-press: #C98F17;
+    --detain: #B2352D;
+    --band: #16212B;
+    --band-text: #E6ECEE;
+    --band-faded: #A9B6BC;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #11171D;
+      --paper: #1A232B;
+      --ink: #E6ECEE;
+      --faded: #A9B6BC;
+      --line: #33424D;
+      --detain: #E07A70;
+      --band: #0B1015;
+      --band-text: #E6ECEE;
+      --band-faded: #A9B6BC;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Overpass", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding-inline: 24px; }
+  h1, h2, h3 { font-family: "Stencil", "Overpass", system-ui, sans-serif; font-weight: 700; margin: 0; line-height: 1.02; }
+  h2 { font-size: clamp(34px, 5vw, 54px); }
+  p { margin: 0; max-width: 60ch; }
+  .mono { font-family: "OverpassMono", ui-monospace, monospace; font-weight: 500; }
+
+  /* 1. Hero: copy left, the core job on the phone right. */
+  .hero { padding-block: 56px 72px; }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand img { width: 56px; height: 56px; border-radius: 14px; }
+  .brand span { font-family: "Stencil", sans-serif; font-size: 26px; }
+  .hero h1 { font-size: clamp(48px, 7vw, 88px); margin-top: 36px; }
+  .hero .lede { font-size: 19px; margin-top: 22px; color: var(--faded); }
+  .cta {
+    display: inline-block; margin-top: 32px; padding: 16px 28px;
+    background: var(--signal); color: #16212B; text-decoration: none;
+    border: 1.5px solid #16212B; border-radius: 6px;
+    font-weight: 600; font-size: 17px; white-space: nowrap;
+    transition: transform .2s cubic-bezier(.16,1,.3,1), background-color .2s;
+  }
+  .cta:hover { background: var(--signal-press); }
+  .cta:active { transform: translateY(1px) scale(.98); }
+  .price { margin-top: 16px; font-size: 15px; color: var(--faded); }
+  .hero-shot { justify-self: center; width: min(380px, 100%); transform: rotate(1.6deg); }
+  .hero-shot img { border-radius: 10px; box-shadow: 0 30px 60px -28px rgba(22, 33, 43, .45); }
+
+  /* 2. The waterline: one dark band, raw capture beside the reading of it. */
+  .waterline { background: var(--band); color: var(--band-text); padding-block: 88px; }
+  .waterline .grid { display: grid; grid-template-columns: 320px 1fr; gap: 64px; align-items: center; }
+  .waterline img { border-radius: 10px; border: 1px solid #33424D; }
+  .waterline h2 { color: var(--signal); }
+  .waterline p { color: var(--band-faded); margin-top: 20px; }
+  .reading { margin-top: 32px; display: flex; gap: 28px; flex-wrap: wrap; }
+  .reading div { border-top: 3px dashed var(--signal); padding-top: 10px; font-size: 15px; }
+  .reading div + div { border-top-style: solid; border-top-color: var(--band-text); }
+
+  /* 3. The rulebook: a real morning's diff, set as a document. */
+  .rules { padding-block: 96px 88px; }
+  .rules > .wrap > p { margin-top: 20px; color: var(--faded); }
+  .book {
+    margin-top: 40px; max-width: 760px; background: var(--paper);
+    border: 1px solid var(--line); border-radius: 2px; padding: 30px 32px;
+    transform: rotate(-0.6deg);
+  }
+  .book .day { font-family: "Stencil", sans-serif; font-size: 34px; }
+  .book .sub { font-size: 14px; color: var(--faded); }
+  .book ul { list-style: none; padding: 0; margin: 20px 0 0; }
+  .book li { padding: 8px 0; display: flex; gap: 14px; align-items: flex-start; }
+  .book .bar { flex: 0 0 18px; height: 3px; margin-top: 12px; background: var(--line); }
+  .book li.added .bar { background: var(--signal); }
+  .book li.added span { background: rgba(224, 165, 38, .5); padding: 2px 6px; }
+  .book li.gone .bar { background: var(--faded); }
+  .book li.gone span { color: var(--faded); text-decoration: line-through; }
+
+  /* 4. The game in four numbers, set large, no cards. */
+  .numbers { padding-block: 24px 96px; }
+  .numbers .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; border-top: 1px solid var(--line); padding-top: 40px; }
+  .numbers b { display: block; font-family: "Stencil", sans-serif; font-size: clamp(64px, 8vw, 104px); line-height: .9; font-weight: 700; }
+  .numbers span { display: block; margin-top: 12px; font-size: 16px; color: var(--faded); max-width: 24ch; }
+
+  /* 5. The port log, quoted from the game. */
+  .log { background: var(--paper); border-block: 1px solid var(--line); padding-block: 96px; }
+  .log .grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 64px; align-items: start; }
+  .log .grid > div:first-child p { margin-top: 20px; color: var(--faded); }
+  .entry { padding-block: 22px; }
+  .entry + .entry { border-top: 1px solid var(--line); }
+  .entry p { font-size: 19px; }
+  .entry .when { display: block; margin-top: 8px; font-size: 14px; color: var(--faded); }
+
+  /* 6. Store screenshots, a scroll-snap strip. */
+  .shots { padding-block: 96px 64px; }
+  .strip {
+    margin-top: 36px; display: grid; grid-auto-flow: column; grid-auto-columns: min(252px, 70vw);
+    gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 16px;
+  }
+  .strip img { scroll-snap-align: start; border-radius: 8px; }
+
+  /* 7. Close: the promise, plainly. */
+  .close { padding-block: 32px 72px; }
+  .close .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 64px; border-top: 1px solid var(--line); padding-top: 40px; }
+  .close h3 { font-size: 28px; }
+  .close p { margin-top: 10px; color: var(--faded); font-size: 16px; }
+  footer { padding-block: 28px 56px; font-size: 15px; color: var(--faded); border-top: 1px solid var(--line); }
+  footer a { color: var(--ink); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-grid > * { animation: rise .7s cubic-bezier(.16,1,.3,1) both; }
+    .hero-grid > *:last-child { animation-delay: .12s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+    .hero-shot { animation-name: rise-tilt; }
+    @keyframes rise-tilt { from { opacity: 0; transform: translateY(18px) rotate(1.6deg); } }
+  }
+
+  @media (max-width: 860px) {
+    .hero-grid, .waterline .grid, .log .grid, .close .grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-shot { width: min(300px, 100%); }
+    .waterline img { max-width: 300px; }
+    .numbers .grid { grid-template-columns: repeat(2, 1fr); }
+    .book { transform: none; padding: 22px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="brand"><img src="icon.png" alt=""><span>Portwarden</span></div>
+      <h1>Every ship goes somewhere</h1>
+      <p class="lede">Keep the gate at Port Aldmoor for thirty days. Check the papers, read the waterline, stamp, and live with it.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.portwarden">Get it on Google Play</a>
+      <p class="price">One purchase, USD 2.99. No ads, no subscription, no account. Works fully offline.</p>
+    </div>
+    <div class="hero-shot">
+      <img src="shots/03-desk.png" alt="Portwarden store screenshot: the Ivory Larkin declaration on the desk, tagged Sits lower than its cargo, with Cleared, Detained and Send off" width="506" height="900">
+    </div>
+  </div>
+</header>
+
+<section class="waterline">
+  <div class="wrap grid">
+    <img src="shots/raw-waterline.png" alt="The draft board with the expected waterline drawn as a dashed amber line below the real water" width="506" height="900">
+    <div>
+      <h2>A check no road border has</h2>
+      <p>A hull sinks a known number of centimetres for every tonne it loads. Compare the manifest with the ship at the berth and Portwarden draws a dashed line where the water should stand for that weight.</p>
+      <p>Water above the line is cargo nobody declared. The master across the desk knows you can see it.</p>
+      <div class="reading mono">
+        <div>where the manifest says she sits</div>
+        <div>where she actually sits</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="rules">
+  <div class="wrap">
+    <h2>The rulebook keeps changing</h2>
+    <p>When the rules change, the morning bulletin names exactly what changed. New rules are highlighted, lifted rules are struck out, and nothing arrives without warning.</p>
+    <div class="book">
+      <div class="day">Day 19</div>
+      <div class="sub">Morning bulletin, 8 ships booked in</div>
+      <ul>
+        <li class="added"><i class="bar"></i><span>The vessel name on the declaration must match the name on the certificate of registry.</span></li>
+        <li class="gone"><i class="bar"></i><span>A health declaration inspected more than four days ago is stale and does not clear the vessel.</span></li>
+        <li><i class="bar"></i><span>The flag on the declaration must match the flag state on the certificate of registry.</span></li>
+        <li><i class="bar"></i><span>Read the draft board against the manifest. A hull sitting lower than its manifest allows is carrying cargo nobody declared.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="numbers">
+  <div class="wrap grid">
+    <div><b>30</b><span>days at the gate, each one saved as it begins</span></div>
+    <div><b>7</b><span>kinds of ship's paper to read against each other</span></div>
+    <div><b>12</b><span>permanent choices, among 30 written ships</span></div>
+    <div><b>3</b><span>written endings, decided by what you let through</span></div>
+  </div>
+</section>
+
+<section class="log">
+  <div class="wrap grid">
+    <div>
+      <h2>The port tells you what you did</h2>
+      <p>A flawed ship you let through does not vanish. Usually two to six days later her name is in the port log, with the day you stamped her.</p>
+    </div>
+    <div>
+      <div class="entry">
+        <p>The Amber Curlew, cleared on day 9, has been found tied at Deepstone with her stem plate ground flat. The hull number under the paint was not the one you read.</p>
+        <span class="when">Stamped on day 9</span>
+      </div>
+      <div class="entry">
+        <p>The Hesper's sick were held at the quarantine berth for nine days. Three walked off it. The Board has asked in writing who authorised the berth.</p>
+        <span class="when">Stamped on day 8</span>
+      </div>
+      <div class="entry">
+        <p>The envelope you handed back was opened at Tallow Street in front of four men. One of them wrote your name down.</p>
+        <span class="when">Stamped on day 4</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="shots">
+  <div class="wrap">
+    <h2>On the phone</h2>
+    <div class="strip">
+      <img src="shots/02-bulletin.png" alt="Store screenshot: the morning bulletin with one rule highlighted and one struck out" width="506" height="900">
+      <img src="shots/04-choice.png" alt="Store screenshot: the master of the Casimar Dawn asks to re-lodge his manifest" width="506" height="900">
+      <img src="shots/05-night.png" alt="Store screenshot: the night report with calls, citations and standing" width="506" height="900">
+      <img src="shots/06-portlog.png" alt="Store screenshot: the port log listing what your stamps and choices led to" width="506" height="900">
+    </div>
+  </div>
+</section>
+
+<section class="close">
+  <div class="wrap grid">
+    <div>
+      <h3>Pay once, keep it</h3>
+      <p>One purchase, USD 2.99. No ads, no in-app purchases, no subscription and no account.</p>
+    </div>
+    <div>
+      <h3>Nothing is collected</h3>
+      <p>The app has no internet permission and works fully offline. To move your save to another phone, send it through the share sheet.</p>
+    </div>
+    <div>
+      <h3>Play at your pace</h3>
+      <p>No shift clock, no energy, no streaks. Large document text and a dark theme are in Settings.</p>
+    </div>
+    <div>
+      <h3>Invented, and written for adults</h3>
+      <p>Every nation, flag and registry is fictional. The story includes smuggling, bribery, disease and deaths, in text only.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Portwarden is published by SocialSure Private Limited. <a href="/privacy-policies/portwarden-privacy-policy.html">Privacy policy</a>.
+    Big Shoulders Stencil and Overpass are used under the SIL Open Font License 1.1.
+  </div>
+</footer>
+
+</body>
+</html>

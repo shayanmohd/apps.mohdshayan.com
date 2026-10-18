@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kith. Remember your people.</title>
+<meta name="description" content="A private notebook for the people you love and keep forgetting to call. Rings with their own rhythms, gentle nudges that carry a detail you wrote down, and dates that matter. No cloud, no account, no internet permission.">
+<meta property="og:title" content="Kith. Remember your people.">
+<meta property="og:description" content="A CRM for friendship that is not creepy: rings, rhythms, moments and tender dates, all of it on your phone and none of it on a server.">
+<meta property="og:type" content="website">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    color-scheme: light dark;
+    --paper: #FAF5EC; --paper-2: #F2EADC; --ink: #201A14; --soft: #5A5145; --faint: #6B6154;
+    --hair: #E0D5C2; --ember: #AA4028; --coral: #D9583A; --ember-ink: #FDF8F0;
+    --sans: "Karla", "Helvetica Neue", system-ui, -apple-system, sans-serif;
+    --serif: "Newsreader", Iowan Old Style, Palatino, Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #171310; --paper-2: #211B15; --ink: #F0E8D9; --soft: #B4AA9A; --faint: #9A8F7E;
+            --hair: #3A3128; --ember: #EE9E76; --coral: #F2764F; --ember-ink: #171310; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans);
+         font-size: 18px; line-height: 1.62; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--ember); }
+  img.shot { width: 100%; height: auto; display: block; border: 1px solid var(--hair); border-radius: 16px; }
+  h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 3.7vw, 42px);
+       line-height: 1.12; letter-spacing: -0.015em; margin: 0 0 16px; }
+  .eyebrow { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint);
+             margin: 0 0 16px; font-weight: 600; }
+
+  .cta { display: inline-block; background: var(--ember); color: var(--ember-ink); text-decoration: none;
+         padding: 14px 28px; border-radius: 4px; font-size: 17px; border: 1px solid var(--ember); }
+  .cta:hover { opacity: .92; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 84px; }
+  .mark { display: flex; align-items: center; gap: 11px; font-family: var(--serif); font-size: 21px; }
+  .mark svg { width: 38px; height: 31px; display: block; }
+  nav a { color: var(--soft); text-decoration: none; font-size: 15px; margin-left: 24px; }
+  nav a:hover { color: var(--ink); }
+
+  /* 1. hero */
+  .hero { display: grid; grid-template-columns: 1.06fr .94fr; gap: 64px; align-items: center; padding: 26px 0 110px; }
+  .hero h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(42px, 6vw, 70px);
+             line-height: 1.03; letter-spacing: -0.025em; margin: 0 0 22px; }
+  .hero p.stand { font-size: 20px; color: var(--soft); margin: 0 0 34px; max-width: 33ch; }
+  .hero p.under { font-size: 15px; color: var(--faint); margin: 18px 0 0; }
+  .hero img { max-width: 320px; margin-left: auto; }
+
+  /* 2. the scene */
+  .scene { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 110px 0; }
+  .scene p.big { font-family: var(--serif); font-size: clamp(26px, 3.6vw, 40px); line-height: 1.28;
+                 margin: 0 auto; max-width: 20ch; text-align: center; letter-spacing: -0.015em; }
+  .scene p.after { font-size: 18px; color: var(--soft); max-width: 52ch; margin: 30px auto 0; text-align: center; }
+
+  /* 3. rings: table of rings, image right */
+  .rings { display: grid; grid-template-columns: 1.15fr .85fr; gap: 60px; align-items: center; padding: 104px 0; }
+  .ring { display: grid; grid-template-columns: 8.5rem 1fr; gap: 22px; padding: 20px 0; border-top: 1px solid var(--hair); }
+  .ring:last-of-type { border-bottom: 1px solid var(--hair); }
+  .ring .n { font-family: var(--serif); font-size: 20px; color: var(--ember); }
+  .ring .n small { display: block; font-family: var(--sans); font-size: 12px; letter-spacing: .13em;
+                   text-transform: uppercase; color: var(--faint); }
+  .ring p { margin: 0; color: var(--soft); font-size: 16.5px; }
+  .rings img { max-width: 296px; margin: 0 auto; }
+  .rings .lead { color: var(--soft); margin: 0 0 30px; max-width: 44ch; }
+
+  /* 4. gallery */
+  .gallery { padding: 26px 0 104px; }
+  .gallery .lead { color: var(--soft); max-width: 52ch; margin: 0 0 50px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--soft); font-size: 16px; margin-top: 16px; }
+  .strip figcaption b { color: var(--ink); font-weight: 600; }
+
+  /* 5. dates: image left, prose right */
+  .dates { display: grid; grid-template-columns: .82fr 1.18fr; gap: 60px; align-items: center;
+           padding: 104px 0; border-top: 1px solid var(--hair); }
+  .dates img { max-width: 290px; }
+  .dates blockquote { font-family: var(--serif); font-size: 22px; line-height: 1.45; margin: 0 0 22px;
+                      padding-left: 18px; border-left: 2px solid var(--ember); }
+  .dates p { color: var(--soft); margin: 0 0 16px; max-width: 46ch; }
+
+  /* 6. never sees */
+  .never { padding: 100px 0; border-top: 1px solid var(--hair); }
+  .never .row { display: grid; grid-template-columns: 15rem 1fr; gap: 34px; padding: 26px 0;
+                border-top: 1px solid var(--hair); align-items: start; }
+  .never .row:last-child { border-bottom: 1px solid var(--hair); }
+  .never .k { font-family: var(--serif); font-size: 20px; }
+  .never .v { margin: 0; color: var(--soft); font-size: 16.5px; }
+  .never .v b { color: var(--ink); font-weight: 600; }
+
+  /* 7. close */
+  .close { text-align: center; padding: 100px 0 30px; border-top: 1px solid var(--hair); }
+  .close p.line { font-family: var(--serif); font-size: clamp(25px, 3.2vw, 34px); max-width: 22ch;
+                  margin: 0 auto 32px; line-height: 1.2; letter-spacing: -0.015em; }
+  .note { background: var(--paper-2); border-left: 3px solid var(--ember); border-radius: 0 12px 12px 0;
+          padding: 22px 24px; font-size: 16px; color: var(--soft); max-width: 58ch; margin: 62px auto 0; text-align: left; }
+  .note b { color: var(--ink); font-weight: 600; }
+
+  footer { border-top: 1px solid var(--hair); padding: 34px 0 70px; color: var(--faint); font-size: 15px; margin-top: 58px; }
+  footer .row { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; }
+  footer a { color: var(--faint); text-decoration: none; margin-right: 20px; }
+  footer a:hover { color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .hero, .rings, .dates { grid-template-columns: 1fr; gap: 44px; }
+    .hero { padding-bottom: 76px; }
+    .rings, .dates { padding: 76px 0; }
+    .hero img, .rings img, .dates img { max-width: 290px; margin: 0 auto; }
+    .strip { grid-template-columns: 1fr; gap: 46px; max-width: 320px; margin: 0 auto; }
+    .never .row, .ring { grid-template-columns: 1fr; gap: 10px; }
+    .scene { padding: 78px 0; }
+    nav { height: 70px; }
+    nav a { margin-left: 16px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark">
+      <svg viewBox="20 26 68 56" aria-hidden="true">
+        <defs><clipPath id="navleft"><circle cx="45" cy="54" r="18"/></clipPath></defs>
+        <g clip-path="url(#navleft)"><circle cx="63" cy="54" r="18" fill="var(--coral)" opacity=".55"/></g>
+        <circle cx="45" cy="54" r="18" fill="none" stroke="currentColor" stroke-width="5"/>
+        <circle cx="63" cy="54" r="18" fill="none" stroke="var(--ember)" stroke-width="5"/>
+      </svg>
+      Kith
+    </span>
+    <span>
+      <a href="#rings">The rings</a>
+      <a href="#private">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Remember your people.</h1>
+      <p class="stand">A notebook for the friendships you mean to keep. It holds the names, the rhythms and the details, and tells you gently when someone has drifted.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.kith">Get it on Google Play</a>
+      <p class="under">Free and complete. No account, no subscription, and no internet permission at all.</p>
+    </div>
+    <img class="shot" src="shots/01-hearth.png" width="1080" height="1920"
+         alt="The Hearth screen showing three gentle nudge cards, each with a name, how long it has been, and a detail from the last conversation.">
+  </header>
+</div>
+
+<section class="scene">
+  <div class="wrap">
+    <p class="big">It is eleven at night, a photograph of an old friend comes past, and you do the arithmetic.</p>
+    <p class="after">Eight months? A year? You love these people. You are simply bad at the logistics of loving
+      them, because memory was built for a village and your people are spread across four apps and three time
+      zones. That is not a character flaw. It is a filing problem, and filing problems have solutions.</p>
+  </div>
+</section>
+
+<section class="rings wrap" id="rings">
+  <div>
+    <h2>Four rings, four rhythms</h2>
+    <p class="lead">Attention is finite. Kith asks you to spend it on purpose. Everyone you add sits in one of
+      four circles, and each circle carries its own idea of how often is often enough. You can override any of
+      it, per person, in a tap.</p>
+    <div class="ring"><span class="n">Hearth<small>every 2 weeks</small></span>
+      <p>The people you would call from a hospital. About five of them, if you are lucky.</p></div>
+    <div class="ring"><span class="n">Table<small>every month</small></span>
+      <p>Close friends. The ones you would tell first.</p></div>
+    <div class="ring"><span class="n">Village<small>every 3 months</small></span>
+      <p>Real friendships that need tending to stay real.</p></div>
+    <div class="ring"><span class="n">Horizon<small>once a year</small></span>
+      <p>People worth not losing. A year is not neglect at this distance. It is a rhythm.</p></div>
+  </div>
+  <img class="shot" src="shots/02-rings.png" width="1080" height="1920"
+       alt="The People screen: four tinted concentric rings with initials placed around them and you at the centre.">
+</section>
+
+<section class="gallery wrap">
+  <h2>A nudge that already knows what to say</h2>
+  <p class="lead">“Text Amir” is friction. “Ask Amir how the second month at the new job went” is a message that
+    writes itself. Kith carries the detail forward, because you wrote it down fifteen seconds after the last call.</p>
+  <div class="strip">
+    <figure>
+      <img class="shot" src="shots/03-person.png" width="1080" height="1920"
+           alt="A person page: the two rings drawn apart, the warmth line, what was said last time, an upcoming date, and a timeline of moments.">
+      <figcaption><b>The person page.</b> Two rings, yours and theirs, drawn as far apart as the gap between you.
+        What they told you last time, the dates that matter to them, and every moment you have written down.</figcaption>
+    </figure>
+    <figure>
+      <img class="shot" src="shots/04-moment.png" width="1080" height="1920"
+           alt="The logging sheet: how you talked, a real talk toggle, a free text line, and tags.">
+      <figcaption><b>Fifteen seconds after.</b> How you talked, one line worth remembering, and a tag or two.
+        Logistics can be logged without resetting the rhythm, because a message about parking is not a catch up.</figcaption>
+    </figure>
+    <figure>
+      <img class="shot" src="shots/05-tides.png" width="1080" height="1920"
+           alt="The Tides screen with two shelves: in a hard season, and celebrating.">
+      <figcaption><b>Tides.</b> Tag a moment as a hard season or a celebration and that person floats to the top
+        for ninety days. It is the question a good friend asks and memory fumbles: who needs me this month.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="dates wrap">
+  <img class="shot" src="shots/06-dates.png" width="1080" height="1920"
+       alt="The Dates screen: a vertical river of months with birthdays and tender dates marked along it.">
+  <div>
+    <h2>The dates that are harder than birthdays</h2>
+    <blockquote>Friday is one year since Dana's father died. Even a line means a lot.</blockquote>
+    <p>Birthdays, of course. But intimacy is made of the other days too: the anniversary of a death, the day
+      someone got sober, the day the citizenship came through, the day you met in the rain in Osaka.</p>
+    <p>Mark them once, choose how many days of warning you want, and Kith will tell you before the day arrives
+      rather than after. Showing up on those days is the entire point of the app.</p>
+  </div>
+</section>
+
+<section class="never wrap" id="private">
+  <p class="eyebrow">Architecture, not a promise</p>
+  <h2>What Kith can never see</h2>
+  <div class="row"><span class="k">Your contacts</span>
+    <p class="v">There is no contacts permission and no contact picker in the app. <b>Every name in Kith was typed
+      by you</b>, one at a time. Slower to start, and the only version of this idea that is not creepy.</p></div>
+  <div class="row"><span class="k">Your calls and messages</span>
+    <p class="v">Kith cannot read either, and does not ask. A catch up exists because you said it happened. If you
+      save a number, Kith fills in your own dialler or messaging app and then gets out of the way. <b>You press
+      send, and Kith never learns whether you did.</b></p></div>
+  <div class="row"><span class="k">The internet</span>
+    <p class="v">Kith does not request the INTERNET permission. It cannot upload anything, because Android will
+      not let it open a connection at all, and <b>you can check that on the Play listing before you install</b>.
+      No account, no sync, no analytics, no crash reporter, no advertising ID.</p></div>
+  <div class="row"><span class="k">The other person</span>
+    <p class="v">No read receipts, no reply rates, nothing about whether they wrote back. <b>Kith measures what
+      you give, never what you get.</b> Instrumenting your friends would be surveillance with extra steps.</p></div>
+</section>
+
+<section class="close wrap">
+  <p class="line">Software for the five, the fifteen and the fifty who actually matter.</p>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.kith">Get it on Google Play</a>
+  <div class="note">
+    <b>What is deliberately not here.</b> No contact book import, because the picker a WebView can reach would
+    mean handing over the whole book. No automatic call logging, for the same reason. No encrypted backup yet:
+    export writes a plain JSON or CSV file to your Downloads folder, so keep it where you would keep a diary.
+    No widgets, no Wear OS, English only. And no paid tier at all. Every person, every ring, every date, free.
+  </div>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <span>
+      <a href="/privacy-policies/kith-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Try it in a browser</a>
+      <a href="https://play.google.com/store/apps/details?id=com.mohdshayan.kith">Google Play</a>
+    </span>
+    <span>Kith, by SocialSure Private Limited.</span>
+  </div>
+</footer>
+
+</body>
+</html>

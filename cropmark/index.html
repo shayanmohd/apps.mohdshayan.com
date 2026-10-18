@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cropmark: passport photos that measure themselves, offline</title>
+<meta name="description" content="Passport, visa and ID photos made on your phone. Background included, form files sized to the kilobyte, print sheets with cut lines. One-time purchase, works offline.">
+<link rel="icon" href="icon.png">
+<style>
+  @font-face { font-family: "Sofia Cond"; src: url("fonts/sofia_sans_condensed_semibold.ttf"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Sofia Cond"; src: url("fonts/sofia_sans_condensed_medium.ttf"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Public Sans"; src: url("fonts/public_sans_regular.ttf"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Public Sans"; src: url("fonts/public_sans_medium.ttf"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Public Sans"; src: url("fonts/public_sans_semibold.ttf"); font-weight: 600; font-display: swap; }
+  :root {
+    --backdrop: #EEF0F3; --panel: #DFE3E9; --ink: #1A1F27; --slate: #525C69; --rule: #B7BFCA; --magenta: #B0276A;
+    --r-sm: 6px; --r-md: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --backdrop: #15181D; --panel: #20252C; --ink: #E6E9EE; --slate: #9BA5B2; --rule: #3A424D; --magenta: #E5639F; }
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--backdrop); }
+  body { margin: 0; color: var(--ink); font: 17px/1.6 "Public Sans", system-ui, sans-serif; }
+  h1, h2, h3, .measure { font-family: "Sofia Cond", "Arial Narrow", sans-serif; font-weight: 600; font-feature-settings: "tnum"; letter-spacing: -0.01em; }
+  a { color: var(--ink); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  header.top { display: flex; align-items: center; gap: 12px; padding: 20px 0; }
+  header.top img { width: 36px; height: 36px; border-radius: 9px; }
+  header.top span { font-family: "Sofia Cond", sans-serif; font-weight: 600; font-size: 24px; }
+
+  .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; padding: 40px 0 72px; }
+  .hero h1 { font-size: clamp(44px, 6vw, 72px); line-height: 1.02; margin: 0 0 20px; }
+  .hero p { font-size: 20px; color: var(--slate); max-width: 34ch; margin: 0 0 28px; }
+  .cta { display: inline-block; background: var(--ink); color: var(--backdrop); text-decoration: none; font-weight: 600;
+         padding: 14px 24px; border-radius: var(--r-md); }
+  .cta:focus-visible { outline: 3px solid var(--magenta); outline-offset: 3px; }
+  .price { margin-top: 14px; font-size: 15px; color: var(--slate); }
+  .frame { position: relative; justify-self: center; width: min(360px, 100%); }
+  .frame img { display: block; width: 100%; border: 1px solid var(--rule); }
+  .frame::before, .frame::after { content: ""; position: absolute; width: 36px; height: 36px; border: 3px solid var(--magenta); }
+  .frame::before { top: -14px; left: -14px; border-right: 0; border-bottom: 0; }
+  .frame::after { bottom: -14px; right: -14px; border-left: 0; border-top: 0; }
+
+  .rule-strip { background: var(--panel); padding: 56px 0; }
+  .rule-strip h2 { font-size: 36px; margin: 0 0 8px; }
+  .rule-strip > .wrap > p { color: var(--slate); max-width: 60ch; margin: 0 0 32px; }
+  .specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 32px; }
+  .spec { padding: 14px 0; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 12px; }
+  .spec .measure { font-size: 20px; color: var(--slate); white-space: nowrap; }
+
+  .pair { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 56px; align-items: center; padding: 80px 0; }
+  .pair img { width: 100%; max-width: 340px; border: 1px solid var(--rule); justify-self: center; }
+  .pair h2 { font-size: 40px; line-height: 1.05; margin: 0 0 16px; }
+  .pair ul { padding: 0; margin: 0; list-style: none; }
+  .pair li { padding: 8px 0 8px 28px; position: relative; }
+  .pair li::before { content: ""; position: absolute; left: 0; top: 17px; width: 12px; height: 12px; border-left: 2px solid var(--magenta); border-top: 2px solid var(--magenta); }
+
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 24px 0 80px; }
+  .shots figure { margin: 0; }
+  .shots img { width: 100%; border: 1px solid var(--rule); display: block; }
+  .shots figcaption { font-size: 15px; color: var(--slate); padding-top: 8px; }
+
+  .promise { border-top: 1px solid var(--rule); padding: 64px 0 40px; text-align: center; }
+  .promise h2 { font-size: clamp(32px, 4vw, 48px); margin: 0 0 12px; }
+  .promise p { color: var(--slate); max-width: 56ch; margin: 0 auto 28px; }
+  footer { padding: 32px 0 48px; font-size: 14px; color: var(--slate); display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+
+  @media (max-width: 800px) {
+    .hero, .pair { grid-template-columns: 1fr; gap: 36px; }
+    .pair img { order: 2; }
+    .shots { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) { .shots { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><img src="icon.png" alt="Cropmark icon"><span>Cropmark</span></header>
+
+  <section class="hero">
+    <div>
+      <h1>Passport photos that measure themselves</h1>
+      <p>A camera frame that shows where crown, chin and eyes must fall, a new background where the issuer allows it, and a file sized for the form.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.cropmark">Get it on Google Play</a>
+      <p class="price">USD 3.99 once, INR 150 in India. No ads, no subscription, no account. Works fully offline.</p>
+    </div>
+    <div class="frame"><img src="shots/01-pan-frame-white.jpg" alt="Cropmark sizing an India PAN card photo: magenta brackets at crown and chin, an eye band and a millimetre ruler, 12 of 12 checks passed" width="540" height="960"></div>
+  </section>
+</div>
+
+<section class="rule-strip">
+  <div class="wrap">
+    <h2>Eight documents, each with its source</h2>
+    <p>Every rule shows where it came from and the date it was checked. Add your own size in millimetres or pixels.</p>
+    <div class="specs">
+      <div class="spec"><span>US passport</span><span class="measure">2 x 2 in</span></div>
+      <div class="spec"><span>US visa, DS-160</span><span class="measure">600 to 1200 px</span></div>
+      <div class="spec"><span>India passport, applying abroad</span><span class="measure">630 x 810 px</span></div>
+      <div class="spec"><span>India e-Visa</span><span class="measure">350 to 1000 px</span></div>
+      <div class="spec"><span>India OCI card</span><span class="measure">200 to 900 px</span></div>
+      <div class="spec"><span>India PAN card</span><span class="measure">25 x 35 mm</span></div>
+      <div class="spec"><span>Canada visitor visa</span><span class="measure">35 x 45 mm</span></div>
+      <div class="spec"><span>China visa</span><span class="measure">33 x 48 mm</span></div>
+    </div>
+    <p>The US passport and visa, Canada visa, India passport and OCI rules reject edited photos, so for those five Cropmark only crops and sizes what you shot against a plain light wall. The India e-Visa, PAN card, China visa and your own sizes can have the background replaced.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="pair">
+    <img src="shots/03-checks-background-fix.jpg" alt="The checks screen showing 11 of 12 passed, with the plain background check asking for a plain light wall" width="540" height="960" loading="lazy">
+    <div>
+      <h2>Twelve checks before you save</h2>
+      <p>Cropmark measures the photo against the document's rule and tells you what to fix while you are still at home.</p>
+      <ul>
+        <li>Head height and eye line, in millimetres or percent</li>
+        <li>Centring, head tilt and facing the camera</li>
+        <li>Eyes open and mouth closed</li>
+        <li>Exposure, uneven lighting and a plain background</li>
+        <li>Enough pixels for the document&#39;s resolution</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="shots" aria-label="Screenshots">
+    <figure><img src="shots/02-evisa-light-blue.jpg" alt="A passport photo with the background replaced on the phone" width="540" height="960" loading="lazy"><figcaption>Background replaced on the phone, hair edges included, where the issuer allows it.</figcaption></figure>
+    <figure><img src="shots/04-pan-form-file-kb.jpg" alt="The export screen showing a 197 by 276 pixel PAN card file of 11 KB under a 20 KB limit" width="540" height="960" loading="lazy"><figcaption>Form files with exact pixels under the kilobyte limit.</figcaption></figure>
+    <figure><img src="shots/05-print-sheet-4x6-dark.jpg" alt="A 4 by 6 inch print sheet with twelve 25 by 35 mm photos and cut lines, in dark mode" width="540" height="960" loading="lazy"><figcaption>4x6 and 5x7 sheets for kiosks, A4 and Letter PDF.</figcaption></figure>
+  </section>
+
+  <section class="promise">
+    <h2>Your face never leaves the phone</h2>
+    <p>Cropmark has no internet permission. Face detection and background removal run on the device, photos stay in the app's own storage, and you can back everything up to one file you keep.</p>
+    <p>Cropmark is not affiliated with any government. The issuing office decides whether a photo is accepted.</p>
+  </section>
+
+  <footer>
+    <span>Cropmark by SocialSure Private Limited</span>
+    <a href="/privacy-policies/cropmark-privacy-policy.html">Privacy policy</a>
+  </footer>
+</div>
+</body>
+</html>

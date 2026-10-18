@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sentence. One line a day, forever.</title>
+<meta name="description" content="A one-sentence daily journal for Android. Write one line a day; every morning it hands you the line you wrote a year ago today. Local only, no account, no subscription.">
+<meta property="og:title" content="Sentence. One line a day, forever.">
+<meta property="og:description" content="The journal you will actually keep, because it only wants one sentence.">
+<meta property="og:type" content="website">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --paper: #F3EFE5; --paper-hi: #FAF7EF; --paper-lo: #EBE5D6; --ink: #1C1B17; --ink-soft: #5A574D;
+    --ink-faint: #66625A; --hair: #D6D0C0; --accent: #1F3FBF; --accent-shadow: 31, 63, 191;
+    --serif: "Source Serif 4", Iowan Old Style, Palatino, Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #171612; --paper-hi: #1D1B15; --paper-lo: #12110C; --ink: #ECE6D6; --ink-soft: #B3AC9A;
+            --ink-faint: #9A9484; --hair: #383528; --accent: #9DB3FF; --accent-shadow: 20, 40, 140; }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; color: var(--ink); font-family: var(--serif);
+         background: var(--paper) radial-gradient(120% 60% at 15% -10%, var(--paper-hi) 0%, var(--paper) 50%, var(--paper-lo) 100%) fixed;
+         font-size: 18px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+
+  /* one CTA style, one radius system: 2px, like a printed rule */
+  .cta { display: inline-block; background: var(--ink); color: var(--paper); text-decoration: none;
+         padding: 13px 26px; border-radius: 2px; font-size: 16px; letter-spacing: .02em;
+         border: 1px solid var(--ink); transition: transform .15s ease; }
+  .cta:active { transform: translateY(1px); }
+  .cta.quiet { background: transparent; color: var(--ink); border-color: var(--hair); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .mark { display: flex; align-items: center; gap: 12px; font-size: 17px; letter-spacing: .02em; }
+  .mark svg { display: block; width: 62px; height: 20px; color: var(--accent); fill: currentColor; overflow: visible;
+              filter: drop-shadow(0 1px 1px rgba(var(--accent-shadow), .35)); }
+  .hero-mark { display: block; width: 230px; height: 74px; color: var(--accent); fill: currentColor; overflow: visible;
+               margin: 0 0 26px -6px; filter: drop-shadow(0 2px 3px rgba(var(--accent-shadow), .35)); }
+  nav a { color: var(--ink-soft); text-decoration: none; font-size: 15px; margin-left: 22px; }
+  nav a:hover { color: var(--ink); }
+
+  /* 1. hero: split */
+  .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center;
+          padding: 40px 0 96px; }
+  .hero h1 { font-size: clamp(38px, 5.2vw, 62px); line-height: 1.08; letter-spacing: -0.02em;
+             margin: 0 0 20px; font-weight: 600; }
+  .hero p { font-size: 20px; color: var(--ink-soft); margin: 0 0 30px; max-width: 30ch; }
+  .shot { width: 100%; height: auto; border-radius: 2px; border: 1px solid var(--hair); display: block; }
+  .hero .shot { max-width: 340px; margin-left: auto; box-shadow: 0 24px 50px -24px rgba(66, 52, 24, .5); }
+
+  /* 2. manifesto: full width, centred, type only */
+  .manifesto { border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair);
+               padding: 110px 0; text-align: center; }
+  .manifesto p { font-size: clamp(26px, 3.6vw, 40px); line-height: 1.3; margin: 0 auto; max-width: 20ch;
+                 letter-spacing: -0.01em; }
+  .manifesto .after { font-size: 18px; color: var(--ink-soft); max-width: 46ch; margin: 26px auto 0;
+                      letter-spacing: 0; }
+
+  /* 3. gallery strip */
+  .gallery { padding: 96px 0 40px; }
+  .gallery h2, .compare h2, .facts h2 { font-size: clamp(28px, 3.4vw, 38px); line-height: 1.15;
+    letter-spacing: -0.015em; margin: 0 0 14px; font-weight: 600; }
+  .gallery .sub { color: var(--ink-soft); max-width: 52ch; margin: 0 0 48px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--ink-soft); font-size: 15px; margin-top: 14px; }
+
+  /* 4. comparison: two columns of text, one hairline between */
+  .compare { padding: 96px 0; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 40px; }
+  .cols > div { padding: 0 40px; }
+  .cols > div:first-child { padding-left: 0; border-right: 1px solid var(--hair); }
+  .cols > div:last-child { padding-right: 0; }
+  .cols h3 { font-size: 19px; margin: 0 0 10px; font-weight: 600; }
+  .cols p { color: var(--ink-soft); margin: 0; }
+
+  /* 5. facts: plain rows, no cards */
+  .facts { padding: 40px 0 96px; }
+  .facts .row { display: grid; grid-template-columns: 13rem 1fr; gap: 32px;
+                padding: 26px 0; border-top: 1px solid var(--hair); align-items: start; }
+  .facts .row:last-child { border-bottom: 1px solid var(--hair); }
+  .facts .k { font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); }
+  .facts .v { color: var(--ink); margin: 0; }
+
+  .close { text-align: center; padding: 20px 0 110px; }
+  .close p { font-size: 22px; max-width: 26ch; margin: 0 auto 28px; }
+
+  footer { border-top: 1px solid var(--hair); padding: 34px 0 60px; color: var(--ink-faint); font-size: 15px; }
+  footer .row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer a { color: var(--ink-soft); text-decoration: none; margin-right: 18px; }
+  footer a:hover { color: var(--ink); }
+
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; padding-bottom: 64px; }
+    .hero .shot { max-width: 300px; margin: 0 auto; }
+    .strip { grid-template-columns: 1fr; gap: 40px; max-width: 340px; margin: 0 auto; }
+    .cols { grid-template-columns: 1fr; }
+    .cols > div { padding: 0 0 26px; }
+    .cols > div:first-child { border-right: 0; border-bottom: 1px solid var(--hair); margin-bottom: 26px; }
+    .facts .row { grid-template-columns: 1fr; gap: 8px; }
+    nav a { margin-left: 14px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="mark-stroke"><path d="M25.5 56.9 C36 51.3 52 47.7 70.5 49.1 A3.9 3.9 0 0 1 69.9 56.9 C52 55.7 36 59.5 26.5 64.6 A3.9 3.9 0 0 1 25.5 56.9 Z"/></g>
+    <g id="mark-stop"><circle cx="81.6" cy="57.4" r="4.3"/><circle cx="80.3" cy="55.9" r="1.25" fill="#fff" opacity=".9"/></g>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <nav>
+    <span class="mark"><svg viewBox="20 44 68 22" aria-hidden="true"><use href="#mark-stroke"/><use href="#mark-stop"/></svg> Sentence</span>
+    <span>
+      <a href="#how">How it works</a>
+      <a href="/privacy-policies/sentence-privacy-policy.html">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <svg class="hero-mark" viewBox="20 44 68 22" aria-hidden="true"><use href="#mark-stroke"/><use href="#mark-stop"/></svg>
+      <h1>One line a day,<br>forever.</h1>
+      <p>Write one sentence about today. Tomorrow you cannot change it. In a year, your mornings get interesting.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.sentence">Get it on Google Play</a>
+    </div>
+    <img class="shot reveal" src="shots/01-today.png" width="1080" height="1920"
+         alt="The Today screen: today's sentence above the sentences written on this date one and two years ago.">
+  </header>
+</div>
+
+<section class="manifesto">
+  <div class="wrap">
+    <p>One sentence. That is the whole app.</p>
+    <p class="after">Not the free tier, not the starter plan. Two hundred and eighty characters, once a day, and
+      then you are done for eleven seconds of work. You cannot fall behind on a sentence.</p>
+  </div>
+</section>
+
+<section class="gallery wrap" id="how">
+  <h2>The reward is rereading</h2>
+  <p class="sub">Every morning the app hands you what you wrote on this date in previous years. The notification
+    is not a reminder to write. It is the sentence itself, from you, a year ago.</p>
+  <div class="strip">
+    <figure class="reveal">
+      <img class="shot" src="shots/04-years.png" width="1080" height="1920"
+           alt="The Years screen showing the same calendar date stacked across 2026, 2025 and 2024.">
+      <figcaption>The same day, every year you have kept it, stacked like the paper diaries this replaces.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/03-book.png" width="1080" height="1920"
+           alt="The Book screen: a continuous typeset scroll of past sentences under month headings.">
+      <figcaption>Your book, set in type. A month rereads in about forty seconds.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/02-writing.png" width="1080" height="1920"
+           alt="The writing screen: a date, a hairline rule and a single empty line waiting.">
+      <figcaption>A date, one ink line, one sentence. The blank page never gets a chance to intimidate you.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="compare wrap">
+  <h2>No streaks. No shame.</h2>
+  <div class="cols">
+    <div>
+      <h3>What most apps do</h3>
+      <p>A flame counter, a broken chain, a red badge, and a push notification implying you have let yourself
+        down. It works for about nine days, and then the app becomes a thing you avoid opening.</p>
+    </div>
+    <div>
+      <h3>What this does</h3>
+      <p>Unbroken runs are quietly numbered as chapters. Miss a week and a new chapter simply begins, the way
+        books do. Missed days are drawn as unprinted paper, not as failure. Nobody grieves starting a chapter.</p>
+    </div>
+  </div>
+</section>
+
+<section class="facts wrap">
+  <h2>Your words stay on your phone</h2>
+  <div class="row">
+    <div class="k">No network</div>
+    <p class="v">The app does not request the internet permission. It cannot send your sentences anywhere,
+      because Android will not let it open a connection at all. You can check that on the Play listing.</p>
+  </div>
+  <div class="row">
+    <div class="k">No account</div>
+    <p class="v">There is no sign-up, no email, no cloud, and no analytics. Nothing about you is collected,
+      because there is nowhere for it to go.</p>
+  </div>
+  <div class="row">
+    <div class="k">Yours to take</div>
+    <p class="v">Export the whole book as plain text, CSV or JSON whenever you want, and import it back.
+      Any sentence can be saved as a typeset card. A journal that holds your memories hostage is a horror story.</p>
+  </div>
+  <div class="row">
+    <div class="k">No subscription</div>
+    <p class="v">The app is free and complete. A product about permanence should not bill you monthly.</p>
+  </div>
+</section>
+
+<section class="close wrap">
+  <p>This app gets good in a year. We are patient.</p>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.sentence">Get it on Google Play</a>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <span>
+      <a href="/privacy-policies/sentence-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Play it in the browser</a>
+    </span>
+    <span>SocialSure Private Limited</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

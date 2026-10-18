@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patchwork. An hour for an hour.</title>
+<meta name="description" content="A time bank ledger for a group that already meets. One hour given earns one hour, balances come from the book, and nothing leaves your phone.">
+<meta property="og:title" content="Patchwork. An hour for an hour.">
+<meta property="og:description" content="Time banking has always died of paperwork. This is the paperwork, done properly.">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --paper: #F4EFE2; --card: #FCF8EF; --kraft: #E9E0CA; --ink: #1D2321; --soft: #454F4C;
+    --faint: #575F5C; --hair: #D9CEB5; --stitch: #C6B896;
+    --accent: #0A5F55; --accent-2: #0E7A6C; --on-accent: #FCF8EF; --gold: #7E5604;
+    --sans: "Source Sans 3", system-ui, -apple-system, sans-serif;
+    --slab: "Zilla Slab", Georgia, serif;
+    --c-make: #217A80; --c-teach: #B08608; --c-grow: #4A7A4E; --c-repair: #B4562A;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #121817; --card: #1A2120; --kraft: #232B29; --ink: #EAE5D7; --soft: #AEB7B2;
+            --faint: #98A29D; --hair: #333C39; --stitch: #3D4643;
+            --accent: #5BC9B4; --accent-2: #7FDCC9; --on-accent: #0E1413; --gold: #E0B44E;
+            --c-make: #5CC0C7; --c-teach: #E5B84E; --c-grow: #85C08A; --c-repair: #E58A56; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans);
+         font-size: 18px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  h1, h2, h3 { font-family: var(--slab); font-weight: 600; letter-spacing: -0.01em; }
+
+  .cta { display: inline-block; background-color: var(--accent);
+         background-image: linear-gradient(180deg, var(--accent-2), var(--accent));
+         color: var(--on-accent); text-decoration: none; font-weight: 600;
+         padding: 14px 26px; border-radius: 10px; font-size: 16px; border: 1px solid var(--accent);
+         transition: transform .15s ease; }
+  .cta:active { transform: translateY(1px); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 76px; }
+  .mark { display: flex; align-items: center; gap: 12px; font-family: var(--slab); font-size: 19px; }
+  .quilt { display: block; }
+  nav a { color: var(--soft); text-decoration: none; font-size: 15px; margin-left: 22px; }
+  nav a:hover { color: var(--ink); }
+
+  .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; padding: 26px 0 92px; }
+  .hero h1 { font-size: clamp(38px, 5vw, 58px); line-height: 1.08; margin: 0 0 20px; }
+  .hero p { font-size: 20px; color: var(--soft); margin: 0 0 30px; max-width: 32ch; }
+  .shot { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--hair); display: block; }
+  .hero .shot { max-width: 330px; margin-left: auto; }
+
+  .seam { height: 2px; background-image: repeating-linear-gradient(90deg, var(--stitch) 0 6px, transparent 6px 13px); }
+  .rule-band { padding: 92px 0; text-align: center;
+    background: linear-gradient(180deg, var(--card), var(--paper)); }
+  .rule-band p.big { font-family: var(--slab); font-size: clamp(26px, 3.6vw, 38px); line-height: 1.3;
+    margin: 0 auto 22px; max-width: 20ch; }
+  .rule-band p.after { color: var(--soft); max-width: 48ch; margin: 0 auto; }
+
+  .not { padding: 92px 0; }
+  .not h2 { font-size: clamp(28px, 3.2vw, 36px); margin: 0 0 30px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .cols > div { padding: 0 40px; }
+  .cols > div:first-child { padding-left: 0; border-right: 1px solid var(--hair); }
+  .cols > div:last-child { padding-right: 0; }
+  .cols h3 { margin: 0 0 10px; font-size: 19px; }
+  .cols p { margin: 0; color: var(--soft); }
+
+  .gallery { padding: 0 0 60px; }
+  .gallery h2 { font-size: clamp(28px, 3.2vw, 36px); margin: 0 0 40px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--soft); font-size: 15px; margin-top: 14px; }
+
+  .facts { padding: 30px 0 92px; }
+  .facts h2 { font-size: clamp(28px, 3.2vw, 36px); margin: 0 0 22px; }
+  .row { display: grid; grid-template-columns: 13rem 1fr; gap: 30px; padding: 22px 0;
+    border-top: 2px solid transparent;
+    background-image: repeating-linear-gradient(90deg, var(--stitch) 0 6px, transparent 6px 13px);
+    background-size: 13px 2px; background-repeat: repeat-x; background-position: 0 0; }
+  .row .k { font-family: var(--slab); font-size: 17px; }
+  .row p { margin: 0; color: var(--soft); }
+
+  .close { text-align: center; padding: 20px 0 110px; }
+  .close p { font-family: var(--slab); font-size: 23px; max-width: 26ch; margin: 0 auto 28px; }
+
+  footer { padding: 34px 0 60px; color: var(--faint); font-size: 15px; }
+  footer .r { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  footer a { color: var(--soft); text-decoration: none; margin-right: 18px; }
+
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none } }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 36px; }
+    .hero .shot { max-width: 300px; margin: 0 auto; }
+    .cols { grid-template-columns: 1fr; }
+    .cols > div { padding: 0 0 26px; }
+    .cols > div:first-child { border-right: 0; border-bottom: 1px solid var(--hair); margin-bottom: 26px; }
+    .strip { grid-template-columns: 1fr; max-width: 330px; margin: 0 auto; gap: 40px; }
+    .row { grid-template-columns: 1fr; gap: 6px; }
+    nav a { margin-left: 14px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark">
+      <svg class="quilt" width="28" height="28" viewBox="26 26 56 56" aria-hidden="true">
+        <rect x="30.6" y="30.6" width="19.4" height="19.4" rx="3.4" fill="var(--c-make)"/>
+        <rect x="58" y="30.6" width="19.4" height="19.4" rx="3.4" fill="var(--c-teach)"/>
+        <rect x="30.6" y="58" width="19.4" height="19.4" rx="3.4" fill="var(--c-repair)"/>
+        <g transform="translate(67.7 67.7) rotate(25)">
+          <rect x="-9.7" y="-9.7" width="19.4" height="19.4" rx="3.4" fill="var(--c-grow)"/></g>
+      </svg>
+      Patchwork
+    </span>
+    <span>
+      <a href="#how">How it works</a>
+      <a href="/privacy-policies/patchwork-privacy-policy.html">Privacy</a>
+      <a href="play/">Try it</a>
+    </span>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>An hour for an hour.</h1>
+      <p>Time banking is a hundred year old idea that has always died of paperwork. Patchwork is the
+        paperwork, done properly, for a group that already meets.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.patchwork">Get it on Google Play</a>
+    </div>
+    <img class="shot reveal" src="shots/02-ledger.png" width="1080" height="1920"
+         alt="The ledger: the quilt, six balances, and the book of exchanges written in plain sentences.">
+  </header>
+</div>
+
+<div class="seam"></div>
+<section class="rule-band">
+  <div class="wrap">
+    <p class="big">A line is written only when both people say it happened.</p>
+    <p class="after">That single rule is what keeps a time bank honest without anybody policing it.
+      Balances are never stored either: they are worked out from the book every time you look, so the
+      book cannot quietly disagree with itself.</p>
+  </div>
+</section>
+<div class="seam"></div>
+
+<section class="not wrap" id="how">
+  <h2>What it is, and what it is not</h2>
+  <div class="cols">
+    <div>
+      <h3>A book for a group that already meets</h3>
+      <p>A street, a building, a library circle, a congregation, a family. Somebody keeps the book on
+        their phone: the roster, what each person can do for an hour, what each person could use an hour
+        of, what has been arranged, and every hour that has actually changed hands.</p>
+    </div>
+    <div>
+      <h3>Not a marketplace</h3>
+      <p>It will not find you strangers, because it has no network to find them on. There are no prices,
+        no rates and no money anywhere in it. An hour is an hour, whoever gives it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="gallery wrap">
+  <h2>The book, the board and the bookings</h2>
+  <div class="strip">
+    <figure class="reveal">
+      <img class="shot" src="shots/01-board.png" width="1080" height="1920" alt="The board: offers listed with a colour for each kind of help.">
+      <figcaption>Eight kinds of help, each with its own fabric. Search it and tap a person.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/03-bookings.png" width="1080" height="1920" alt="A booking waiting for both people to confirm it happened.">
+      <figcaption>An arrangement waits until both sides confirm. Then it becomes a line in the book.</figcaption>
+    </figure>
+    <figure class="reveal">
+      <img class="shot" src="shots/06-people.png" width="1080" height="1920" alt="The roster, with each person's fabric colour, what they offer and their balance in hours.">
+      <figcaption>Everyone in the book owns a colour, and it is the colour their patches are cut from.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="wrap" style="padding: 26px 0 92px">
+  <div class="cols">
+    <div>
+      <h3>The quilt</h3>
+      <p>Every exchange that both people have confirmed sews one patch, in the colour of whoever gave
+        the hour, and the newest one is laid in turned. It sits in the corner of the board and fills
+        the top of the ledger. A group that has helped each other forty times has a quilt to show for
+        it, and it is drawn from the book rather than kept beside it.</p>
+    </div>
+    <div>
+      <h3>Made to be read</h3>
+      <p>Hours are hours, never prices. A booking says who gives, who receives, how long and when, and
+        tells you before you arrange it how much the other person can still receive. A date that has
+        gone by says so. Nothing is written into the book by one person alone.</p>
+    </div>
+  </div>
+</section>
+
+<section class="facts wrap">
+  <h2>The rules, in full</h2>
+  <div class="row"><div class="k">Two hours to start</div>
+    <p>Everyone begins at plus two. The group fronts it, and the way to settle up is to help anyone at all.</p></div>
+  <div class="row"><div class="k">Minus three is the floor</div>
+    <p>An overdraft is not a debt and the app never calls it one. Past minus three an exchange waits, and
+      the app explains why in plain words instead of refusing.</p></div>
+  <div class="row"><div class="k">The book can be handed on</div>
+    <p>Export it as a file and give it to another keeper, who merges it into theirs. Merging is matched by
+      entry, so doing it twice changes nothing.</p></div>
+  <div class="row"><div class="k">It stays on the phone</div>
+    <p>No internet permission, no account, no server, no analytics. Your neighbours' names cannot leave
+      the device unless you export the book yourself.</p></div>
+</section>
+
+<section class="close wrap">
+  <p>A currency made of hours should not cost money.</p>
+  <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.patchwork">Get it on Google Play</a>
+</section>
+
+<div class="seam"></div>
+<footer>
+  <div class="wrap r">
+    <span>
+      <a href="/privacy-policies/patchwork-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Try it in the browser</a>
+    </span>
+    <span>SocialSure Private Limited</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

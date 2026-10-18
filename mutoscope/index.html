@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mutoscope: loop animation, frame by frame</title>
+<meta name="description" content="A frame-by-frame loop animator for Android where every layer loops on its own length. GIF and MP4 with no watermark. Paid once, works offline.">
+<link rel="icon" href="shots/icon.png">
+<style>
+@font-face { font-family: "Anybody"; src: url("fonts/Anybody.ttf") format("truetype"); font-weight: 100 900; font-stretch: 50% 150%; font-display: swap; }
+@font-face { font-family: "Public Sans"; src: url("fonts/PublicSans.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
+:root {
+  --table: #ECEEF3; --sheet: #F8F9FB; --graphite: #1C1D24; --lead: #575B68; --hair: rgba(87, 91, 104, 0.3);
+  --orchid: #9825A7; --on-orchid: #FBF7FD; --shadow: rgba(52, 22, 60, 0.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --table: #141319; --sheet: #1F1D26; --graphite: #EAE8F0; --lead: #A19DAE; --hair: rgba(161, 157, 174, 0.3);
+          --orchid: #DF8AEA; --on-orchid: #1E0A28; --shadow: rgba(0, 0, 0, 0.4); }
+}
+* { box-sizing: border-box; }
+html { background: var(--table); }
+body { margin: 0; background: var(--table); color: var(--graphite); font: 400 17px/1.6 "Public Sans", system-ui, sans-serif; }
+img { display: block; max-width: 100%; height: auto; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+h1, h2 { font-family: "Anybody", sans-serif; font-weight: 750; font-stretch: 125%; letter-spacing: -0.01em; margin: 0; }
+h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); line-height: 1.05; }
+h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.1; }
+h3 { font-size: 1.05rem; margin: 0 0 10px; }
+p { margin: 0; max-width: 60ch; }
+.muted { color: var(--lead); }
+a { color: var(--orchid); }
+a:focus-visible { outline: 3px solid var(--orchid); outline-offset: 3px; border-radius: 4px; }
+
+/* Shots: the app's own 10dp radius, a hairline, a shadow tinted to the orchid. */
+.shot { border-radius: 16px; border: 1px solid var(--hair); box-shadow: 0 18px 40px -18px var(--shadow); background: var(--sheet); }
+
+header.top { display: flex; align-items: center; gap: 12px; padding: 20px 0; }
+header.top img { width: 40px; height: 40px; border-radius: 10px; }
+header.top span { font-family: "Anybody", sans-serif; font-weight: 700; font-stretch: 110%; font-size: 1.25rem; }
+
+.hero { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 56px; align-items: center; padding: 24px 0 88px; }
+.hero p { margin-top: 20px; font-size: 1.15rem; }
+.cta { display: inline-block; margin-top: 32px; background: var(--orchid); color: var(--on-orchid); text-decoration: none; font-weight: 600;
+       padding: 14px 24px; border-radius: 10px; white-space: nowrap; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.cta:hover { transform: translateY(-1px); }
+.cta:active { transform: translateY(1px); }
+.cta:focus-visible { outline: 3px solid var(--graphite); outline-offset: 3px; }
+.hero .shot { width: 100%; max-width: 360px; justify-self: center; }
+
+/* The one memorable thing: numbered strips of unequal length and the orchid rule where they realign. */
+.marker { background: var(--sheet); border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); padding: 80px 0; }
+.marker p { margin-top: 16px; }
+.strips { margin-top: 40px; overflow-x: auto; padding-bottom: 8px; }
+.label { color: var(--orchid); font-weight: 600; font-variant-numeric: tabular-nums; margin-bottom: 10px; }
+.strip { display: grid; grid-template-columns: 96px repeat(16, 44px); align-items: center; height: 52px; position: relative; min-width: 816px; }
+.strip .name { font-weight: 600; font-size: 0.95rem; }
+.cell { height: 40px; margin: 0 2px; border-radius: 4px; background: var(--hair); display: grid; place-items: center; font-size: 0.8rem; color: var(--lead); font-variant-numeric: tabular-nums; }
+.cell.now { background: var(--orchid); color: var(--on-orchid); }
+.rule { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--orchid); left: calc(96px + 12 * 44px - 1px); }
+
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 96px 0 72px; align-items: start; }
+.pair figure { margin: 0; width: 100%; max-width: 380px; }
+.pair figure:last-child { margin-top: 72px; justify-self: end; }
+.pair figcaption { margin-top: 16px; color: var(--lead); max-width: 40ch; }
+
+.tools { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 64px; align-items: center; padding: 48px 0 96px; }
+.tools .shot { max-width: 340px; }
+.tools h2 { margin-bottom: 28px; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.cols ul { margin: 0; padding: 0; list-style: none; }
+.cols li { padding: 5px 0; }
+
+.work { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 64px; align-items: center; padding: 0 0 96px; }
+.work p { margin-top: 16px; }
+.work .shot { max-width: 340px; justify-self: end; }
+
+.price { background: var(--orchid); color: var(--on-orchid); padding: 72px 0; }
+.price p { font-size: 1.2rem; margin-top: 12px; }
+
+footer { padding: 32px 0 48px; color: var(--lead); font-size: 0.95rem; display: flex; gap: 24px; flex-wrap: wrap; }
+
+@media (max-width: 767px) {
+  .hero, .pair, .tools, .work { grid-template-columns: 1fr; gap: 32px; }
+  .hero { padding: 8px 0 64px; }
+  .pair { padding: 64px 0 48px; }
+  .pair figure:last-child { margin-top: 0; justify-self: start; }
+  .tools, .work { padding-bottom: 64px; }
+  .tools .shot, .work .shot { justify-self: center; }
+  .work .shot { order: 2; }
+  .cols { grid-template-columns: 1fr; gap: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { .cta { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><img src="shots/icon.png" alt="" width="40" height="40"><span>Mutoscope</span></header>
+  <section class="hero">
+    <div>
+      <h1>Every layer loops on its own length.</h1>
+      <p class="muted">Draw frame by frame on reels that cycle against each other, then export GIF or MP4 with no watermark.</p>
+      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.mutoscope">Get it on Google Play</a>
+    </div>
+    <img class="shot" src="shots/01.png" width="1080" height="1920" alt="The Mutoscope editor: a hanging lamp and a bouncing ball, a 12-frame Ball reel over a 4-frame Lamp reel, and the orchid cycle marker after frame 12">
+  </section>
+</div>
+
+<section class="marker">
+  <div class="wrap">
+    <h2>A reel's length is its loop</h2>
+    <p class="muted">Each layer is a reel with its own frame count, hold and offset. Put a 4-frame flicker over a 12-frame bounce and they realign every 12 frames. The orchid rule marks where, and a GIF of one cycle loops with no jump.</p>
+    <div class="strips" aria-hidden="true">
+      <div class="label">Cycle: 12 frames</div>
+      <div class="strip"><span class="name">Ball</span>
+        <span class="cell now">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell">9</span><span class="cell">10</span><span class="cell">11</span><span class="cell">12</span><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span>
+        <i class="rule"></i></div>
+      <div class="strip"><span class="name">Lamp</span>
+        <span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span>
+        <i class="rule"></i></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="pair">
+    <figure><img class="shot" src="shots/02.png" width="1080" height="1920" loading="lazy" alt="Onion skin on the bouncing ball: the frames behind in red below it and the frames ahead in teal above it"><figcaption>Onion skin shows up to five frames each side, red behind and teal ahead.</figcaption></figure>
+    <figure><img class="shot" src="shots/05.png" width="1080" height="1920" loading="lazy" alt="A candle drawn on manila paper in dark mode, with a 3-frame Flame reel held on twos and starting on frame 2 over a locked Candle reel"><figcaption>Hold a reel on twos, threes or fours, or shift where it starts. The cycle updates as you change it.</figcaption></figure>
+  </section>
+
+  <section class="tools">
+    <img class="shot" src="shots/03.png" width="1080" height="1920" loading="lazy" alt="The brush sheet over the candle drawing, with Ink selected at 23 px and streamline at 57">
+    <div>
+      <h2>Tools that stay out of the way</h2>
+      <div class="cols">
+        <div><h3>Drawing</h3><ul><li>Pencil, ink, marker and eraser</li><li>Fill that closes small gaps</li><li>Lasso to move or delete</li><li>100 steps of undo</li><li>A locked reference photo to trace</li></ul></div>
+        <div><h3>Timing</h3><ul><li>Unlimited reels, up to 240 frames each</li><li>Hold on ones, twos, threes or fours</li><li>Drag the reels to scrub</li><li>4 to 30 frames per second</li><li>GIF or MP4 at 512, 720 or 1080 px</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="work">
+    <div>
+      <h2>Your loops stay on your phone</h2>
+      <p class="muted">No sign-in and no permissions. Share a single project as a .mutoscope file, or back up every loop to one file and restore it on another phone.</p>
+    </div>
+    <img class="shot" src="shots/06.png" width="1080" height="1920" loading="lazy" alt="Mutoscope settings in dark mode: Back up all projects, Restore from backup, and a privacy note saying the app has no account, no ads and no analytics">
+  </section>
+</div>
+
+<section class="price">
+  <div class="wrap">
+    <h2>USD 4.99, paid once.</h2>
+    <p>INR 350 in India. One-time purchase. No ads, no subscription, no account. Works fully offline.</p>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer><span>SocialSure Private Limited</span><a href="/privacy-policies/mutoscope-privacy-policy.html">Privacy policy</a></footer>
+</div>
+</body>
+</html>

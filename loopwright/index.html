@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loopwright. The song in your head, out loud.</title>
+<meta name="description" content="Hum a melody and it comes back as a felt piano. Say boots and cats and it comes back as drums. Stack the loops, drop them in and out while it plays, and you have written something. Offline, free, no account.">
+<meta property="og:title" content="Loopwright. The song in your head, out loud.">
+<meta property="og:description" content="A pocket loop pedal for people who never learned an instrument. Your voice is the input. Everything happens on the phone.">
+<meta property="og:type" content="website">
+<link rel="icon" href="shots/icon.png">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #12140E; --stage: #191C13; --surface: #20241A; --surface-2: #2A2F20;
+    --fg: #F2F6E6; --muted: #A9B295; --dim: #8B9578; --hair: #333A28;
+    --accent: #C3E640; --accent-deep: #7EA019; --ink: #131807;
+    --ui: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+    --num: "Space Grotesk", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; color: var(--fg); font-family: var(--ui);
+         font-size: 18px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+         background:
+           radial-gradient(70% 42% at 50% 0%, rgba(195, 230, 64, .10), rgba(195, 230, 64, 0) 62%),
+           var(--bg); background-attachment: fixed; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+  a { color: var(--accent); }
+  img.shot { width: 100%; height: auto; display: block; border: 1px solid var(--hair);
+             border-radius: 18px; }
+  h2 { font-size: clamp(28px, 3.6vw, 41px); line-height: 1.12; letter-spacing: -0.028em;
+       margin: 0 0 16px; font-weight: 700; }
+  .eyebrow { font-size: 13px; letter-spacing: .18em; text-transform: uppercase;
+             color: var(--accent); margin: 0 0 16px; font-weight: 700; }
+
+  .cta { display: inline-block; background: linear-gradient(180deg, #DEF57C, var(--accent));
+         color: var(--ink); text-decoration: none; box-shadow: 0 8px 26px rgba(126, 160, 25, .3);
+         padding: 15px 30px; border-radius: 13px; font-size: 17px; font-weight: 700;
+         border: 1px solid var(--accent); transition: transform .15s ease; }
+  .cta:active { transform: translateY(1px); }
+  .cta.quiet { background: transparent; color: var(--fg); border-color: var(--hair); }
+
+  nav { display: flex; align-items: center; justify-content: space-between; height: 80px; }
+  .mark { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 700; }
+  .mark svg { width: 28px; height: 28px; display: block; }
+  nav a.navlink { color: var(--muted); text-decoration: none; font-size: 15px; margin-left: 24px; }
+  nav a.navlink:hover { color: var(--fg); }
+
+  /* 1. hero */
+  .hero { display: grid; grid-template-columns: 1.08fr .92fr; gap: 62px; align-items: center;
+          padding: 34px 0 110px; }
+  .hero h1 { font-size: clamp(42px, 5.8vw, 70px); line-height: 1.02; letter-spacing: -0.035em;
+             margin: 0 0 22px; font-weight: 700; }
+  .hero p.lede { font-size: 20px; color: var(--muted); margin: 0 0 34px; max-width: 34ch; }
+  .hero .under { font-size: 15px; color: var(--dim); margin: 20px 0 0; }
+  .hero img { max-width: 330px; margin-left: auto; }
+
+  /* 2. the two panel comparison */
+  .compare { border-top: 1px solid var(--hair); padding: 96px 0; }
+  .compare h2 { max-width: 18ch; }
+  .compare > .wrap > p.sub { color: var(--muted); max-width: 52ch; margin: 0 0 52px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .pane { background: var(--stage); border: 1px solid var(--hair); border-radius: 20px; padding: 34px 32px 38px; }
+  .pane.lit { border-color: rgba(195,230,64,.4); background: linear-gradient(180deg, #232817, #191C13); }
+  .pane .who { font-family: var(--num); font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+               color: var(--dim); margin: 0 0 18px; }
+  .pane.lit .who { color: var(--accent); }
+  .pane .said { font-size: clamp(23px, 2.6vw, 30px); line-height: 1.24; letter-spacing: -0.02em;
+                margin: 0 0 18px; }
+  .pane .after { margin: 0; color: var(--muted); font-size: 16.5px; }
+  .compare .foot { color: var(--dim); font-size: 16px; margin: 34px 0 0; max-width: 60ch; }
+
+  /* 3. the pedal, as a numbered run */
+  .pedal { display: grid; grid-template-columns: .82fr 1.18fr; gap: 66px; align-items: center;
+           padding: 100px 0; border-top: 1px solid var(--hair); }
+  .pedal img { max-width: 300px; }
+  .pedal p.sub { color: var(--muted); margin: 0 0 36px; max-width: 46ch; }
+  .step { display: grid; grid-template-columns: 3rem 1fr; gap: 22px; padding: 22px 0;
+          border-top: 1px solid var(--hair); }
+  .step:last-child { border-bottom: 1px solid var(--hair); }
+  .step .n { font-family: var(--num); font-size: 21px; font-weight: 700; color: var(--accent); line-height: 1.2; }
+  .step .d { margin: 0; color: var(--muted); font-size: 17px; }
+  .step .d b { color: var(--fg); font-weight: 700; }
+
+  /* 4. the voices, a dense grid */
+  .voices { padding: 96px 0; border-top: 1px solid var(--hair); }
+  .voices .head { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; margin-bottom: 46px; }
+  .voices .head p { color: var(--muted); margin: 0; }
+  .vgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+           background: var(--hair); border: 1px solid var(--hair); border-radius: 18px; overflow: hidden; }
+  .v { background: var(--stage); padding: 26px 24px 28px; }
+  .v i { display: block; width: 26px; height: 3px; border-radius: 2px; background: var(--accent);
+         margin-bottom: 16px; font-style: normal; }
+  .v.drum i { background: repeating-linear-gradient(90deg, var(--accent) 0 3px, transparent 3px 8px); }
+  .v b { display: block; font-size: 19px; letter-spacing: -0.015em; margin-bottom: 5px; }
+  .v span { color: var(--muted); font-size: 16px; }
+
+  /* 5. arrange, reversed */
+  .arrange { display: grid; grid-template-columns: 1.18fr .82fr; gap: 66px; align-items: center;
+             padding: 100px 0; border-top: 1px solid var(--hair); }
+  .arrange img { max-width: 300px; }
+  .arrange p { color: var(--muted); margin: 0 0 20px; max-width: 48ch; }
+  .arrange p:last-of-type { margin-bottom: 0; }
+  .arrange b { color: var(--fg); }
+  .blocks { display: flex; gap: 8px; margin: 34px 0 0; flex-wrap: wrap; }
+  .blk { font-family: var(--num); font-weight: 700; font-size: 17px; background: var(--surface);
+         border: 1px solid var(--hair); border-radius: 11px; padding: 12px 18px; color: var(--fg); }
+  .blk.b { background: rgba(195,230,64,.14); border-color: rgba(195,230,64,.4); color: var(--accent); }
+
+  /* 6. plain facts */
+  .facts { padding: 96px 0; border-top: 1px solid var(--hair); }
+  .facts .row { display: grid; grid-template-columns: 15rem 1fr; gap: 34px; padding: 26px 0;
+                border-top: 1px solid var(--hair); align-items: start; }
+  .facts .row:last-child { border-bottom: 1px solid var(--hair); }
+  .facts .k { color: var(--accent); font-size: 17px; }
+  .facts .v2 { margin: 0; color: var(--muted); }
+  .facts .v2 b { color: var(--fg); font-weight: 700; }
+
+  /* 7. gallery */
+  .gallery { padding: 90px 0 40px; border-top: 1px solid var(--hair); }
+  .gallery p.sub { color: var(--muted); max-width: 54ch; margin: 0 0 50px; }
+  .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .strip figure { margin: 0; }
+  .strip figcaption { color: var(--muted); font-size: 16px; margin-top: 15px; }
+
+  /* 8. close */
+  .close { text-align: center; padding: 100px 0 44px; }
+  .close p.line { font-size: clamp(25px, 3.1vw, 34px); max-width: 22ch; margin: 0 auto 34px;
+                  letter-spacing: -0.025em; line-height: 1.2; }
+  .close .under { color: var(--dim); font-size: 15px; margin: 22px 0 0; }
+
+  footer { border-top: 1px solid var(--hair); padding: 40px 0 70px; color: var(--dim); font-size: 15px; }
+  footer a { color: var(--muted); }
+  footer .frow { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+
+  @media (max-width: 860px) {
+    body { font-size: 17px; }
+    .hero, .pedal, .arrange, .voices .head { grid-template-columns: 1fr; gap: 40px; }
+    .hero img, .pedal img, .arrange img { margin: 0 auto; max-width: 290px; }
+    .pair, .strip, .vgrid { grid-template-columns: 1fr; }
+    .vgrid { border-radius: 14px; }
+    .facts .row { grid-template-columns: 1fr; gap: 6px; }
+    nav a.navlink { margin-left: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="mark">
+      <svg viewBox="0 0 108 108" aria-hidden="true">
+        <circle cx="54" cy="54" r="26.5" fill="none" stroke="#7EA019" stroke-width="7.4"/>
+        <path d="M27.5 54 C34.4 54 33.1 41 40 41 C47.7 41 46.3 67 54 67 C61.2 67 59.8 41 67 41 C74.4 41 73.1 54 80.5 54"
+              fill="none" stroke="#C3E640" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Loopwright
+    </span>
+    <span>
+      <a class="navlink" href="#how">How it works</a>
+      <a class="navlink" href="#voices">Voices</a>
+      <a class="navlink" href="/privacy-policies/loopwright-privacy-policy.html">Privacy</a>
+    </span>
+  </nav>
+
+  <!-- 1 -->
+  <header class="hero">
+    <div>
+      <h1>The song in your head, out loud.</h1>
+      <p class="lede">Hum a melody and it comes back as a felt piano. Say boots and cats and it comes back as drums. Stack the loops, drop them in and out while it plays, and you have written something.</p>
+      <p class="lede" style="font-size:17px;margin-bottom:28px">The ring around the pad is your loop drawn as a waveform. Every layer you record takes a slice of it.</p>
+      <a class="cta" href="play/index.html">Play it in your browser</a>
+      <p class="under">Free. No account, no adverts, no subscription. Works with the radio off.</p>
+    </div>
+    <img class="shot" src="shots/01-pad.png" alt="The Loopwright pad, ringed by a chartreuse waveform cut into four layer segments, in F minor at 96 beats a minute">
+  </header>
+</div>
+
+<!-- 2 -->
+<section class="compare">
+  <div class="wrap">
+    <h2>You are always in tune, retroactively.</h2>
+    <p class="sub">Nobody hums accurately. The pipeline is built around that fact instead of against it: it works out the key you are implying, moves your wobbly notes into it, and pulls your timing towards the grid without flattening it.</p>
+    <div class="pair">
+      <div class="pane">
+        <p class="who">What you did</p>
+        <p class="said">You hummed eight notes into a phone on a bus, slightly flat, slightly early.</p>
+        <p class="after">The original take is kept. One toggle plays it back so you can hear what you actually sang.</p>
+      </div>
+      <div class="pane lit">
+        <p class="who">What came back</p>
+        <p class="said">Eight notes of felt piano in F minor, in time, still swinging the way you swung.</p>
+        <p class="after">A slider runs from exactly as you played it to exactly on the grid. It starts most of the way towards you.</p>
+      </div>
+    </div>
+    <p class="foot">Pitch is tracked frame by frame, the key comes from tone profiles weighed by how long you held each note, and the tempo is the pulse your take argues with least. All of it in ordinary signal processing, on your phone, in about a fifth of a second.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<div class="wrap">
+  <section class="pedal" id="how">
+    <img class="shot" src="shots/02-recording.png" alt="The pad glowing chartreuse through a count-in, with the number five in the middle and the loop waveform around it">
+    <div>
+      <p class="eyebrow">The loop pedal, in a phone</p>
+      <h2>One pad. Tap, hum, tap.</h2>
+      <p class="sub">The interface is one you have already watched somebody use. A busker steps on a pedal, plays a bar, steps again, and the bar starts repeating under them. That is the whole thing.</p>
+      <div class="step"><span class="n">1</span><p class="d"><b>Tap and hum.</b> Tap again to close the loop. It starts cycling immediately and the tempo of the song is now whatever you just did.</p></div>
+      <div class="step"><span class="n">2</span><p class="d"><b>Overdub.</b> Pick a voice, tap once more, and the next take lands exactly one loop long. Up to eight layers in a scene.</p></div>
+      <div class="step"><span class="n">3</span><p class="d"><b>Perform it.</b> Tap a layer to drop it out of the mix while it plays, tap it again to bring it back. Muting and un-muting is most of what makes looping feel like music.</p></div>
+      <div class="step"><span class="n">4</span><p class="d"><b>Change your mind.</b> Any layer can be re-voiced, moved an octave, loosened, tightened or deleted afterwards. Nothing is baked in.</p></div>
+    </div>
+  </section>
+</div>
+
+<!-- 4 -->
+<section class="voices" id="voices">
+  <div class="wrap">
+    <div class="head">
+      <h2>Seven instruments and two drum kits.</h2>
+      <p>Not five hundred presets behind a search box. Nine voices with names and opinions, every one of them built out of oscillators and filters at the moment it sounds, which is why the whole app is under half a megabyte of code and works in airplane mode.</p>
+    </div>
+    <div class="vgrid">
+      <div class="v"><i></i><b>Felt</b><span>A piano with the hammers muffled. Intimate, close, no pedal.</span></div>
+      <div class="v"><i></i><b>Dust</b><span>Lo fi synth that has been round the block, warbling like stretched tape.</span></div>
+      <div class="v"><i></i><b>Upright</b><span>Double bass with the fret noise left in. Always in the cellar.</span></div>
+      <div class="v"><i></i><b>Brass Sunday</b><span>Three soft horns who have played together for years.</span></div>
+      <div class="v"><i></i><b>Choirette</b><span>Your melody sung back at you by a small room of yous.</span></div>
+      <div class="v"><i></i><b>Nylon</b><span>A plucked string, made the honest way: noise trapped in a delay line.</span></div>
+      <div class="v"><i></i><b>Glass</b><span>A music box. Bright, inharmonic, gone before you can hold it.</span></div>
+      <div class="v drum"><i></i><b>Kit</b><span>Tight studio drums. Kick, snare and hat, sorted out of your mouth sounds.</span></div>
+      <div class="v drum"><i></i><b>Cardboard</b><span>A box, a knee and a shush. For when the studio is too clean.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<div class="wrap">
+  <section class="arrange">
+    <div>
+      <h2>A verse, a chorus, and you are done.</h2>
+      <p>A set of loops is a <b>scene</b>. Copy it, mute two layers, add one, and the copy is your chorus. Nobody had to say the word arrangement.</p>
+      <p>Line the scenes up in a strip, say how many times each one goes round, and that is a song. If you would rather not decide, one button proposes intro, verse, chorus, verse, chorus, out, and you can change any of it.</p>
+      <p>Export the finished mix as a WAV, or one WAV per layer if you want to keep working somewhere else. No watermark is added to your audio, ever. What you make is yours, including commercially.</p>
+      <div class="blocks">
+        <span class="blk">A x1</span><span class="blk">A x2</span><span class="blk b">B x2</span>
+        <span class="blk">A x2</span><span class="blk b">B x2</span><span class="blk">A x1</span>
+      </div>
+    </div>
+    <img class="shot" src="shots/04-arrange.png" alt="The arrange screen with a row of scene blocks, each with a repeat count">
+  </section>
+</div>
+
+<!-- 6 -->
+<section class="facts">
+  <div class="wrap">
+    <p class="eyebrow">The plain version</p>
+    <h2>What it is, exactly.</h2>
+    <div class="row"><span class="k">Permissions</span><p class="v2"><b>Two.</b> The microphone, because the app listens to you, and vibration, for the count-in you can feel. Nothing else.</p></div>
+    <div class="row"><span class="k">Network</span><p class="v2"><b>None at all.</b> Loopwright does not request the internet permission, so Android will not let it open a connection. You can check that on the Play listing before you install.</p></div>
+    <div class="row"><span class="k">Account</span><p class="v2">There isn't one. Nothing to sign up for, nothing to sign in to, nothing to lose when a server goes away.</p></div>
+    <div class="row"><span class="k">Price</span><p class="v2"><b>Free, and complete.</b> No subscription, no in app purchase, no locked voices, no export cap, no adverts.</p></div>
+    <div class="row"><span class="k">Where your songs live</span><p class="v2">In this phone's private app storage, including the short recordings kept behind the compare toggle. Deleting a song deletes them. Two taps in Settings erase everything.</p></div>
+    <div class="row"><span class="k">Sharing</span><p class="v2">By exported file, through your own share sheet, to whoever you choose. There is no feed, no profile and no community inside the app.</p></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="gallery">
+  <div class="wrap">
+    <h2>Every screen there is.</h2>
+    <p class="sub">Three surfaces and a handful of sheets. If it takes you more than ninety seconds to find everything, something has gone wrong.</p>
+    <div class="strip">
+      <figure><img class="shot" src="shots/03-layer.png" alt="The layer sheet showing the voice carousel, volume, a looser to tighter slider and the compare toggle">
+        <figcaption>Any layer, re-voiced with one tap. The compare toggle plays your own recording in its place.</figcaption></figure>
+      <figure><img class="shot" src="shots/06-key.png" alt="The tempo and key sheet with a large tempo readout and a grid of twelve keys">
+        <figcaption>The key and the tempo are worked out from your first take. Disagree with either of them here.</figcaption></figure>
+      <figure><img class="shot" src="shots/05-library.png" alt="The library listing four songs, each with a small loop ring drawn from its own layers">
+        <figcaption>Everything you have made, on this phone, with the settings tucked underneath.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<div class="wrap">
+  <section class="close">
+    <p class="line">You have been humming it for years. Give it four seconds.</p>
+    <a class="cta" href="play/index.html">Play it in your browser</a>
+    <p class="under">The browser version is the same app. Headphones help: without them the microphone hears the loop as well as you.</p>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap frow">
+    <span>Loopwright, by SocialSure Private Limited.</span>
+    <span><a href="/privacy-policies/loopwright-privacy-policy.html">Privacy policy</a> &nbsp; <a href="mailto:shayanm2002@gmail.com">shayanm2002@gmail.com</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
