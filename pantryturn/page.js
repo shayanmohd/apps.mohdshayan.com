@@ -1,0 +1,11 @@
+'use strict';
+// Small state changes provide feedback. No analytics, external resources or scroll polling.
+const themeButton=document.querySelector('#theme');
+let theme='auto';try{const saved=localStorage.getItem('pantryturn-theme');theme=['auto','light','dark'].includes(saved)?saved:'auto'}catch{}
+const applyTheme=()=>{if(theme==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=theme;themeButton.textContent=`Theme: ${theme}`;themeButton.setAttribute('aria-label',`Change color theme, currently ${theme}`)};applyTheme();
+themeButton.addEventListener('click',()=>{theme=['auto','light','dark'][(['auto','light','dark'].indexOf(theme)+1)%3];try{localStorage.setItem('pantryturn-theme',theme)}catch{}applyTheme()});
+const tabs=[...document.querySelectorAll('[role=tab]')];const panel=document.querySelector('#screen-panel');const screen=document.querySelector('#app-screen');
+function choose(tab){tabs.forEach(t=>{t.setAttribute('aria-selected',String(t===tab));t.tabIndex=t===tab?0:-1});screen.src=`images/${tab.dataset.screen}`;screen.alt=tab.dataset.alt;panel.setAttribute('aria-labelledby',tab.id)}
+tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>choose(tab));tab.addEventListener('keydown',e=>{let n=null;if(e.key==='ArrowDown'||e.key==='ArrowRight')n=(i+1)%tabs.length;if(e.key==='ArrowUp'||e.key==='ArrowLeft')n=(i+tabs.length-1)%tabs.length;if(e.key==='Home')n=0;if(e.key==='End')n=tabs.length-1;if(n!==null){e.preventDefault();choose(tabs[n]);tabs[n].focus()}})});
+document.querySelectorAll('[data-price]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-price]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));document.querySelector('#price').replaceChildren(document.createTextNode(`${button.dataset.price} `),Object.assign(document.createElement('span'),{textContent:'once'}))}));
+if('IntersectionObserver'in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('motion');const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}}),{threshold:.08});document.querySelectorAll('.reveal').forEach(section=>observer.observe(section))}
