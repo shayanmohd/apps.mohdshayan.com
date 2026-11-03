@@ -5,7 +5,7 @@ from urllib.parse import urlsplit, unquote
 import json
 
 SITE=Path(__file__).resolve().parents[1]
-PAGES=['index.html','for-pilgrims.html','for-operators.html','about.html','contact.html','terms.html']
+PAGES=['index.html','for-pilgrims.html','for-operators.html','about.html','contact.html','faq.html','terms.html']
 class Page(HTMLParser):
  def __init__(self,text):
   super().__init__();self.tags=[];self.ids=set();self.links=[];self.resources=[];self.feed(text)
@@ -42,10 +42,12 @@ for name,p in parsed.items():
    assert unquote(u.fragment) in target_page.ids,(name,href)
 assert sum(tag=='section' for tag,a in parsed['index.html'].tags)==7
 assert all(url.startswith('assets/') for p in parsed.values() for url in p.resources)
+assert sum(tag=='h3' for tag,a in parsed['faq.html'].tags)==13
+assert 'faq.html' in (SITE/'sitemap.xml').read_text()
 # The draft's source is stored explicitly; its wording is preserved by the renderer.
 source=json.loads((SITE/'tools/terms-source.json').read_text())
 assert len(source['sections'])==11
 assert 'Draft for legal review. Not yet in force.' in (SITE/'terms.html').read_text()
 assert '<meta name="robots" content="noindex">' in (SITE/'terms.html').read_text()
 assert 'terms.html' not in (SITE/'sitemap.xml').read_text()
-print('6 pages: links/fragments, local assets, one h1, 7 homepage sections, no script/form/analytics, no SOSA phone and no em/en dashes passed.')
+print('7 pages: links/fragments, local assets, one h1, 7 homepage sections, no script/form/analytics, no SOSA phone and no em/en dashes passed.')

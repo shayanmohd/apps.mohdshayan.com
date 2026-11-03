@@ -30,7 +30,7 @@ python3 noor-hidayah/tools/check.py
 python3 -m http.server 4179 --bind 127.0.0.1
 ```
 
-The generator owns the six HTML files and the scoped sitemap. Edit its content and
+The generator owns the seven HTML files and the scoped sitemap. Edit its content and
 `assets/site.css`, then regenerate. The older `privacy-policy.html` compatibility file
 continues to redirect to the canonical privacy notice.
 
@@ -39,6 +39,12 @@ continues to redirect to the canonical privacy notice.
 resolved. The generator preserves the wording and 26 October 2026 date, displays
 "Draft for legal review. Not yet in force.", and sets `noindex`. Only links move to
 canonical destinations. This migration does not approve the terms.
+
+`tools/faq-source.json` carries the 13 questions from the current corrected English
+app FAQ on the public-support branch based on main `b1aa7aec`. Availability, language
+scope and account-deletion navigation reflect the current test release; the page
+states that this website is in English. SOSA support is email-only. The rendered FAQ
+is linked from every footer and is included in the scoped sitemap.
 
 ## Asset provenance
 
@@ -59,7 +65,7 @@ canonical destinations. This migration does not approve the terms.
 Hold this branch until the remaining app integrations are ready and root has reviewed
 its claims against enabled production behavior. Publish this canonical site first and
 verify the new destinations. Only then merge the app's public-support cleanup, which
-redirects old privacy, support, company and terms routes here. Do not redirect the
+redirects the old home, pilgrims, FAQ, privacy, support, company and terms routes here. Do not redirect the
 functional account-deletion form or the dynamic directory/verification routes.
 
 ## Verification on 30 October 2026
@@ -76,3 +82,19 @@ functional account-deletion form or the dynamic directory/verification routes.
   CLS 0.0028 and total blocking time 0 milliseconds. Hosted measurements may differ.
 - Root independently reviewed the desktop/mobile homepage captures, final supplied
   artwork and real app screenshots. The narrow 200% layout was also inspected.
+
+## Verification on 3 November 2026
+
+- The canonical FAQ adds 13 questions from the current corrected English source,
+  with accurate pre-launch availability, language scope and deletion navigation.
+- The generator and static checks passed for all seven pages and their links,
+  fragments, local assets and sitemap; Terms remain noindex and excluded.
+- FAQ browser checks passed at desktop 1440px, mobile 390px, 320px with 200% text,
+  and dark 390px with 200% text: no horizontal overflow or WCAG A/AA violations.
+  Footer FAQ navigation and the mobile menu were exercised. These four new checks
+  supplement the prior 24-page/layout checks above.
+- Visual review prompted clearer spacing between FAQ answers. The four FAQ layout
+  checks were repeated after that adjustment and passed.
+- ALAM source SHA-256 and all seven vector paths were independently compared with
+  the merged app artwork. Launch CTAs still use contact/email and contain no store
+  download link while Play internal releases remain unpublished.

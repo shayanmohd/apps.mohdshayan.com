@@ -31,7 +31,7 @@ def page(file,title,description,body,robots=None):
 <a class="skip" href="#main">Skip to content</a>
 <header><div class="wrap header"><a class="brand" href="index.html"><img src="assets/icon.png" alt="" width="40" height="40">Noor Hidayah</a><nav class="desktop-nav" aria-label="Main navigation">{nav(file)}</nav><details class="mobile-nav"><summary>Menu</summary><nav aria-label="Mobile navigation"><div>{nav(file)}</div></nav></details></div></header>
 {body}
-<footer><div class="wrap"><div class="footer-top"><a class="brand" href="index.html"><img src="assets/icon.png" alt="" width="40" height="40" loading="lazy">Noor Hidayah</a><nav class="footer-links" aria-label="Information"><a href="{SUPPORT}">Support</a><a href="{PRIVACY}">Privacy</a><a href="terms.html">Terms (draft)</a><a href="{DELETION}">Delete account or data</a><a href="about.html#company">Company</a><a href="https://noorhidayah.com/en/operators">Operator directory</a></nav></div><div class="footer-bottom"><p>© 2026 SOSA Consulting Services Private Limited</p><p>Website: English. <a href="for-pilgrims.html#languages">App languages</a></p><a href="mailto:{EMAIL}">{EMAIL}</a></div></div></footer>
+<footer><div class="wrap"><div class="footer-top"><a class="brand" href="index.html"><img src="assets/icon.png" alt="" width="40" height="40" loading="lazy">Noor Hidayah</a><nav class="footer-links" aria-label="Information"><a href="faq.html">FAQs</a><a href="{SUPPORT}">Support</a><a href="{PRIVACY}">Privacy</a><a href="terms.html">Terms (draft)</a><a href="{DELETION}">Delete account or data</a><a href="about.html#company">Company</a><a href="https://noorhidayah.com/en/operators">Operator directory</a></nav></div><div class="footer-bottom"><p>© 2026 SOSA Consulting Services Private Limited</p><p>Website: English. <a href="for-pilgrims.html#languages">App languages</a></p><a href="mailto:{EMAIL}">{EMAIL}</a></div></div></footer>
 </body></html>'''
     assert '—' not in html and '–' not in html, file
     (SITE/file).write_text(html.replace("><", ">\n<")+"\n")
@@ -68,6 +68,17 @@ page('about.html','About and company information | Noor Hidayah','The purpose be
 contact=f'''<main id="main" class="wrap page"><div class="page-head"><h1>Let’s talk about your journey.</h1><p class="lead">Follow the app launch, discuss an operator partnership or get help with Noor Hidayah.</p></div><div class="contact-grid"><section class="contact-box" id="launch"><h2>Join the launch list</h2><p>App launch is coming soon. Email us to ask for launch updates; the support team handles your request.</p><a class="button" href="mailto:{EMAIL}?subject=Noor%20Hidayah%20launch%20updates">Email launch interest</a><p class="note">Your email app opens a draft. Nothing is sent until you send it. You can ask to stop receiving updates by replying to the team.</p></section><section class="contact-box" id="operators"><h2>Discuss a partnership</h2><p>Tell us your organisation name, role and what you would like to discuss. We will agree the next step directly.</p><a class="button" href="mailto:{EMAIL}?subject=Noor%20Hidayah%20operator%20partnership">Email the team</a><p class="note">Do not include pilgrim records, identity documents or sensitive trip details.</p></section></div><div class="article"><section><h2>App support</h2><p><a href="mailto:{EMAIL}">{EMAIL}</a><br>9:00 am to 5:00 pm, India Standard Time</p><p>For travel arrangements or a problem during a trip, contact your operator first. If a complaint remains unresolved for 15 days, email SOSA at this address.</p><p>Noor Hidayah is not an emergency service. Contact local emergency services directly for urgent assistance.</p><p>Read the <a href="{SUPPORT}">support instructions</a> and <a href="{PRIVACY}">privacy notice</a>. There is no marketing form on this website and no information is submitted by browsing it.</p></section></div></main>'''
 page('contact.html','Contact and launch updates | Noor Hidayah','Contact the Noor Hidayah support desk by email for app launch updates, operator partnership conversations or app support.',contact)
 
+# Preserve the existing thirteen questions; current testing/language/navigation facts are documented in README.
+faq=json.loads((SITE/'tools/faq-source.json').read_text())
+faq_groups=[('pilgrims',['what','download','offline','languages','review','emergency','cost','nusuk','passport','delete']),('operators',['dashboard','partner','security'])]
+faq_more={'passport':f'<a href="{PRIVACY}">Privacy notice</a>','delete':f'<a href="{DELETION}">Delete account or data</a>','partner':f'<a href="mailto:{EMAIL}">Email us: {EMAIL}</a>'}
+faq_sections=''
+for group,questions in faq_groups:
+    answers=''.join('<div class="faq-answer"><h3>'+escape(faq[group][key])+'</h3><p>'+escape(faq[group][key+'Answer'])+'</p>'+faq_more.get(key,'')+'</div>' for key in questions)
+    faq_sections+='<section id="faq-'+group+'"><h2>'+escape(faq[group]['title'])+'</h2>'+answers+'</section>'
+faq_body='<main id="main" class="wrap page"><div class="page-head"><h1>'+escape(faq['title'])+'</h1><p class="lead">'+escape(faq['lead'])+'</p></div><div class="article">'+faq_sections+'</div></main>'
+page('faq.html','Frequently asked questions | Noor Hidayah','Answers for pilgrims and operators about app availability, offline guidance, languages, assistance, data and operator access.',faq_body)
+
 # The legal wording is copied from the existing reviewed-for-development source,
 # including its not-yet-approved status. Only link destinations move to this site.
 links={'/company':'about.html#company','/support':SUPPORT,'/privacy':PRIVACY,'/delete-account':DELETION,'/terms':'terms.html'}
@@ -85,6 +96,6 @@ terms_body='<main id="main" class="wrap page legal"><div class="article"><div cl
 page('terms.html','Draft terms of use | Noor Hidayah','Existing Noor Hidayah draft terms of use, preserved for legal review and not yet in force.',terms_body,robots='noindex')
 
 # Draft terms remain reachable for review but are excluded from search indexing.
-urls=['', 'for-pilgrims.html', 'for-operators.html', 'about.html', 'contact.html']
+urls=['', 'for-pilgrims.html', 'for-operators.html', 'about.html', 'contact.html', 'faq.html']
 (SITE/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+''.join(f'<url><loc>{BASE}{url}</loc></url>' for url in urls)+'</urlset>\n')
-print('Built 6 pages and the Noor Hidayah sitemap with 5 indexable URLs.')
+print('Built 7 pages and the Noor Hidayah sitemap with 6 indexable URLs.')
