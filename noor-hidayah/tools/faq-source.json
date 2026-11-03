@@ -1,0 +1,37 @@
+{
+  "nav": "FAQs",
+  "title": "Frequently Asked Questions",
+  "lead": "Answers for pilgrims and operators. If your question is not here, email our support team. This website is in English.",
+  "pilgrims": {
+    "title": "For pilgrims",
+    "what": "What is Noor Hidayah?",
+    "whatAnswer": "Noor Hidayah is an app for pilgrims travelling for Umrah and Hajj, and a dashboard for the tour operators who take them. The app guides you through the rites step by step and keeps your group's itinerary, announcements and help in one place.",
+    "download": "Can I download the app now?",
+    "downloadAnswer": "Noor Hidayah is in testing and is not yet listed publicly in the app stores. Your operator will tell you when it is ready for your group.",
+    "offline": "Does it work without the internet?",
+    "offlineAnswer": "Yes. The ritual guide, the duas, the prayer times, the Qibla, the maps of Makkah and Madinah and the emergency numbers work with no signal. Your group's itinerary and announcements stay on your phone once they have arrived; new ones need a connection.",
+    "languages": "Which languages is it in?",
+    "languagesAnswer": "The app supports English, Hindi, Urdu and Kashmiri. Urdu and Kashmiri use a right-to-left layout. Translations awaiting review are marked as first drafts. Arabic appears in relevant religious content; it is not an app interface language.",
+    "review": "Who has checked the religious content?",
+    "reviewAnswer": "The rites, the duas and the guides are reviewed by the Noor Hidayah team, and the ritual guide names the work it follows. Noor Hidayah gives no religious rulings: for a question about your own situation, ask a qualified scholar.",
+    "emergency": "Is Noor Hidayah an emergency service?",
+    "emergencyAnswer": "No. The SOS button tells your operator's staff that you need help, and they see it only while their dashboard or the Noor Hidayah Partner app is open. It does not call the police or an ambulance. In an emergency, call the local number yourself: 911 in Saudi Arabia, 112 in India.",
+    "cost": "What does it cost?",
+    "costAnswer": "The ritual guide, the duas, the prayer times, the Qibla and the emergency numbers are free. If you travel with a partner operator, your operator gives you the group's features, and you are never asked to pay in the app.",
+    "nusuk": "Does Noor Hidayah replace Nusuk, my visa or my permits?",
+    "nusukAnswer": "No. Permits, visas and bookings stay with Nusuk and with your operator. Noor Hidayah is a guide, and a way to stay in touch with your group.",
+    "passport": "What happens to my passport details?",
+    "passportAnswer": "Your passport and visa numbers are encrypted and shown masked, and each time your operator opens one, it is recorded. Our privacy policy says what is kept and for how long.",
+    "delete": "How do I delete my account?",
+    "deleteAnswer": "From Home, open Profile and settings, then Settings, Account and Delete account. You can also use the account-deletion page linked below."
+  },
+  "operators": {
+    "title": "For operators",
+    "dashboard": "What does the operator dashboard do?",
+    "dashboardAnswer": "You add your pilgrims by form or spreadsheet, publish the itinerary, send announcements and see an SOS when it is raised, all from a dashboard in your browser.",
+    "partner": "How do we become a partner operator?",
+    "partnerAnswer": "Email us. We set up your organisation and create your sign-in, and you then invite the rest of your staff.",
+    "security": "How are our pilgrims' details protected?",
+    "securityAnswer": "Passport and visa numbers are encrypted before they are stored and are shown masked on the dashboard. Only an administrator can reveal one, and every reveal is recorded. Your staff sign in with a password and an authenticator app."
+  }
+}
