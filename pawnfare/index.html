@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pawnfare: a chess roguelike with real historical pieces. Play in your browser</title>
+<meta name="description" content="Pawnfare is a short chess roguelike: eight small boards, real pieces from chess history with their moves engraved on them, Fuse, and a Daily that everyone plays. Play in your browser or on Android.">
+<meta name="theme-color" content="#0E1530">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="canonical" href="https://apps.mohdshayan.com/pawnfare/">
+<meta property="og:title" content="Pawnfare: a chess roguelike with real historical pieces">
+<meta property="og:description" content="Eight small boards, pieces from 1,200 years of chess history, and one Daily army for everyone.">
+<meta property="og:image" content="https://apps.mohdshayan.com/pawnfare/og.jpg">
+<meta property="og:url" content="https://apps.mohdshayan.com/pawnfare/">
+<link rel="preload" href="fonts/spectral-600-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  /* The game's own type: Spectral for names and numerals, Archivo for everything you read or press
+     (GAME-DESIGN.md section 5), both self-hosted under the OFL. */
+  @font-face { font-family: "Spectral"; src: url("fonts/spectral-500-latin.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Spectral"; src: url("fonts/spectral-600-latin.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Archivo"; src: url("fonts/archivo-latin.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+
+  /* The game's palette, one mode as in the game: lapis night ground, inlaid lapis panels, ivory text,
+     turquoise as the one accent, carnelian for the rival, gilt only for mastery. One radius: 14px for
+     panels, buttons and screenshots; discs are round. */
+  :root {
+    --night: #0E1530; --inlay: #16224A; --lapis: #1B2A4E; --lapis-2: #22345F; --rule: #2C3E6B;
+    --ivory: #EDE4CF; --body: #CFC7B4; --muted: #9DA3B5; --turquoise: #4FB7A8; --turquoise-hover: #62C6B7;
+    --carnelian: #B5432F; --gilt: #D6B160; --r: 14px; --shadow: rgba(4, 7, 20, 0.6);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--night); color: var(--body); font: 17px/1.65 "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1, h2, h3, .brand, .num { font-family: "Spectral", Georgia, serif; }
+  h1, h2, h3 { color: var(--ivory); font-weight: 600; margin: 0; line-height: 1.08; }
+  h2 { font-size: clamp(2rem, 4.2vw, 3rem); margin-bottom: 20px; letter-spacing: -0.005em; }
+  h3 { font-size: 1.42rem; margin-bottom: 6px; }
+  p { margin: 0 0 14px; max-width: 64ch; }
+  a { color: var(--turquoise); text-underline-offset: 3px; }
+  img { display: block; max-width: 100%; height: auto; }
+  .wrap { width: min(1160px, 100% - 40px); margin: 0 auto; }
+  section { padding: 88px 0; }
+
+  /* Header */
+  .top { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--ivory); font-size: 1.5rem; font-weight: 600; text-decoration: none; }
+  .brand img { border-radius: 9px; }
+  .top nav { display: flex; gap: 24px; }
+  .top nav a { color: var(--muted); text-decoration: none; }
+  .top nav a:hover { color: var(--ivory); }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; min-height: 54px; padding: 0 26px;
+    border-radius: var(--r); font-size: 1.08rem; font-weight: 600; text-decoration: none; transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease; }
+  .btn:active { transform: translateY(1px) scale(0.99); }
+  .btn.primary { background: var(--turquoise); color: var(--night); }
+  .btn.primary:hover { background: var(--turquoise-hover); }
+  .btn.ghost { color: var(--ivory); box-shadow: inset 0 0 0 1.5px var(--rule); }
+  .btn.ghost:hover { box-shadow: inset 0 0 0 1.5px var(--ivory); }
+  .btn:focus-visible, a:focus-visible { outline: 2px solid var(--turquoise); outline-offset: 3px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+
+  .shot { border-radius: var(--r); box-shadow: 0 0 0 1px var(--rule), 0 26px 60px -22px var(--shadow); background: var(--inlay); }
+
+  /* Hero: copy left, the cannon taking the king right */
+  .hero { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 56px; align-items: center; padding: 32px 0 80px; min-height: calc(100dvh - 68px); }
+  .hero h1 { font-size: clamp(2.6rem, 5vw, 4.1rem); letter-spacing: -0.01em; }
+  .hero .lede { font-size: 1.2rem; margin-top: 22px; max-width: 34ch; }
+  .hero figure { margin: 0; justify-self: end; width: min(360px, 100%); }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero > div, .hero figure { animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .hero figure { animation-delay: 0.12s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  }
+
+  /* The pieces: a cabinet of discs on the inlaid band */
+  .band { background: var(--inlay); }
+  .cabinet { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 34px 20px; margin-top: 34px; }
+  .piece { display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; }
+  .piece img { width: 64px; height: 64px; }
+  .piece b { display: block; font-family: "Spectral", Georgia, serif; font-weight: 600; font-size: 1.2rem; color: var(--ivory); line-height: 1.15; }
+  .piece span { display: block; font-size: 0.86rem; color: var(--muted); line-height: 1.35; }
+  .band .note { margin-top: 36px; color: var(--muted); font-size: 0.98rem; }
+
+  /* How to play: long text with a screenshot that stays beside it */
+  .howto { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 64px; align-items: start; }
+  .howto h3 { margin-top: 30px; }
+  .howto aside { position: sticky; top: 28px; }
+  .howto aside p { font-size: 0.95rem; color: var(--muted); margin-top: 14px; }
+
+  /* Fuse: the named compounds in a two by two field */
+  .fuse { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 56px; align-items: center; }
+  .compounds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--rule); }
+  .compound { padding: 24px 22px 18px 0; display: grid; grid-template-columns: 72px 1fr; gap: 16px; align-items: start; border-bottom: 1px solid var(--rule); }
+  .compound:nth-child(even) { padding-left: 22px; border-left: 1px solid var(--rule); }
+  .compound img { width: 72px; height: 72px; }
+  .compound h3 { font-size: 1.3rem; }
+  .compound p { font-size: 0.95rem; margin: 0; }
+  .fuse figure { margin: 0; }
+
+  /* The Daily: the share card and the result, side by side on a lapis panel */
+  .daily { background: var(--lapis); border-radius: var(--r); padding: 54px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; }
+  .daily .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  .daily .pair img:last-child { margin-top: 48px; }
+  .daily .card { border-radius: var(--r); box-shadow: 0 0 0 1px var(--rule), 0 26px 60px -22px var(--shadow); }
+
+  /* Tips: a two-column field list */
+  .tips { columns: 2 340px; column-gap: 56px; margin-top: 8px; }
+  .tip { break-inside: avoid; padding: 18px 0 8px; border-top: 1px solid var(--rule); }
+  .tip h3 { font-size: 1.3rem; }
+
+  /* Screenshots: a scroll-snap strip */
+  .strip { display: grid; grid-auto-flow: column; grid-auto-columns: 220px; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 4px 22px; }
+  .strip img { scroll-snap-align: start; border-radius: var(--r); box-shadow: 0 0 0 1px var(--rule); }
+
+  /* Price and ads */
+  .price { background: var(--ivory); color: var(--night); border-radius: var(--r); padding: 54px; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: end; }
+  .price h2 { color: var(--night); }
+  .price p { color: #2A3150; }
+  .price .btn.primary { background: var(--night); color: var(--ivory); }
+  .price .btn.primary:hover { background: var(--lapis); }
+  .price .btn.ghost { color: var(--night); box-shadow: inset 0 0 0 1.5px #8C8A80; }
+  .price .btn.ghost:hover { box-shadow: inset 0 0 0 1.5px var(--night); }
+  .price .ctas { margin-top: 0; flex-direction: column; }
+  .price a:not(.btn) { color: #1D6E64; }
+
+  footer { border-top: 1px solid var(--rule); padding: 30px 0 46px; font-size: 0.95rem; color: var(--muted); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 14px 24px; }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--ivory); }
+
+  @media (max-width: 960px) {
+    .cabinet { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .fuse, .daily { grid-template-columns: 1fr; }
+    .daily { padding: 36px 26px; }
+  }
+  @media (max-width: 767px) {
+    section { padding: 64px 0; }
+    .top nav .optional { display: none; }
+    .hero { grid-template-columns: 1fr; min-height: 0; gap: 36px; padding-top: 16px; }
+    .hero figure { justify-self: center; width: min(300px, 86%); }
+    .ctas .btn { flex: 1 1 100%; }
+    .cabinet { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 14px; }
+    .piece { grid-template-columns: 1fr; gap: 6px; align-items: start; align-content: start; }
+    .piece img { width: 56px; height: 56px; margin-left: -4px; }
+    .howto { grid-template-columns: 1fr; gap: 36px; }
+    .howto aside { position: static; width: min(300px, 86%); margin: 0 auto; }
+    .compounds { grid-template-columns: 1fr; }
+    .compound, .compound:nth-child(even) { padding: 20px 0 16px; border-left: 0; }
+    .price { grid-template-columns: 1fr; padding: 34px 24px; }
+    .price .ctas { flex-direction: row; }
+  }
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <a class="brand" href="/pawnfare/"><img src="icon-512.png" alt="" width="34" height="34">Pawnfare</a>
+  <nav>
+    <a class="optional" href="#how">How to play</a>
+    <a class="optional" href="#tips">Tips</a>
+    <a href="play/">Play</a>
+  </nav>
+</header>
+<main>
+  <section class="wrap hero">
+    <div>
+      <h1>Chess history, one short board at a time.</h1>
+      <p class="lede">A chess roguelike of eight small boards, played with real historical pieces that wear their moves on their faces.</p>
+      <div class="ctas">
+        <a class="btn primary" href="play/">Play in your browser</a>
+        <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.pawnfare">Get it on Google Play</a>
+      </div>
+    </div>
+    <figure>
+      <img class="shot" src="shots/01-cannon-takes-king.webp" width="540" height="960" alt="A 6 by 6 Pawnfare board: the ivory cannon has jumped over a piece to take the carnelian king, which breaks apart in gilt sparks.">
+    </figure>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <h2>Every piece wears its move</h2>
+      <p>Each piece is a turned disc with its move cut into the face like a seal. Drilled dots are squares it leaps to, grooves running to the rim are lines it slides along, and crosses mark captures only. You can read any piece at a glance, without a rulebook.</p>
+      <div class="cabinet">
+        <div class="piece"><img src="discs/baidaq.webp" width="160" height="160" alt=""><div><b>Baidaq</b><span>One step forward, takes one step diagonally forward. Baghdad, c. 850</span></div></div>
+        <div class="piece"><img src="discs/ferz.webp" width="160" height="160" alt=""><div><b>Ferz</b><span>One step diagonally. Persia, c. 600</span></div></div>
+        <div class="piece"><img src="discs/fil.webp" width="160" height="160" alt=""><div><b>Fil</b><span>Leaps exactly two diagonally. Baghdad, c. 850</span></div></div>
+        <div class="piece"><img src="discs/faras.webp" width="160" height="160" alt=""><div><b>Faras</b><span>The knight's leap, since chaturanga. Baghdad, c. 850</span></div></div>
+        <div class="piece"><img src="discs/rukh.webp" width="160" height="160" alt=""><div><b>Rukh</b><span>Slides straight, as the rook does. Baghdad, c. 850</span></div></div>
+        <div class="piece"><img src="discs/wazir.webp" width="160" height="160" alt=""><div><b>Wazir</b><span>One step straight. Samarkand, c. 1400</span></div></div>
+        <div class="piece"><img src="discs/dabbaba.webp" width="160" height="160" alt=""><div><b>Dabbaba</b><span>Leaps exactly two straight. Samarkand, c. 1400</span></div></div>
+        <div class="piece"><img src="discs/jamal.webp" width="160" height="160" alt=""><div><b>Jamal</b><span>The camel: a longer knight's leap, three and one. Samarkand, c. 1400</span></div></div>
+        <div class="piece"><img src="discs/pao.webp" width="160" height="160" alt=""><div><b>Pao</b><span>Slides straight, captures only by jumping one piece. Kaifeng, c. 1100</span></div></div>
+        <div class="piece"><img src="discs/kyosha.webp" width="160" height="160" alt=""><div><b>Kyosha</b><span>The lance: slides straight ahead only. Kyoto, c. 1200</span></div></div>
+        <div class="piece"><img src="discs/khon.webp" width="160" height="160" alt=""><div><b>Khon</b><span>One step diagonally, or one straight forward. Ayutthaya, c. 1600</span></div></div>
+        <div class="piece"><img src="discs/kin.webp" width="160" height="160" alt=""><div><b>Kin</b><span>The gold general: one straight, or one diagonally forward. Kyoto, c. 1200</span></div></div>
+        <div class="piece"><img src="discs/bishop.webp" width="160" height="160" alt=""><div><b>Bishop</b><span>The elephant's leap became a slide. Valencia, c. 1475</span></div></div>
+        <div class="piece"><img src="discs/queen.webp" width="160" height="160" alt=""><div><b>Queen</b><span>The ferz, crossing the whole board. Valencia, c. 1475</span></div></div>
+        <div class="piece"><img src="discs/shah.webp" width="160" height="160" alt=""><div><b>Shah</b><span>The rival king, one step any way. Your target. Persia, c. 600</span></div></div>
+      </div>
+      <p class="note">The moves follow H. J. R. Murray's A History of Chess (1913) and the standard rules of xiangqi, shogi and makruk. In the game's museum each piece has its own page with a pin on an engraved map of the Old World.</p>
+    </div>
+  </section>
+
+  <section class="wrap" id="how">
+    <div class="howto">
+      <div>
+        <h2>How to play</h2>
+        <p>A run is eight boards. Each board is a small position, 5 by 5 or 6 by 6, with your army on the bottom two rows and the rival's guards and king at the top. You move one piece, the rival answers with one move, and so on. Win the board by capturing the rival king before your moves run out. There is no check and you have no king of your own: your army is everything you have.</p>
+        <h3>Moving</h3>
+        <p>Tap one of your pieces, then tap a square, or drag the piece there. Touching a piece lights its moves: turquoise dots for squares it can move to, turquoise corners on pieces it can capture, and a small carnelian notch on any square where the rival could take it on the next move. Touch a rival piece to see its moves in carnelian, so you can read every threat before you commit. An illegal tap simply shakes the piece.</p>
+        <h3>The move limit and par</h3>
+        <p>The big number at the top right is how many moves you have left. The ticks under it show the board's par: the shortest win that exists against this rival. Early boards give you two or three moves of slack beyond par; from board five on you get one. Run out of moves and the board is lost, and a lost board ends the run.</p>
+        <h3>Lost pieces stay lost</h3>
+        <p>Any piece the rival captures is gone for the rest of the run, and the next board is built for the army you still have. A baidaq that reaches the far row promotes, to a ferz in shatranj and to the queen in the mad queen era, and the rival's pawns promote too.</p>
+        <h3>Draft, promote or fuse</h3>
+        <p>After each won board you choose one of three: a new historical piece, a historical promotion of a piece you have, or a Fuse that joins two of your pieces into one that moves as both. Your army holds at most six pieces; once it is full, the draft offers only promotions and fuses.</p>
+        <h3>Eras, unlocks and mastery</h3>
+        <p>You start in shatranj, the chess of Baghdad around 850. Complete a run, or win sixteen shatranj boards, to open the mad queen era of Valencia around 1475, with the bishop and the queen. Milestones add pieces to later runs: the camel, the khon and the cannon in shatranj, the lance and the gold general in the mad queen era. Each era has three mastery stars: complete a run, play every board at par, and finish a run without losing a piece.</p>
+      </div>
+      <aside>
+        <img class="shot" src="shots/04-mad-queen.webp" width="540" height="960" alt="A board in the mad queen era with the queen selected: turquoise dots show every square it can reach, and carnelian notches mark the squares the rival covers.">
+        <p>The queen selected on board 4 of a mad queen run. Its dots run to every square it can reach, and three small notches warn where the rival could take it next.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="fuse">
+      <div>
+        <h2>Fuse pieces that history named</h2>
+        <p>Two different pieces of your army can fuse into one that moves as both. Where a real chess variant gave that compound a name, the game uses it, and the disc carries both diagrams inside a thin gilt ring.</p>
+        <div class="compounds">
+          <div class="compound"><img src="discs/champion.webp" width="160" height="160" alt=""><div><h3>Champion</h3><p>Rukh and faras. Pietro Carrera's book of 1617 proposed it for a larger chessboard.</p></div></div>
+          <div class="compound"><img src="discs/centaur.webp" width="160" height="160" alt=""><div><h3>Centaur</h3><p>Bishop and faras, Carrera's second new piece of 1617.</p></div></div>
+          <div class="compound"><img src="discs/amazon.webp" width="160" height="160" alt=""><div><h3>Amazon</h3><p>Queen and faras. In 18th century Russia the queen could also move as a knight.</p></div></div>
+          <div class="compound"><img src="discs/mann.webp" width="160" height="160" alt=""><div><h3>Mann</h3><p>Ferz and wazir: the man of courier chess, played in Germany from about 1200.</p></div></div>
+        </div>
+      </div>
+      <figure>
+        <img class="shot" src="shots/02-draft-fuse.webp" width="540" height="960" alt="The draft after board 2: a new pao, a promotion of the baidaq to a ferz, or the Champion, fused from the rukh and the faras." style="width:min(340px,100%);margin:0 auto">
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="daily">
+      <div>
+        <h2>The Daily: one army for everyone</h2>
+        <p>Every day has one fixed historical army against five fixed boards, the same for every player on Android and in the browser. The armies rotate through Baghdad 850, Samarkand 1400, Valencia 1475 and Ayutthaya 1600. The Daily's number comes from your own calendar date, so it changes at your midnight.</p>
+        <p>There is no draft and one scored try. Every board starts with the full army, and a lost board scores a cross and moves on to the next. Finish all five to keep your streak, then share a card that shows your moves against par and your survivors without giving any position away. There are never ads before, during or after the Daily.</p>
+      </div>
+      <div class="pair">
+        <img class="card" src="daily-card.webp" width="480" height="640" alt="A Pawnfare Daily share card: Daily 6, Samarkand 1400, the five pieces of the army, and five rows, four at par and one lost.">
+        <img class="shot" src="shots/05-daily-result.webp" width="540" height="960" alt="The Daily result screen in the game: four of five boards at par, the survivors on each board and a streak of 4.">
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="tips">
+    <div class="wrap">
+      <h2>Tips for a longer run</h2>
+      <div class="tips">
+        <div class="tip">
+          <h3>Count before you move</h3>
+          <p>Look at the moves left and the par ticks before the first move. On the early boards you have slack for a quiet preparing move; from board five you have one move to spare, so the plan has to be close to the shortest win from the start.</p>
+        </div>
+        <div class="tip">
+          <h3>Touch the rival first</h3>
+          <p>Before you move, touch each rival piece to see what it covers. The notch on your own targets says the same thing from the other side: a square with a notch is a square where the rival takes your piece on its next move, and that piece is gone for the rest of the run.</p>
+        </div>
+        <div class="tip">
+          <h3>Know how the rival thinks</h3>
+          <p>The rival tries every move, assumes your best capture in reply, and keeps the move that leaves it the most material. It will take a piece you leave unprotected, it will not leave its own pieces hanging when it can avoid it, and its king steps away from your threats. It never bluffs and never changes its mind: the same position always gets the same answer.</p>
+        </div>
+        <div class="tip">
+          <h3>Box the king in</h3>
+          <p>A king that can run is hard to catch with short steppers alone. Use leapers like the faras and the jamal, which attack from squares the king cannot reach, and sliders that cut off whole rows. Often the guards themselves fence their king in against the edge.</p>
+        </div>
+        <div class="tip">
+          <h3>Mind your colours</h3>
+          <p>The ferz and the fil move only diagonally, so each stays on the squares of one colour all game, and the fil reaches only a quarter of the board. Pair them with a straight mover, or fuse them into one that can reach the rest.</p>
+        </div>
+        <div class="tip">
+          <h3>Give the cannon a screen</h3>
+          <p>The pao slides like a rukh but captures only by jumping exactly one piece in between, yours or the rival's. A guard standing in front of the king is the screen your cannon needs.</p>
+        </div>
+        <div class="tip">
+          <h3>Fuse or draft</h3>
+          <p>A fused piece is strong and frees a place in an army of six, but losing it costs you both halves. When your army is small, a new strong piece is often the safer pick: a lone single-step piece cannot corner a king that runs, which is why a draft for an army under three pieces always offers a strong one.</p>
+        </div>
+        <div class="tip">
+          <h3>Second chances in the app</h3>
+          <p>In normal runs on Android you can replay a lost board once per run, take back a move once per board, and add a fourth choice to one draft, each by watching an ad you choose, or at once with Remove ads and archive. In the browser these bonuses are not offered, so every run is played straight.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>In pictures</h2>
+    <div class="strip">
+      <img src="shots/08-first-board.webp" width="540" height="960" alt="The first board: a turquoise ring shows which piece to move and where, with no words.">
+      <img src="shots/01-cannon-takes-king.webp" width="540" height="960" alt="The cannon takes the king.">
+      <img src="shots/02-draft-fuse.webp" width="540" height="960" alt="The draft with a Champion to fuse.">
+      <img src="shots/03-daily-army.webp" width="540" height="960" alt="The Daily's army of Samarkand, 1400.">
+      <img src="shots/04-mad-queen.webp" width="540" height="960" alt="The queen's moves on a mad queen board.">
+      <img src="shots/05-daily-result.webp" width="540" height="960" alt="A Daily result.">
+      <img src="shots/06-run-complete.webp" width="540" height="960" alt="A completed shatranj run with two mastery stars, the pao found and the mad queen era open.">
+      <img src="shots/07-museum.webp" width="540" height="960" alt="The museum of pieces, with blank discs for the ones still to find.">
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="price">
+      <div>
+        <h2>Free, with ads you can remove</h2>
+        <p>Pawnfare is free on Google Play with ads, and an optional one-time Remove ads and archive purchase, bought through Google Play, takes them away. There are never ads during a board or around the Daily: a full screen ad can only come between boards of a run, after your third and sixth won board, or when a run that reached board four ends, and never in your first three boards. Rewarded ads are always your choice and name their reward first. Remove ads and archive removes the ads between boards for good, opens every past Daily and gives the rewarded bonuses without an ad.</p>
+        <p>In the browser, the same game plays with your progress kept in this browser, with ads beside the game on wide screens. How each version handles your data is in the <a href="/privacy-policies/pawnfare-privacy-policy.html">privacy policy</a>.</p>
+      </div>
+      <div class="ctas">
+        <a class="btn primary" href="play/">Play in your browser</a>
+        <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.pawnfare">Get it on Google Play</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Pawnfare by SocialSure Private Limited</span>
+    <nav>
+      <a href="/privacy-policies/pawnfare-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Play in your browser</a>
+      <a href="OFL-Spectral-Archivo.txt">Spectral and Archivo licence</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>
