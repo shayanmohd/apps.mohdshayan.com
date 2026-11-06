@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Skychime: fireworks chain game on a beat</title>
+<meta name="description" content="Skychime is a fireworks chain game on a beat. Tap one rising shell at its crest and its sparks light the rest of the volley. Play in your browser or on Android.">
+<meta name="theme-color" content="#0B1226">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="canonical" href="https://apps.mohdshayan.com/skychime/">
+<meta property="og:title" content="Skychime: fireworks chain game">
+<meta property="og:description" content="One spark per volley. Tap a rising shell at its crest and chain the whole sky, on the beat.">
+<meta property="og:image" content="https://apps.mohdshayan.com/skychime/og.jpg">
+<meta property="og:url" content="https://apps.mohdshayan.com/skychime/">
+<style>
+  @font-face {
+    font-family: "Archivo"; src: url("fonts/archivo-latin.woff2") format("woff2");
+    font-weight: 400 700; font-stretch: 75% 112%; font-display: swap;
+  }
+
+  /* The game's own palette (GAME-DESIGN.md section 6). The game is a night sky, so the page is dark only,
+     like the game. Sodium amber is the one accent; the shell colours appear only as the shells' own
+     swatches. Radius rule: buttons are pills, panels 18px (as in the game), phone frames 28px. */
+  :root {
+    --ink: #0B1226; --ink-2: #111a33; --haze: #2A3560; --amber: #F2B04C; --on-amber: #1B1204;
+    --champagne: #FFE6B8; --gold: #F6C978; --silver: #D4E3FF; --rose: #FF93AC;
+    --text: #E6E9F4; --head: #FFF7EA; --muted: #A3ABC6; --rule: #232D52;
+    --r-panel: 18px; --r-frame: 28px;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  figure { margin: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--ink); color: var(--text);
+    font: 17px/1.65 "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-stretch: 100%;
+  }
+  h1, h2, h3 { color: var(--head); font-weight: 600; margin: 0; letter-spacing: -0.015em; }
+  h1 { font-size: clamp(2.6rem, 6vw, 4.4rem); line-height: 1.02; font-stretch: 108%; }
+  h2 { font-size: clamp(1.9rem, 3.6vw, 2.8rem); line-height: 1.08; font-stretch: 106%; margin-bottom: 22px; }
+  h3 { font-size: 1.25rem; line-height: 1.2; margin-bottom: 6px; }
+  p { margin: 0 0 16px; max-width: 64ch; }
+  a { color: var(--amber); text-underline-offset: 3px; }
+  strong { color: var(--head); font-weight: 600; }
+  .wrap { width: min(1180px, 100% - 40px); margin: 0 auto; }
+  section { padding: 96px 0; }
+  .num { font-stretch: 80%; font-variant-numeric: tabular-nums; }
+
+  /* Header */
+  .top { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 20px; }
+  .brand { display: flex; align-items: center; gap: 11px; color: var(--head); font-size: 1.35rem; font-weight: 600;
+    font-stretch: 112%; text-decoration: none; }
+  .brand img { border-radius: 10px; }
+  .top nav { display: flex; align-items: center; gap: 24px; }
+  .top nav a { color: var(--muted); text-decoration: none; font-size: 0.97rem; white-space: nowrap; }
+  .top nav a:hover { color: var(--head); }
+
+  /* Buttons: pills, like the game */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+    min-height: 54px; padding: 0 28px; border-radius: 999px; font-size: 1.12rem; font-weight: 600;
+    text-decoration: none; transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn:active { transform: translateY(1px) scale(0.99); }
+  .btn.primary { background: var(--amber); color: var(--on-amber); }
+  .btn.primary:hover { background: #F6C170; }
+  .btn.ghost { color: var(--head); box-shadow: inset 0 0 0 1.5px #3B4777; }
+  .btn.ghost:hover { box-shadow: inset 0 0 0 1.5px var(--amber); }
+  .btn.small { min-height: 40px; padding: 0 18px; font-size: 0.97rem; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
+
+  /* Phone frames around the real screenshots */
+  .phone { margin: 0; border-radius: var(--r-frame); overflow: hidden; background: var(--ink);
+    box-shadow: 0 0 0 7px #050913, 0 0 0 8px #2A3560, 0 30px 80px rgba(3, 6, 18, 0.65); }
+  .phone img { display: block; width: 100%; height: auto; aspect-ratio: 9 / 16; }
+
+  /* Hero: the sky of the game, ink to haze */
+  .hero { background: linear-gradient(180deg, var(--ink) 0%, #141d3d 62%, var(--haze) 100%); padding: 0 0 88px; }
+  .hero-grid { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 56px; align-items: center; padding-top: 48px; }
+  .hero p.lead { font-size: 1.22rem; color: #CBD1E6; margin-top: 22px; max-width: 34ch; }
+  .hero-shots { position: relative; height: 580px; }
+  .hero-shots .phone { position: absolute; width: 300px; }
+  .hero-shots .front { right: 34px; top: 0; z-index: 1; }
+  .hero-shots .back { right: 250px; top: 90px; width: 250px; opacity: 0.9; }
+
+  /* How to play: long text beside two shots */
+  .howto-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 64px; align-items: start; }
+  .howto-shots { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; position: sticky; top: 28px; }
+  .howto-shots figure:nth-child(2) { margin-top: 64px; }
+  .howto-shots figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 14px; }
+  .note { color: var(--muted); font-size: 0.97rem; }
+
+  /* Shells: four tiles, each tinted by its shell's own colour */
+  .shells { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 18px; }
+  .shell { position: relative; border-radius: var(--r-panel); padding: 30px 30px 26px; background: var(--ink-2);
+    box-shadow: inset 0 0 0 1px var(--rule); overflow: hidden; }
+  .shell::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(120% 90% at 100% 0%, var(--c) 0%, transparent 55%); opacity: 0.16; }
+  .shell .sw { width: 14px; height: 14px; border-radius: 50%; background: var(--c); display: inline-block; margin-right: 10px;
+    box-shadow: 0 0 18px var(--c); vertical-align: 1px; }
+  .shell p { margin: 0 0 10px; color: #CDD3E8; }
+  .shell .open { color: var(--muted); font-size: 0.94rem; margin: 0; }
+  .shell.peony { --c: var(--champagne); }
+  .shell.willow { --c: var(--gold); }
+  .shell.crossette { --c: var(--silver); }
+  .shell.ring { --c: var(--rose); }
+
+  /* Tips: two columns of numbered help, no cards */
+  .tips { counter-reset: tip; list-style: none; margin: 8px 0 0; padding: 0;
+    display: grid; grid-template-columns: 1fr 1fr; column-gap: 64px; row-gap: 26px; }
+  .tips li { counter-increment: tip; position: relative; padding-left: 52px; }
+  .tips li::before { content: counter(tip); position: absolute; left: 0; top: -2px; font-size: 1.7rem; font-weight: 600;
+    font-stretch: 80%; color: var(--amber); font-variant-numeric: tabular-nums; }
+  .tips li p { margin: 0; }
+
+  /* Skylines and their music: a band with five columns */
+  .band { background: var(--ink-2); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .skylines { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin-top: 12px; }
+  .sky { padding: 6px 22px 4px; border-left: 1px solid var(--rule); }
+  .sky:first-child { border-left: 0; padding-left: 0; }
+  .sky h3 { font-size: 1.15rem; }
+  .sky .key { color: var(--head); margin: 8px 0 2px; }
+  .sky .bpm { color: var(--amber); font-size: 1.6rem; font-weight: 600; margin: 0; }
+  .sky .how { color: var(--muted); font-size: 0.92rem; margin: 6px 0 0; }
+
+  /* Daily: shot on the left, text on the right */
+  .daily-grid { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 72px; align-items: center; }
+  .daily-grid .phone { max-width: 330px; justify-self: center; width: 100%; }
+
+  /* Postcards and goals: two shots side by side, the text under them */
+  .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); gap: 40px; justify-content: start; margin-bottom: 44px; }
+  .pair figcaption { color: var(--muted); font-size: 0.92rem; margin-top: 16px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 64px; }
+
+  /* Ads, purchase and privacy: plain text block */
+  .plain { max-width: 760px; }
+  .plain h3 { margin-top: 28px; }
+
+  /* Closing call to action */
+  .end { background: linear-gradient(180deg, var(--ink) 0%, var(--haze) 100%); text-align: left; }
+  .end .free { color: #CBD1E6; font-size: 1.1rem; margin-top: 14px; }
+  footer { padding: 34px 0 52px; color: var(--muted); font-size: 0.92rem; background: var(--haze); }
+  footer .row { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; }
+  footer a { color: var(--head); }
+
+  @media (max-width: 960px) {
+    .hero-grid, .howto-grid, .daily-grid { grid-template-columns: 1fr; gap: 44px; }
+    .hero-shots { height: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .hero-shots .phone, .hero-shots .front, .hero-shots .back { position: static; width: 100%; opacity: 1; }
+    .howto-shots { position: static; }
+    .skylines { grid-template-columns: 1fr 1fr; row-gap: 30px; }
+    .sky, .sky:first-child { border-left: 0; padding: 0; }
+    .daily-grid .phone { order: 2; }
+  }
+  @media (max-width: 767px) {
+    section { padding: 64px 0; }
+    .top nav a:not(.btn) { display: none; }
+    .hero { padding-bottom: 64px; }
+    .hero-grid { padding-top: 24px; }
+    .shells, .tips, .cols { grid-template-columns: 1fr; }
+    .pair { grid-template-columns: 1fr 1fr; gap: 16px; }
+    .skylines { grid-template-columns: 1fr; }
+    .ctas .btn { flex: 1 1 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap top">
+  <a class="brand" href="./"><img src="icon-512.png" width="36" height="36" alt="">Skychime</a>
+  <nav aria-label="Sections">
+    <a href="#how-to-play">How to play</a>
+    <a href="#shells">Shells</a>
+    <a href="#tips">Tips</a>
+    <a href="#daily">Daily Show</a>
+    <a class="btn small primary" href="play/">Play</a>
+  </nav>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>One spark.<br>The whole sky.</h1>
+      <p class="lead">A fireworks chain game on a beat: tap one rising shell at its crest and chain the whole volley.</p>
+      <div class="ctas">
+        <a class="btn primary" href="play/">Play in your browser</a>
+        <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.skychime">Get it on Google Play</a>
+      </div>
+    </div>
+    <div class="hero-shots">
+      <figure class="phone back"><img src="shots/04-desert-chain.webp" width="540" height="960" alt="A chain of fireworks bursting over the Desert fort skyline, each burst numbered in the order it was lit."></figure>
+      <figure class="phone front"><img src="shots/01-new-year-chain.webp" width="540" height="960" alt="A New Year show: willow, ring and crossette shells chaining over a city of towers, with a Perfect tap, the score 22,820 and the multiplier at x8."></figure>
+    </div>
+  </div>
+</section>
+
+<section id="how-to-play">
+  <div class="wrap howto-grid">
+    <div>
+      <h2>How to play</h2>
+      <p>A show lasts about a minute of music. Shells climb from the skyline in volleys of five to nine, and every volley gives you exactly one spark. You do not tap each firework. You tap one shell, it bursts, and its sparks light every shell they touch. Those burst in their own shapes and light their neighbours in turn. That chain is the only way to clear the volley.</p>
+      <p><strong>Where you start matters.</strong> Shells that are close together, in space and in time, catch each other. Look for the shell whose sparks will still find the others in the air: often the one in the middle of a group, or the one that peaks first while the rest are still climbing into it. A tap that hits no shell does nothing and does not spend the spark, so a slip of the finger costs you only a moment.</p>
+      <p><strong>When you tap matters too.</strong> Every shell slows to a stop at the top of its climb, its crest, and crests land on the beat. Tap within 75 milliseconds of the crest for a Perfect: the shell blooms a quarter wider than usual and scores a bonus. A little early or late gives a normal bloom; far from the crest, the bloom is smaller and the chain may not reach.</p>
+      <p><strong>Every miss costs light.</strong> Shells the chain misses fall as duds, and for each one a district of the city below goes dark. Clear a whole volley and a district lights again and your multiplier climbs by one, up to x8. A volley whose spark you never use drops the multiplier back to x1. The show ends after its last volley, or earlier if the last light goes out.</p>
+      <p><strong>Scoring.</strong> Each shell in a chain is worth more than the one before it, up to the twentieth, all times your multiplier. Perfects, full clears and shells that a chain carries into the next volley add bonuses. The result card shows your score, longest chain, Perfects, full clears and duds, and a postcard of your longest chain.</p>
+      <p><strong>The first show teaches itself.</strong> The first volley is a tight cluster marked by a shrinking ring, and any tap on it starts a chain that clears everything. The second has two groups, and the ring marks the shell that bridges them. The third shows you the crest. From the fourth volley on, there is no help on screen.</p>
+      <p class="note">Pause with the button at the top right, with Back on Android or with Escape on the web.</p>
+    </div>
+    <div class="howto-shots">
+      <figure class="phone-wrap">
+        <div class="phone"><img src="shots/02-first-volley.webp" width="540" height="960" alt="The first volley of a first show: six shells rising together inside a shrinking guide ring over the Harbour skyline." loading="lazy"></div>
+        <figcaption>The first volley, with its guide ring.</figcaption>
+      </figure>
+      <figure class="phone-wrap">
+        <div class="phone"><img src="shots/03-lights-low.webp" width="540" height="960" alt="A late volley rising over the Snowy town, with only three of the ten city lights still on." loading="lazy"></div>
+        <figcaption>Three lights left, and a full volley rising.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="shells">
+  <div class="wrap">
+    <h2>Four shells, earned by skill</h2>
+    <p>Every shell carries a small mark as it climbs, so you can read the volley before it peaks. New shells open at fixed milestones, never at random, and from then on they turn up in your volleys.</p>
+    <div class="shells">
+      <article class="shell peony">
+        <h3><span class="sw"></span>Peony</h3>
+        <p>A round, even burst of champagne sparks. It lights the shells closest around it in every direction, which makes it the safest opening. Every new player starts with peonies alone.</p>
+        <p class="open">Open from the start. Marked with a dot.</p>
+      </article>
+      <article class="shell willow">
+        <h3><span class="sw"></span>Willow</h3>
+        <p>Slow, wide gold sparks that hang and droop for almost twice as long as a peony's. They reach shells far below the burst, and the next volley rises into them, so a willow can carry a chain from one volley into the next.</p>
+        <p class="open">Opens with a chain of 7 from one spark. Marked with a droop.</p>
+      </article>
+      <article class="shell crossette">
+        <h3><span class="sw"></span>Crossette</h3>
+        <p>Four long silver jets in a cross. It reaches further than any other shell, but only along its four lines, so it rewards lining up a distant shell.</p>
+        <p class="open">Opens with 3 Perfects in one show. Marked with a cross.</p>
+      </article>
+      <article class="shell ring">
+        <h3><span class="sw"></span>Ring</h3>
+        <p>A hollow rose ring. Its sparks light nothing until they have travelled a short way out, so it misses shells right beside it and catches the ones around the rim.</p>
+        <p class="open">Opens when you clear a volley of 8 or more. Marked with a hollow circle.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="tips" class="band">
+  <div class="wrap">
+    <h2>Tips for longer chains</h2>
+    <ol class="tips">
+      <li><p><strong>Start from the shell that peaks first.</strong> The later shells are still climbing, so they rise into its sparks instead of away from them.</p></li>
+      <li><p><strong>Count the beat.</strong> Every shell peaks on a beat. Listen for the kick, or watch the skyline's rim light pulse, and tap on the next pulse.</p></li>
+      <li><p><strong>Always spend the spark.</strong> A partial chain keeps your multiplier. Only a volley you never touch sends it back to x1.</p></li>
+      <li><p><strong>Use willows as bridges.</strong> Their sparks fall slowly through the space where the next volley rises. A willow late in a chain can light the first shells of the next volley.</p></li>
+      <li><p><strong>Aim crossettes.</strong> Their four jets reach far but narrow. Open with one when a shell sits straight above, below or beside it.</p></li>
+      <li><p><strong>Do not start a ring in a crowd.</strong> It misses its close neighbours. It is at its best in the middle of a wide, loose volley.</p></li>
+      <li><p><strong>Read the miss marks.</strong> A missed shell shows a faint mark where the nearest spark passed it, so you can see how far off the chain was and choose differently next time.</p></li>
+      <li><p><strong>In the first volleys, place before you time.</strong> A good opening with a normal bloom often clears a small volley. Later, when shells are spread wide, the extra reach of a Perfect is what joins the groups.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="music">
+  <div class="wrap">
+    <h2>Every burst plays the next note</h2>
+    <p>Each burst plays the next note of the skyline's scale, snapped to the beat, and the burst that completes a full clear plays the home note, so a clean volley sounds finished. Everything you hear is made live by the game: a bell for the bursts, a soft kick, a shaker and a drone. With the sound off, the Android app marks each volley's crest beat with a short vibration instead.</p>
+    <div class="skylines">
+      <div class="sky">
+        <h3>Harbour</h3>
+        <p class="key">D major pentatonic</p>
+        <p class="bpm num">108 bpm</p>
+        <p class="how">Cranes, warehouses and a lighthouse. Open from the start.</p>
+      </div>
+      <div class="sky">
+        <h3>Desert fort</h3>
+        <p class="key">E, hijaz colour</p>
+        <p class="bpm num">116 bpm</p>
+        <p class="how">Walls, domes and towers. Opens when you finish a show with the city lit.</p>
+      </div>
+      <div class="sky">
+        <h3>Snowy town</h3>
+        <p class="key">B minor pentatonic</p>
+        <p class="bpm num">100 bpm</p>
+        <p class="how">Pitched roofs and pines. Opens with 6 full clears in one show.</p>
+      </div>
+      <div class="sky">
+        <h3>New Year</h3>
+        <p class="key">C major pentatonic</p>
+        <p class="bpm num">124 bpm</p>
+        <p class="how">Towers and a clock tower. Open from 26 December to 6 January.</p>
+      </div>
+      <div class="sky">
+        <h3>River city</h3>
+        <p class="key">F major pentatonic</p>
+        <p class="bpm num">112 bpm</p>
+        <p class="how">Bridges over a river. Comes with Remove ads in the Android app.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="daily">
+  <div class="wrap daily-grid">
+    <figure class="phone"><img src="shots/06-daily-streak.webp" width="540" height="960" alt="The Daily Show panel for Daily number 61: an 11 day streak on a four week calendar, the day's score of 75,725 and a postcard of the longest chain." loading="lazy"></figure>
+    <div>
+      <h2>The Daily Show</h2>
+      <p>Once a day there is one show that every player gets: the same volleys, the same skyline and the same music, on Android and on the web. Its number comes from your own local date, so the next one arrives at your midnight, wherever you are. The skyline rotates between the harbour, the desert fort and the snowy town, and on 31 December and 1 January the Daily Show is the New Year finale. All four shells appear in it, whatever you have opened yourself.</p>
+      <p>You get one scored try. If you leave in the middle, the score so far is kept. In the Android app you can take a second try by watching an ad, once a day, and the day keeps your better score. There is no Encore in the Daily Show.</p>
+      <p>A calendar of the last four weeks and a streak count show which days you played. When you are done, Share sends a wordless card: the day's number, a row of marks for how each volley went, your longest chain and your Perfects, a small picture of that chain, and a link to the game on the web.</p>
+    </div>
+  </div>
+</section>
+
+<section id="postcards" class="band">
+  <div class="wrap">
+    <h2>Postcards and goals</h2>
+    <div class="pair">
+      <figure>
+        <div class="phone"><img src="shots/05-results.webp" width="540" height="960" alt="A New Year result card: 71,940 points, a longest chain of 17, 15 Perfects, 14 full clears and 1 dud, with a postcard of the chain." loading="lazy"></div>
+        <figcaption>A result card with its postcard.</figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><img src="shots/07-unlocks.webp" width="540" height="960" alt="A Harbour result card listing a new shell, two new skylines and a goal reached." loading="lazy"></div>
+        <figcaption>A show that opened the ring and two skylines.</figcaption>
+      </figure>
+    </div>
+    <div class="cols">
+      <p>Each skyline keeps a postcard of your longest chain there: a still, long exposure picture redrawn from the chain's own bursts. Tap the postcard on the menu to see it full size. A longer chain on the same skyline replaces it.</p>
+      <p>Three standing goals sit under the Play button with your best so far: a chain of 15 from one spark, a show with no dud, and 8 Perfects in a row. They do not expire, and chains of 15 and more do happen once willows carry chains from volley to volley.</p>
+    </div>
+  </div>
+</section>
+
+<section id="ads">
+  <div class="wrap"><div class="plain">
+    <h2>Free with ads, and an optional Remove ads</h2>
+    <p>Skychime is free to play with ads, and the Android app offers one optional, one-time Remove ads purchase through Google Play.</p>
+    <h3>In the Android app</h3>
+    <p>There are never ads during a show. A full screen ad can appear only when you press Next show between shows, at most once every three shows, and never at launch, after the Daily Show or when you leave. Rewarded ads play only when you choose one, for the reward written on its button: relight the city when its lights go out (once a show), take a second try at the Daily Show (once a day), or play three shows on a skyline you have not opened yet (once a day). Saying no costs nothing: the show simply ends with its score. The app shows no banner ads.</p>
+    <p>Remove ads removes the ads between shows for good, gives every rewarded bonus at once without an ad, and opens River city, a skyline that only this purchase opens. It belongs to the Google account that bought it, and Restore purchases in Settings brings it back after a reinstall.</p>
+    <h3>On the web</h3>
+    <p>The browser version has no full screen or rewarded ads and no purchases. On wide screens an ad may appear in a column beside the game on the menu and result screens, never over the game and never during a show. Your progress is kept in your browser on this device.</p>
+    <h3>Comfort and privacy</h3>
+    <p>Every burst is lit locally, and a limiter allows at most three large flashes in any second. A Reduced flashing setting softens them further, and Reduced motion follows your phone's setting unless you change it in the game. There is no account, the Android app plays offline, and your progress stays on your device. The <a href="/privacy-policies/skychime-privacy-policy.html">privacy policy</a> explains what Google's ad and billing software collects.</p>
+  </div></div>
+</section>
+
+<section class="end">
+  <div class="wrap">
+    <h2>Light the next show</h2>
+    <p class="free">Free with ads, with an optional one-time Remove ads.</p>
+    <div class="ctas">
+      <a class="btn primary" href="play/">Play in your browser</a>
+      <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.skychime">Get it on Google Play</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap row">
+    <span>Skychime by SocialSure Private Limited</span>
+    <a href="/privacy-policies/skychime-privacy-policy.html">Privacy policy</a>
+    <a href="mailto:shayanm2002@gmail.com">shayanm2002@gmail.com</a>
+    <span>Archivo font: SIL Open Font License (<a href="fonts/OFL.txt">licence</a>)</span>
+  </div>
+</footer>
+
+</body>
+</html>
