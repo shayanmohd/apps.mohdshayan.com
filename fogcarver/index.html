@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fogcarver: a hex island builder you can play in your browser</title>
+<meta name="description" content="Fogcarver is a calm hex tile island builder drawn as an old sea chart. Turn and lay tiles, lift the fog, close forests and villages, run a river to the sea. One daily island for everyone, in your browser or on Android.">
+<meta name="theme-color" content="#A8BEBB">
+<meta name="color-scheme" content="light">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="canonical" href="https://apps.mohdshayan.com/fogcarver/">
+<meta property="og:title" content="Fogcarver: carve an island out of the fog">
+<meta property="og:description" content="A calm hex tile island builder drawn as an ink sea chart, with one daily island for everyone.">
+<meta property="og:image" content="https://apps.mohdshayan.com/fogcarver/og.jpg">
+<meta property="og:url" content="https://apps.mohdshayan.com/fogcarver/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="fonts/fog-serif.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  /* The game's own type: EB Garamond (SIL OFL), self-hosted, the same subset the game bundles.
+     GAME-DESIGN.md section 6: cartographic lettering, sentence case, old-style figures. */
+  @font-face { font-family: "Fog Serif"; src: url("fonts/fog-serif.woff2") format("woff2"); font-weight: 400 800; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Fog Serif"; src: url("fonts/fog-serif-italic.woff2") format("woff2"); font-weight: 400 800; font-style: italic; font-display: swap; }
+
+  /* The "fog chart" palette, one light theme as in the game (it is ink on paper): sea ground, paper
+     panels, ink text, one vermilion accent. Radii as the game locks them: 12px buttons, 18px panels. */
+  :root {
+    --sea: #A8BEBB; --water: #6E8D8A; --fog: #F2F3EE; --paper: #E8EAE1; --paper-2: #DFE3D8;
+    --ink: #1F2B2A; --ink-2: #3D4B48; --rule: #C6CDC3; --verm: #C2432D; --verm-dark: #A33622;
+    --forest: #7F976A; --meadow: #CBD3A0; --village: #D9BE91;
+    --r-btn: 12px; --r-panel: 18px; --shadow: rgba(31, 43, 42, 0.22);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 20px/1.6 "Fog Serif", Georgia, "Times New Roman", serif; }
+  h1, h2, h3 { font-weight: 600; margin: 0; letter-spacing: -0.005em; text-wrap: balance; }
+  h2 { font-size: clamp(2.1rem, 4.4vw, 3.1rem); line-height: 1.08; margin-bottom: 18px; }
+  h3 { font-size: 1.3rem; line-height: 1.2; margin-bottom: 6px; }
+  p { margin: 0 0 14px; max-width: 62ch; }
+  a { color: var(--verm-dark); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  img { display: block; max-width: 100%; height: auto; }
+  .wrap { width: min(1160px, 100% - 40px); margin: 0 auto; }
+  section { padding: 96px 0; }
+  .soft { color: var(--ink-2); }
+
+  /* Header */
+  .top { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .brand { display: flex; align-items: center; gap: 12px; color: var(--ink); font-size: 1.6rem; font-style: italic; font-weight: 600; text-decoration: none; }
+  .brand img { border-radius: 10px; }
+  .top nav { display: flex; gap: 28px; }
+  .top nav a { color: var(--ink-2); text-decoration: none; }
+  .top nav a:hover { color: var(--ink); text-decoration: underline; }
+
+  /* Buttons: one primary (vermilion, as the game's primary button) and one outlined. */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; white-space: nowrap; min-height: 56px; padding: 0 26px;
+    border-radius: var(--r-btn); font: 600 1.12rem/1 "Fog Serif", Georgia, serif; text-decoration: none;
+    transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease; }
+  .btn:active { transform: translateY(1px) scale(0.99); }
+  .btn.primary { background: var(--verm); color: #FBFCF8; box-shadow: 0 1px 0 var(--verm-dark); }
+  .btn.primary:hover { background: var(--verm-dark); }
+  .btn.ghost { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); background: var(--fog); }
+  .btn.ghost:hover { background: #FBFCF8; }
+  .btn:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--water); outline-offset: 3px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
+
+  /* Hero: words left, a real share card right, which comes out of the fog once. */
+  .hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; padding: 40px 0 88px; }
+  .hero h1 { font-size: clamp(2.7rem, 5.6vw, 4.4rem); line-height: 1.04; }
+  .hero h1 em { font-weight: 600; }
+  .hero .lede { font-size: 1.28rem; margin-top: 20px; color: var(--ink-2); max-width: 38ch; }
+  .chart { position: relative; border-radius: 6px; overflow: hidden; box-shadow: 0 30px 60px -24px var(--shadow), 0 2px 0 var(--rule); }
+  .chart .fog { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(60% 50% at 30% 35%, #F2F3EE 0 40%, transparent 70%),
+                radial-gradient(55% 55% at 70% 60%, #F2F3EE 0 35%, transparent 70%),
+                radial-gradient(70% 60% at 50% 50%, rgba(242, 243, 238, 0.95) 0 50%, transparent 80%);
+    opacity: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .chart .fog { animation: lift 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
+    @keyframes lift { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(1.25); } }
+  }
+
+  /* Manifesto band on the sea. */
+  .band { background: var(--sea); }
+  .band .line { font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.08; font-style: italic; font-weight: 600; text-align: center; margin: 0 auto 18px; max-width: 22ch; text-wrap: balance; }
+  .band p.sub { text-align: center; margin: 0 auto; max-width: 52ch; font-size: 1.15rem; }
+
+  /* How to play: the phone shot stays in view while the steps scroll past it. */
+  .how { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 72px; align-items: start; }
+  .phone { position: sticky; top: 28px; border-radius: 26px; overflow: hidden; box-shadow: 0 0 0 7px var(--ink), 0 30px 60px -20px var(--shadow); background: var(--sea); }
+  .steps { counter-reset: s; list-style: none; margin: 28px 0 0; padding: 0; }
+  .steps li { counter-increment: s; position: relative; padding: 0 0 26px 64px; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: -6px; width: 44px; height: 44px; border-radius: 50%;
+    border: 1.5px solid var(--ink); display: grid; place-items: center; font-size: 1.3rem; font-weight: 600; background: var(--fog); }
+  .keys { margin-top: 8px; padding: 18px 22px; border-radius: var(--r-panel); background: var(--paper-2); }
+  kbd { font: 600 0.95rem/1 "Fog Serif", Georgia, serif; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--ink-2); background: var(--fog); }
+
+  /* Scoring: a chart legend. */
+  .legend-head { max-width: 62ch; }
+  .legend { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; margin-top: 36px; }
+  .entry { grid-column: span 4; background: var(--fog); border-radius: var(--r-panel); padding: 24px 24px 20px; border: 1px solid var(--rule); }
+  .entry.wide { grid-column: span 6; }
+  .entry .pts { display: block; font-size: 2.6rem; line-height: 1; font-weight: 600; margin-bottom: 10px; }
+  .entry .pts small { font-size: 1.05rem; font-weight: 500; color: var(--ink-2); }
+  .entry p { margin: 0; font-size: 1.02rem; }
+  .entry.forest { background: #DCE3CF; }
+  .entry.village { background: #EFE3CC; }
+  .entry.river { background: #D6E2E3; }
+  .entry.pic { grid-column: span 6; grid-row: span 2; padding: 0; overflow: hidden; background: var(--sea); display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .entry.pic img { width: 100%; height: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 40%; }
+  .entry.pic div { padding: 24px; align-self: center; }
+  .stamp { color: var(--verm-dark); }
+
+  /* The daily. */
+  .daily { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: center; }
+  .daily figure { margin: 0; }
+  .daily figcaption { font-size: 0.95rem; color: var(--ink-2); margin-top: 12px; font-style: italic; }
+  .share { font: 500 1.02rem/1.4 "Fog Serif", Georgia, serif; background: var(--fog); border-left: 3px solid var(--water); padding: 12px 16px; border-radius: 0 10px 10px 0; display: inline-block; margin: 6px 0 18px; }
+
+  /* Tips: an article set in columns. */
+  .tips { background: var(--fog); }
+  .cols { columns: 2 340px; column-gap: 56px; margin-top: 28px; }
+  .cols article { break-inside: avoid; margin-bottom: 26px; }
+  .cols p { margin: 0; }
+
+  /* In pictures: a strip you can swipe. */
+  .strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(220px, 260px); gap: 22px; overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 8px 8px 26px; margin-top: 28px; scrollbar-width: thin; }
+  .strip figure { margin: 0; scroll-snap-align: start; }
+  .strip img { border-radius: 20px; box-shadow: 0 0 0 5px var(--ink); background: var(--sea); }
+  .strip figcaption { font-size: 1rem; margin-top: 14px; color: var(--ink-2); }
+
+  /* Questions. */
+  .faq { max-width: 780px; }
+  details { border-top: 1px solid var(--rule); padding: 18px 0; }
+  details:last-of-type { border-bottom: 1px solid var(--rule); }
+  summary { cursor: pointer; font-size: 1.22rem; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 20px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font-weight: 500; color: var(--ink-2); }
+  details[open] summary::after { content: "\2212"; }
+  details p { margin: 12px 0 0; }
+
+  /* Price and ads. */
+  .deal { background: var(--sea); border-radius: var(--r-panel); padding: 52px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: center; }
+  .deal .ctas { margin-top: 0; flex-direction: column; align-items: stretch; }
+
+  footer { padding: 36px 0 56px; color: var(--ink-2); font-size: 1rem; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; border-top: 1px solid var(--rule); padding-top: 26px; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 22px; }
+  footer a { color: var(--ink-2); }
+
+  @media (max-width: 900px) {
+    section { padding: 72px 0; }
+    .hero, .how, .daily, .deal { grid-template-columns: 1fr; gap: 36px; }
+    .hero { padding-top: 16px; }
+    .phone { position: static; max-width: 300px; margin: 0 auto; }
+    .how .phone { order: 2; }
+    .legend { grid-template-columns: 1fr 1fr; }
+    .entry, .entry.wide { grid-column: span 1; }
+    .entry.pic { grid-column: span 2; grid-row: auto; }
+    .deal { padding: 32px 24px; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 18px; }
+    .top nav .optional { display: none; }
+    .legend { grid-template-columns: 1fr; }
+    .entry.pic { grid-column: span 1; grid-template-columns: 1fr; }
+    .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <a class="brand" href="/fogcarver/"><img src="icon-512.png" alt="" width="36" height="36">Fogcarver</a>
+  <nav>
+    <a class="optional" href="#how">How to play</a>
+    <a class="optional" href="#tips">Tips</a>
+    <a href="play/">Play</a>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <div>
+      <h1>Carve an island out of the <em>fog.</em></h1>
+      <p class="lede">A calm hex tile puzzle drawn as an old sea chart. One daily island for everyone.</p>
+      <div class="ctas">
+        <a class="btn primary" href="play/">Play in your browser</a>
+        <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.fogcarver">Get it on Google Play</a>
+      </div>
+    </div>
+    <div class="chart">
+      <img src="daily-card.webp" width="960" height="960" alt="A finished Fogcarver island framed as an ink chart: forests, fields and villages around a river, with a windmill, a watchtower and a lighthouse, scoring 76 against a par of 50.">
+      <span class="fog" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <p class="line">No ad ever touches a tile.</p>
+      <p class="sub">Every tile is dealt in a fixed order. None is ever bought, redrawn or unlocked with an ad, so the score you make is the island you built.</p>
+    </div>
+  </section>
+
+  <section class="wrap" id="how">
+    <div class="how">
+      <div class="phone"><img src="shots/02-gain-preview.webp" width="720" height="1280" alt="A tile held over a fogged cell shows +14 before it is placed, with ink ticks on the edges that match."></div>
+      <div>
+        <h2>How to play</h2>
+        <p>Each island is a fixed outline of hexagons under the fog. Its coast, one spring and one ruin show through before you start. Tiles come from a stack in a set order: you hold one, and you can see the next two.</p>
+        <ol class="steps">
+          <li><h3>Turn the tile</h3><p>Tap the tile in the tray to turn it a sixth of the way round. Each of its six edges is meadow, forest, village, river or coast, so the turn decides what meets what.</p></li>
+          <li><h3>Lay it in the fog</h3><p>Drag it onto any fogged cell and lift your finger to place it. If you prefer, tap a cell once to park the tile there, turn it in the tray, then tap the same cell again to confirm. Tapping open sea cancels.</p></li>
+          <li><h3>Read the gain first</h3><p>While the tile waits over a cell, it shows the points it would score, with an ink tick on every edge that matches. Nothing is final until you lift.</p></li>
+          <li><h3>Take one back</h3><p>Undo, the curved arrow beside the tray, takes back your last tile for free. It is one step, so plan before you lay the next.</p></li>
+          <li><h3>Finish the map</h3><p>When every cell is filled, the rest of the fog lifts and the island frames itself as a chart. Your score sits beside par, the pennant, and gold, the laurel.</p></li>
+        </ol>
+        <div class="keys">On a computer: <kbd>R</kbd> or <kbd>Space</kbd> or the mouse wheel turns the tile, <kbd>Z</kbd> undoes, <kbd>Esc</kbd> pauses.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="scoring">
+    <div class="legend-head">
+      <h2>What scores</h2>
+      <p>The score is worked out from the whole board after every tile, so Undo is always exact. Play itself has no words: matched edges melt into one wash of colour, mismatched ones keep an ink line, and landmarks stamp in red.</p>
+    </div>
+    <div class="legend">
+      <div class="entry"><span class="pts">1 <small>per edge</small></span><p><b>Seams.</b> An edge that meets the same land on the next tile.</p></div>
+      <div class="entry"><span class="pts">1 <small>per edge</small></span><p><b>Shores.</b> A coast or river edge that faces the sea.</p></div>
+      <div class="entry"><span class="pts">&times;2</span><p><b>The ruin.</b> Every seam and shore around the ruin counts double.</p></div>
+      <div class="entry pic">
+        <img src="shots/03-watchtower.webp" width="720" height="1280" alt="A closed forest plants a red watchtower and scores +14." loading="lazy">
+        <div><h3>Landmarks</h3><p>Close a forest or a village of three tiles or more and it plants a <span class="stamp">watchtower</span> or a <span class="stamp">mill</span> on the spot, worth 3 more.</p></div>
+      </div>
+      <div class="entry forest wide"><span class="pts">2 <small>per tile</small></span><p><b>Closed forest.</b> A forest whose every edge meets forest: none faces fog, sea or other land.</p></div>
+      <div class="entry village wide"><span class="pts">3 <small>per tile</small></span><p><b>Closed village.</b> The same rule for villages, and worth more.</p></div>
+      <div class="entry river wide"><span class="pts">2 <small>per tile</small></span><p><b>River to the sea.</b> The river from the spring reaches the sea: every tile on it pays, and a <span class="stamp">lighthouse</span> at its mouth adds 3.</p></div>
+      <div class="entry wide"><span class="pts">0</span><p><b>Fraying.</b> A forest or village edge that faces the sea or other land can never close. Meadow never closes, it only scores seams.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="daily">
+      <div>
+        <h2>One island a day, the same for everyone</h2>
+        <p>The daily island is numbered from your own calendar date. Everyone gets the same coast, the same 19 tiles in the same order, and the same par and gold, on Android and here in the browser. It takes about three minutes.</p>
+        <p>Par and gold were worked out offline for every day. A careful player reaches par about one day in three. Gold needs a closed forest or village and the river running to the sea, so it is rare.</p>
+        <p>Finish and share the framed map, with a line that reads in any chat:</p>
+        <span class="share">Fogcarver #8: 76, par 50 https://apps.mohdshayan.com/fogcarver/play/</span>
+        <p>Everyone shares the same coastline with a different island inside it. The Android app also keeps your streak and an archive of every past day.</p>
+      </div>
+      <figure>
+        <div class="phone" style="position: static; max-width: 340px; margin: 0 auto;"><img src="shots/04-daily-home.webp" width="720" height="1280" alt="The home screen on day 8, with a seven day streak and today's island half carved out of the fog." loading="lazy"></div>
+      </figure>
+    </div>
+  </section>
+
+  <section class="tips" id="tips">
+    <div class="wrap">
+      <h2>Tips for a better map</h2>
+      <div class="cols">
+        <article><h3>Start from the coast</h3><p>The outline is fixed, so the cells along it are known from the first tile. Give them tiles whose coast or river edges face outward: each one scores a shore point and costs you nothing inland. A forest or village edge pointed at the sea frays that patch for good.</p></article>
+        <article><h3>Keep forests and villages inland</h3><p>A closure pays on every tile in it, so a forest of four is worth 8 before its watchtower. Build these patches in the middle of the island, where every side can still meet more of the same land, and finish them before the stack runs out of the right tiles.</p></article>
+        <article><h3>Close small, then grow</h3><p>Three tiles are enough for a landmark. A big open forest is tempting, but every extra tile is another edge that might meet the wrong land. When the next two tiles in the tray can close a patch, close it.</p></article>
+        <article><h3>Plan the river before you need it</h3><p>The spring only matters once a river tile lands on it. Before you lay one there, look at the route to the sea and at the tiles in view. Each river tile on the way pays 2, and the lighthouse adds 3, so a short river that arrives beats a long one that stops.</p></article>
+        <article><h3>Feed the ruin</h3><p>Every seam around the ruin counts double. Put a tile on the ruin whose edges match what is already around it, and fill its neighbours with the same land. A ruin surrounded by meadow is easy points.</p></article>
+        <article><h3>Use meadow as glue</h3><p>Meadow never closes, but it scores every seam it meets. When a cell sits between awkward neighbours, a mostly meadow tile there keeps your forests and villages clean.</p></article>
+        <article><h3>Compare two cells</h3><p>Park a tile on one cell to read its gain, then try another before you confirm. The number counts only this tile; the closures it makes possible later are yours to see.</p></article>
+        <article><h3>Spend Undo wisely</h3><p>Undo is free but goes back one tile only. Use it when a placement surprises you, not as a way to search the whole board.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>In pictures</h2>
+    <div class="strip" tabindex="0" aria-label="Screenshots">
+      <figure><img src="shots/01-daily-map.webp" width="720" height="1280" alt="The result of day 8: a framed island scoring 76, par 50, gold 74." loading="lazy"><figcaption>A finished daily, framed</figcaption></figure>
+      <figure><img src="shots/05-mill-and-river.webp" width="720" height="1280" alt="An Atlas island in progress with a red windmill on a closed village." loading="lazy"><figcaption>A closed village raises a mill</figcaption></figure>
+      <figure><img src="shots/06-atlas-result.webp" width="720" height="1280" alt="Atlas island 15 finished with two stars, 78 against par 55." loading="lazy"><figcaption>Atlas islands earn up to three stars</figcaption></figure>
+      <figure><img src="shots/07-atlas-book.webp" width="720" height="1280" alt="The Atlas: pages of three finished islands as small ink maps, with stars." loading="lazy"><figcaption>Finished islands fill the Atlas</figcaption></figure>
+      <figure><img src="shots/03-watchtower.webp" width="720" height="1280" alt="A watchtower stamps in red on a closed forest." loading="lazy"><figcaption>A watchtower on a closed forest</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="faq">
+      <h2>Questions</h2>
+      <details><summary>Is Fogcarver free?</summary><p>Yes. The browser version and the Android app are both free. The Android app shows a full screen ad only between Atlas islands, and offers rewarded ads you can choose to watch for a bonus. One optional purchase, Remove ads and archive, removes those ads for good.</p></details>
+      <details><summary>Is the daily island the same on my phone and in the browser?</summary><p>Yes. The day number comes from your own calendar date, and the island, the tiles, their order, par and gold are the same everywhere for that day.</p></details>
+      <details><summary>What is the Atlas?</summary><p>An endless book of islands, three to a page, that grow from a small tutorial island to full 19 cell islands with a spring and a ruin. Finishing all three islands on a page opens the next one. There are 150 islands, then turned and mirrored copies of them.</p></details>
+      <details><summary>Can I play past days?</summary><p>In the Android app, the archive lists every past day. An unplayed day opens with a rewarded ad (up to three a day) or with Remove ads and archive. In the browser, past islands open in the Android app.</p></details>
+      <details><summary>Where is my progress kept?</summary><p>Only on your device: in the app's storage on Android, or in this browser's local storage on the web. There is no account, and the two keep separate progress.</p></details>
+      <details><summary>Does it work offline?</summary><p>The Android app plays without a connection. In the browser, the page needs a connection to load.</p></details>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="deal">
+      <div>
+        <h2>Free, with ads you can remove</h2>
+        <p>Fogcarver is free on Google Play with ads, and Remove ads and archive is an optional one-time purchase of USD 2.99 through Google Play. It removes the ads between islands, opens every past daily island, and gives the rewarded bonuses without an ad.</p>
+        <p>In the browser the same game plays with your progress kept in this browser, with ads beside the game on wide screens. How each version handles your data is in the <a href="/privacy-policies/fogcarver-privacy-policy.html">privacy policy</a>.</p>
+      </div>
+      <div class="ctas">
+        <a class="btn primary" href="play/">Play in your browser</a>
+        <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.fogcarver">Get it on Google Play</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Fogcarver by SocialSure Private Limited</span>
+    <nav>
+      <a href="/privacy-policies/fogcarver-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Play in your browser</a>
+      <a href="OFL-EBGaramond.txt">EB Garamond licence</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>
