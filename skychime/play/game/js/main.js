@@ -656,6 +656,10 @@
     e.preventDefault();
     var age = Math.max(0, Math.min(0.1, (performance.now() - e.timeStamp) / 1000));
     var vt = clock.visual() - age;
+    // Bring the show up to the tap's own time first, so the tap meets the same shells at any frame rate.
+    evNow = performance.now() / 1000; evVt = vt;
+    show.advanceTo(vt, stepEvents, 30);
+    if (screen !== 'play' || !show || !clock.running) return;
     var r = show.tap(renderer.wx(e.clientX), renderer.wy(e.clientY), vt);
     renderer.tapRipple(e.clientX, e.clientY, r.ok, performance.now() / 1000);
   });
@@ -856,22 +860,27 @@
 
   // ---- the frame loop ----
   // Some WebViews draw this canvas on the CPU: a Galaxy S22+ on WebView 156 managed about 25 frames a second
-  // at full resolution from the second launch on. When 90 frames in a row average over 24 ms, draw at one
-  // canvas pixel per CSS pixel for the rest of the session (a quarter of the pixels).
+  // at full resolution from the second launch on. When 90 frames in a row average over 21 ms (under about 48
+  // of the 60 the pacer asks for), draw at one canvas pixel per CSS pixel for the rest of the session (a
+  // quarter of the pixels).
   var slowSum = 0, slowN = 0;
   function watchSpeed(gap) {
     if (renderScale === 1 || gap <= 0 || gap > 100 || document.hidden) return;
     slowSum += gap; slowN++;
     if (slowN < 90) return;
-    if (slowSum / slowN > 24 && (window.devicePixelRatio || 1) > 1) { renderScale = 1; resize(); }
+    if (slowSum / slowN > 21 && (window.devicePixelRatio || 1) > 1) { renderScale = 1; resize(); }
     slowSum = 0; slowN = 0;
   }
   var last = performance.now();
   var stepsLastFrame = 0;
+  // Every screen, play included, draws at most about 60 frames a second. At the display rate a Galaxy
+  // S22+ (120 Hz) used about two cores in play and reached thermal SEVERE within minutes. Taps are judged
+  // at their own event time, never at a frame's (see the pointerdown handler), so the cap costs no accuracy.
+  var pacer = new Sky.pace.Pacer(60);
+  var evNow = 0, evVt = 0;
+  function stepEvents(ev) { onEvents(ev, evNow, evVt); }
   function frame(ms) {
-    // Off the show (menus, results, pause) draw at most about 60 frames a second: on a 120 Hz phone the
-    // idle menu otherwise kept more than a core busy and the phone warm while the player only reads.
-    if (screen !== 'play' && ms - last < 15) { requestAnimationFrame(frame); return; }
+    if (!pacer.due(ms)) { requestAnimationFrame(frame); return; }
     watchSpeed(ms - last);
     var now = ms / 1000;
     var dt = Math.min(0.1, Math.max(0, (ms - last) / 1000));
@@ -882,13 +891,8 @@
       stepsLastFrame = 0;
       if (screen === 'play' && clock.running) {
         show.provider.work(3, function () { return performance.now(); });
-        var guard = 0;
-        while (show && show.state === 'play' && show.model.step * M.DT < vt && guard < 30) {
-          var ev = show.step();
-          guard++;
-          if (ev.length) onEvents(ev, now, vt);
-        }
-        stepsLastFrame = guard;
+        evNow = now; evVt = vt;
+        stepsLastFrame = show.advanceTo(vt, stepEvents, 30);
         scheduleBeats();
       }
       if (show) {

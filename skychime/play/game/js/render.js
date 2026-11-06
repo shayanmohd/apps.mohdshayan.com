@@ -536,7 +536,7 @@
     }
     tc.globalAlpha = 1;
     ctx.globalCompositeOperation = 'lighter';
-    ctx.drawImage(this.trail, 0, 0, w, h);
+    if (!this.trailClear) ctx.drawImage(this.trail, 0, 0, w, h); // cleared and quiet: nothing to add
 
     // Rising shells draw a short fading tail from their own closed-form path, straight onto the frame:
     // never onto the long-exposure layer, so a shell's whole climb is never left painted on the sky.
@@ -575,16 +575,21 @@
     gc.clearRect(0, 0, this.glow.width, this.glow.height);
     gc.setTransform(0.25, 0, 0, 0.25, 0, 0);
     gc.globalCompositeOperation = 'lighter';
+    // The box of everything drawn into the glow layer: only that part is scaled up onto the frame.
+    var bx0 = 1e9, by0 = 1e9, bx1 = -1e9, by1 = -1e9;
     for (i = this.flashes.length - 1; i >= 0; i--) {
       var f = this.flashes[i];
       var ft = (now - f.t0) / f.dur;
       if (ft >= 1) { this.flashes.splice(i, 1); continue; }
       var env = f.soft ? Math.min(1, ft * 4) * (1 - ft) : (1 - ft) * (1 - ft);
       var fr = f.r * s * (1 + ft * 0.6);
+      x = this.sx(f.x); y = this.sy(f.y);
       gc.globalAlpha = Math.max(0, f.k * env);
-      gc.drawImage(glows[f.col], this.sx(f.x) - fr, this.sy(f.y) - fr, fr * 2, fr * 2);
+      gc.drawImage(glows[f.col], x - fr, y - fr, fr * 2, fr * 2);
       gc.globalAlpha = Math.max(0, f.k * env * 0.8);
-      gc.drawImage(glows[C_WHITE], this.sx(f.x) - fr * 0.4, this.sy(f.y) - fr * 0.4, fr * 0.8, fr * 0.8);
+      gc.drawImage(glows[C_WHITE], x - fr * 0.4, y - fr * 0.4, fr * 0.8, fr * 0.8);
+      if (x - fr < bx0) bx0 = x - fr; if (x + fr > bx1) bx1 = x + fr;
+      if (y - fr < by0) by0 = y - fr; if (y + fr > by1) by1 = y + fr;
     }
     gc.globalAlpha = 0.5;
     for (i = 0; i < sparks.length; i++) {
@@ -594,9 +599,15 @@
       y = this.sy(p.py + (p.y - p.py) * alpha);
       var gr = 4.5 * s * (1 - 0.6 * p.age / p.life);
       gc.drawImage(glows[TYPE_COLOR[p.type]], x - gr, y - gr, gr * 2, gr * 2);
+      if (x - gr < bx0) bx0 = x - gr; if (x + gr > bx1) bx1 = x + gr;
+      if (y - gr < by0) by0 = y - gr; if (y + gr > by1) by1 = y + gr;
     }
     gc.globalAlpha = 1;
-    ctx.drawImage(this.glow, 0, 0, w, h);
+    // in glow pixels, one pixel of margin, inside the layer
+    var gsx = Math.max(0, Math.floor(bx0 / 4) - 1), gsy = Math.max(0, Math.floor(by0 / 4) - 1);
+    var gsw = Math.min(this.glow.width, Math.ceil(bx1 / 4) + 1) - gsx, gsh = Math.min(this.glow.height, Math.ceil(by1 / 4) + 1) - gsy;
+    var glowOn = gsw > 0 && gsh > 0;
+    if (glowOn) ctx.drawImage(this.glow, gsx, gsy, gsw, gsh, gsx * 4, gsy * 4, gsw * 4, gsh * 4);
 
     // ---- embers ----
     var P = this.parts;
@@ -646,8 +657,8 @@
       ctx.globalAlpha = 0.3;
       ctx.translate(0, v.ground * 2);
       ctx.scale(1, -1);
-      ctx.drawImage(this.trail, 0, 0, w, h);
-      ctx.drawImage(this.glow, 0, 0, w, h);
+      if (!this.trailClear) ctx.drawImage(this.trail, 0, 0, w, h);
+      if (glowOn) ctx.drawImage(this.glow, gsx, gsy, gsw, gsh, gsx * 4, gsy * 4, gsw * 4, gsh * 4);
       ctx.restore();
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';

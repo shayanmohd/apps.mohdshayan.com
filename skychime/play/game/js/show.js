@@ -90,6 +90,21 @@
     return out;
   };
 
+  /**
+   * Steps until the model reaches show time t (at most max steps), handing each step's events to cb.
+   * The frame loop calls it once a frame and the tap handler calls it at the tap's own time, so a tap
+   * meets the same model whatever the frame rate. Returns the steps taken.
+   */
+  Show.prototype.advanceTo = function (t, cb, max) {
+    var n = 0;
+    while (this.state === 'play' && this.model.step * M.DT < t && n < max) {
+      var ev = this.step();
+      n++;
+      if (ev.length && cb) cb(ev);
+    }
+    return n;
+  };
+
   Show.prototype.markLit = function (sh, out) {
     var vs = this.volleys[sh.volley];
     vs.lit += 1;
