@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0c1626">
+  <title>Butterline</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="view"></canvas>
+
+  <button id="pauseBtn" class="icon-btn hud-pause" type="button" hidden></button>
+
+  <section id="menu" class="screen menu" hidden>
+    <header class="brand">
+      <h1 id="wordmark" class="wordmark"></h1>
+      <span class="brand-line" aria-hidden="true"></span>
+    </header>
+    <div class="menu-stack">
+      <button id="dailyCard" class="card daily-card" type="button">
+        <span class="daily-head">
+          <span id="dailyIcon" class="daily-icon"></span>
+          <span id="dailyLabel" class="card-title"></span>
+          <span id="dailyNum" class="daily-num"></span>
+        </span>
+        <span id="dailySlots" class="slots" aria-hidden="true"></span>
+        <span id="dailyMeta" class="daily-meta"></span>
+      </button>
+      <div class="card circuits-card">
+        <div class="circuits-head">
+          <span id="circuitsLabel" class="card-title"></span>
+          <span id="circuitsBest" class="card-aside"></span>
+        </div>
+        <div class="picker" id="airportPicker">
+          <button class="icon-btn small prev" type="button"></button>
+          <span class="pick-name"></span>
+          <button class="icon-btn small next" type="button"></button>
+        </div>
+        <div class="picker" id="aircraftPicker">
+          <button class="icon-btn small prev" type="button"></button>
+          <span class="pick-name"></span>
+          <button class="icon-btn small next" type="button"></button>
+        </div>
+        <button id="flyBtn" class="btn primary wide" type="button"></button>
+      </div>
+      <nav class="menu-foot">
+        <button id="logBtn" class="icon-btn" type="button"></button>
+        <button id="settingsBtn" class="icon-btn" type="button"></button>
+        <button id="soundBtn" class="icon-btn" type="button"></button>
+      </nav>
+    </div>
+  </section>
+
+  <section id="pause" class="screen scrim" hidden>
+    <div class="panel center-panel">
+      <h2 id="pauseTitle" class="panel-title"></h2>
+      <button id="resumeBtn" class="btn primary wide" type="button"></button>
+      <button id="leaveBtn" class="btn wide" type="button"></button>
+      <p id="leaveNote" class="note"></p>
+    </div>
+  </section>
+
+  <section id="result" class="screen sheet-screen" hidden>
+    <div id="resultPanel" class="panel sheet"></div>
+  </section>
+
+  <section id="sheet" class="screen scrim sheet-screen" hidden>
+    <div id="sheetPanel" class="panel sheet tall" role="dialog" aria-modal="true"></div>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="game-sdk.js"></script>
+  <script src="js/rng.js"></script>
+  <script src="js/strings.js"></script>
+  <script src="js/aircraft.js"></script>
+  <script src="js/airports.js"></script>
+  <script src="js/wind.js"></script>
+  <script src="js/grade.js"></script>
+  <script src="js/clock.js"></script>
+  <script src="js/sim.js"></script>
+  <script src="js/pilot.js"></script>
+  <script src="js/daily.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
