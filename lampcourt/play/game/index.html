@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>Lampcourt</title>
+  <link rel="preload" href="fonts/readex-pro.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-screen="boot">
+  <canvas id="c" role="img" data-aria="aria.board"></canvas>
+
+  <!-- play: icons and numbers only -->
+  <div id="hud" class="hud" hidden>
+    <button id="pauseBtn" class="icon-btn" data-icon="pause" data-aria="aria.pause"></button>
+    <div class="counter" id="counter" role="status">
+      <span id="hudCount" class="count">0</span>
+      <span id="hudTargets" class="targets"></span>
+    </div>
+    <div class="hud-end">
+      <button id="hintBtn" class="icon-btn reward-icon" data-icon="spot" data-aria="hint" hidden></button>
+      <button id="undoBtn" class="icon-btn" data-icon="undo" data-aria="aria.undo"></button>
+    </div>
+  </div>
+  <p id="coach" class="coach" hidden></p>
+  <button id="lightBtn" class="light-btn" data-icon="flame" data-aria="aria.light" hidden></button>
+
+  <!-- home -->
+  <section id="home" class="screen home" hidden>
+    <div id="skySlot" class="sky-slot"></div>
+    <div class="home-head">
+      <h1 class="wordmark" data-t="title"></h1>
+      <p class="dateline"><span id="homeDate"></span><span id="homeGreg" class="minor"></span></p>
+      <p id="homeSoon" class="soon" hidden></p>
+    </div>
+    <div id="homePlan" class="planslot"></div>
+    <div class="home-actions">
+      <p id="homeResult" class="result-line" hidden></p>
+      <button id="playBtn" class="primary"></button>
+      <div id="repair" class="repair" hidden>
+        <p id="repairLine" class="minor"></p>
+        <button id="repairBtn" class="reward"></button>
+      </div>
+      <div class="row">
+        <button id="walkBtn" class="secondary grow" data-icon="moon"><span data-t="nightWalk"></span><span id="walkStars" class="badge"></span></button>
+        <button id="archiveBtn" class="icon-btn boxed" data-icon="archive" data-aria="archive"></button>
+        <button id="settingsBtn" class="icon-btn boxed" data-icon="gear" data-aria="settings"></button>
+      </div>
+      <p id="homeStreak" class="streak"></p>
+    </div>
+  </section>
+
+  <!-- result, over the lit courtyard -->
+  <section id="result" class="panel" hidden>
+    <div class="res-head">
+      <div id="resStars" class="stars" role="img"></div>
+      <div class="res-count"><b id="resLit">0</b><span id="resOf"></span></div>
+      <span id="resPerfect" class="stamp" data-t="perfect" hidden></span>
+    </div>
+    <p id="resLine" class="minor"></p>
+    <div id="resToggle" class="seg" hidden>
+      <button id="segYours" data-t="yours" aria-pressed="true"></button>
+      <button id="segBest" data-t="bestOne" aria-pressed="false"></button>
+    </div>
+    <p id="resNote" class="note" hidden></p>
+    <div id="resOffer" class="offer" hidden>
+      <p><b data-t="removeAds"></b> <span class="minor" data-t="removeAdsBody"></span></p>
+      <button id="resBuy" class="reward"></button>
+    </div>
+    <div class="buttons">
+      <button id="resNext" class="primary"></button>
+      <div class="row">
+        <button id="resRetry" class="secondary grow" data-icon="retry"><span data-t="retry"></span></button>
+        <button id="resShare" class="secondary grow" data-icon="share" hidden><span data-t="share"></span></button>
+        <button id="resHome" class="icon-btn boxed" data-icon="home" data-aria="home"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Night walk -->
+  <section id="walk" class="screen list" hidden>
+    <header class="top"><button id="walkBack" class="icon-btn" data-icon="back" data-aria="aria.back"></button><h2 data-t="nightWalk"></h2></header>
+    <div id="chapters" class="chapters"></div>
+  </section>
+
+  <!-- archive -->
+  <section id="archive" class="screen list" hidden>
+    <header class="top"><button id="archiveBack" class="icon-btn" data-icon="back" data-aria="aria.back"></button><h2 data-t="archive"></h2><span id="archiveLeft" class="minor"></span></header>
+    <div class="month-nav">
+      <button id="monPrev" class="icon-btn" data-icon="back" data-aria="aria.back"></button>
+      <span id="monName"></span>
+      <button id="monNext" class="icon-btn" data-icon="next" data-aria="next"></button>
+    </div>
+    <div id="calendar" class="calendar"></div>
+    <p id="archiveEmpty" class="minor" data-t="archiveEmpty" hidden></p>
+  </section>
+
+  <!-- settings -->
+  <section id="settings" class="screen list" hidden>
+    <header class="top"><button id="settingsBack" class="icon-btn" data-icon="back" data-aria="aria.back"></button><h2 data-t="settings"></h2></header>
+    <div class="settings">
+      <div class="set-row col"><span data-t="language"></span><div id="langSeg" class="seg wrap"></div></div>
+      <div class="set-row"><span data-t="sound"></span><button id="soundBtn" class="toggle" role="switch"></button></div>
+      <div class="set-row"><span data-t="ambience"></span><button id="ambBtn" class="toggle" role="switch"></button></div>
+      <div class="set-row col"><span data-t="motion"></span><div id="motionSeg" class="seg"></div></div>
+      <div class="set-row col"><span data-t="ramadanStart"></span><div id="shiftSeg" class="seg"></div><p class="minor" data-t="shiftNote"></p></div>
+      <div id="buyRow" class="set-row col" hidden>
+        <span data-t="removeAds"></span>
+        <p class="minor" data-t="removeAdsBody"></p>
+        <p id="adFreeLine" class="minor ok" data-t="adFreeOn" hidden></p>
+        <button id="buyBtn" class="primary"></button>
+        <button id="restoreBtn" class="link small" data-t="restore"></button>
+      </div>
+      <div class="set-links">
+        <button id="howBtn" class="link" data-icon="info"><span data-t="howToPlay"></span></button>
+        <button id="privacyBtn" class="link" data-icon="privacy" hidden><span data-t="privacyOptions"></span></button>
+        <a id="policyLink" class="link" href="https://apps.mohdshayan.com/privacy-policies/lampcourt-privacy-policy.html" target="_blank" rel="noopener" data-icon="link"><span data-t="privacyPolicy"></span></a>
+      </div>
+      <p class="minor credits" data-t="credits"></p>
+    </div>
+  </section>
+
+  <!-- one sheet for pause, hint, archive day, offer, chapter card and how to play -->
+  <div id="scrim" class="scrim" hidden></div>
+  <section id="sheet" class="sheet" role="dialog" aria-modal="true" hidden></section>
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="game-sdk.js"></script>
+  <script src="js/rng.js"></script>
+  <script src="js/light.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/strings.js"></script>
+  <script src="js/lanterns.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/daily-table.js"></script>
+  <script src="js/walk-table.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
