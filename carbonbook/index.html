@@ -44,6 +44,8 @@
   .cta { display: inline-block; background: var(--vermilion); color: var(--on-vermilion); text-decoration: none;
     font-weight: 600; font-size: 1.05rem; padding: 15px 26px; border-radius: 8px; }
   .cta:hover { filter: brightness(1.06); }
+  .soon { display: inline-block; border: 2px solid var(--vermilion); color: var(--carbon);
+    font-weight: 600; font-size: 1.05rem; padding: 13px 24px; border-radius: 8px; }
   .cta:active { transform: translateY(1px); }
   a:focus-visible, .cta:focus-visible { outline: 3px solid var(--vermilion); outline-offset: 3px; }
 
@@ -53,7 +55,7 @@
   .hero .note { margin-top: 16px; color: var(--smudge); font-size: 0.95rem; }
   .phone { margin: 0; min-width: 0; }
   .hero > *, .unlock > *, .strip .row > * { min-width: 0; }
-  .phone img { display: block; width: 100%; max-width: 380px; margin: 0 auto; border-radius: 8px; border: 1px solid var(--rule); }
+  .phone img { display: block; width: 100%; height: auto; max-width: 380px; margin: 0 auto; border-radius: 8px; border: 1px solid var(--rule); }
 
   /* 2. The bill book page: a ruled list, one column, carbon ink */
   .page { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 40px clamp(20px, 5vw, 64px); margin: 0 0 88px;
@@ -68,7 +70,7 @@
   .strip h2 { margin-bottom: 28px; }
   .strip .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
   .strip figure { margin: 0; }
-  .strip img { display: block; width: 100%; border-radius: 8px; border: 1px solid var(--rule); }
+  .strip img { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--rule); }
   .strip figcaption { margin-top: 12px; color: var(--smudge); font-size: 0.98rem; }
 
   /* 4. The unlock: shot left, words right */
@@ -112,7 +114,7 @@
     <div>
       <h1>The bill book that never runs out.</h1>
       <p class="lede">Unlimited GST, VAT or sales tax invoices, quotations and receipts with your logo, shared as a clean PDF on WhatsApp or email. No account, no signal needed.</p>
-      <a class="cta" href="https://play.google.com/store/apps/details?id=com.mohdshayan.carbonbook">Get it on Google Play</a>
+      <p class="soon">Coming soon to Google Play</p>
       <p class="note">Free on Google Play, unlock everything once for USD 4.99. Works fully offline.</p>
     </div>
     <figure class="phone"><img src="shots/01-paid-invoice-detail.png" alt="A tax invoice for Kumar Traders with CGST and SGST lines and a vermilion PAID stamp" width="1080" height="1920"></figure>
@@ -172,7 +174,6 @@
 <div class="wrap">
   <footer>
     <div class="links">
-      <a href="https://play.google.com/store/apps/details?id=com.mohdshayan.carbonbook">Google Play</a>
       <a href="/privacy-policies/carbonbook-privacy-policy.html">Privacy policy</a>
       <a href="mailto:shayanm2002@gmail.com">Support and refunds</a>
     </div>
