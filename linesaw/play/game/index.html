@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0e1424">
+  <title>Linesaw</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-state="boot">
+  <canvas id="view"></canvas>
+
+  <button id="pauseBtn" class="icon-btn hud-pause" type="button" hidden></button>
+
+  <section id="menu" class="screen menu" hidden>
+    <header class="brand">
+      <h1 id="wordmark" class="wordmark"></h1>
+      <p id="tagline" class="tagline"></p>
+      <p id="festivalTag" class="festival-tag" hidden></p>
+    </header>
+    <div class="menu-stack">
+      <button id="friendCard" class="card friend-card" type="button" hidden>
+        <span class="card-row">
+          <span id="friendIcon" class="card-icon"></span>
+          <span id="friendLabel" class="card-title"></span>
+        </span>
+        <span id="friendNote" class="card-meta"></span>
+      </button>
+      <button id="dailyCard" class="card daily-card" type="button">
+        <span class="card-row">
+          <span id="dailyIcon" class="card-icon"></span>
+          <span id="dailyLabel" class="card-title"></span>
+          <span id="dailyStreak" class="streak"></span>
+        </span>
+        <span id="dailyMeta" class="card-meta"></span>
+      </button>
+      <div class="play-row">
+        <button id="soloBtn" class="btn primary big" type="button"></button>
+        <button id="duoBtn" class="btn big duo" type="button"></button>
+      </div>
+      <div id="adsRow" class="ads-row" hidden>
+        <button id="removeAdsBtn" class="btn quiet" type="button"></button>
+        <button id="restoreBtn" class="btn quiet" type="button"></button>
+      </div>
+      <nav class="menu-foot">
+        <button id="recordsBtn" class="icon-btn" type="button"></button>
+        <button id="settingsBtn" class="icon-btn" type="button"></button>
+        <button id="soundBtn" class="icon-btn" type="button"></button>
+      </nav>
+    </div>
+  </section>
+
+  <section id="pause" class="screen scrim" hidden>
+    <div class="panel center-panel">
+      <h2 id="pauseTitle" class="panel-title"></h2>
+      <button id="resumeBtn" class="btn primary wide" type="button"></button>
+      <button id="leaveBtn" class="btn wide" type="button"></button>
+      <p id="leaveNote" class="note"></p>
+      <button id="pauseSoundBtn" class="icon-btn pause-sound" type="button"></button>
+    </div>
+  </section>
+
+  <section id="offer" class="screen scrim" hidden>
+    <div id="offerPanel" class="panel center-panel"></div>
+  </section>
+
+  <section id="result" class="screen sheet-screen" hidden>
+    <div id="resultPanel" class="panel sheet"></div>
+  </section>
+
+  <section id="sheet" class="screen scrim sheet-screen" hidden>
+    <div id="sheetPanel" class="panel sheet tall" role="dialog" aria-modal="true"></div>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="game-sdk.js"></script>
+  <script src="js/rng.js"></script>
+  <script src="js/strings.js"></script>
+  <script src="js/clock.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/sky.js"></script>
+  <script src="js/match.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/daily.js"></script>
+  <script src="js/festival.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
