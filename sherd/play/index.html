@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Play Sherd</title>
+  <meta name="description" content="Play Sherd in your browser.">
+  <meta name="google-adsense-account" content="ca-pub-6834902829870684">
+  <!-- AdSense. Loads on this page only, never inside the game frame. -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6834902829870684" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="host.css">
+  <link rel="canonical" href="https://apps.mohdshayan.com/sherd/play/">
+</head>
+<body>
+  <header class="bar">
+    <a class="home" href="/sherd/">Sherd</a>
+    <nav>
+      <a href="/sherd/">About</a>
+      <a href="/privacy-policies/sherd-privacy-policy.html">Privacy</a>
+    </nav>
+  </header>
+
+  <main class="stage">
+    <!-- The play area. Ad slots sit beside it on wide screens and below it, past a gap, on narrow ones:
+         never over it and never where a tap during play lands. The game shares from inside the frame
+         (Shell.share), so the frame may use Web Share and write the clipboard. -->
+    <div class="play">
+      <iframe id="game" src="game/index.html" title="Sherd" allow="autoplay; fullscreen; web-share; clipboard-write" referrerpolicy="same-origin"></iframe>
+    </div>
+    <aside class="slot slot-side" data-slot="side" aria-label="Advertisement">
+      <span class="label">Advertisement</span>
+    </aside>
+    <aside class="slot slot-below" data-slot="below" aria-label="Advertisement">
+      <span class="label">Advertisement</span>
+    </aside>
+  </main>
+
+  <script>
+    // AdSense ad unit ids for this page, from AdSense > Ads > By ad unit once the account is approved.
+    // Empty means the slot stays empty; the page still works with the AdSense tag and no ads.
+    window.SHELL_WEB = {
+      client: 'ca-pub-6834902829870684',
+      slots: { side: '', below: '' }
+    };
+  </script>
+  <script src="host.js"></script>
+</body>
+</html>

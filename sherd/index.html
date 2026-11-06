@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sherd: a wordless daily logic puzzle. Find the hidden shard in six tries</title>
+<meta name="description" content="Sherd is a calm logic puzzle with no words in play. Paint five cells, read three marks and find the hidden shard in six tries. Play in your browser or on Android.">
+<meta name="theme-color" content="#E2E5DF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161C20" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="canonical" href="https://apps.mohdshayan.com/sherd/">
+<meta property="og:title" content="Sherd: a wordless daily logic puzzle">
+<meta property="og:description" content="Paint five cells, read three marks and find the hidden shard in six tries.">
+<meta property="og:image" content="https://apps.mohdshayan.com/sherd/og.jpg">
+<meta property="og:url" content="https://apps.mohdshayan.com/sherd/">
+<style>
+  @font-face { font-family: "Sofia Cond"; src: url("fonts/sofia-sans-condensed-500.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "Sofia Cond"; src: url("fonts/sofia-sans-condensed-600.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+
+  /* The game's own palette (GAME-DESIGN.md section 6): drafting film, iron-gall ink, cobalt glaze as the
+     one accent, oxide only for the near mark. Radius rule, as in the game: panels 20px, buttons 14px,
+     screenshots 22px, mark tiles 12px. */
+  :root {
+    --film: #E2E5DF; --shade: #D4D8D1; --sheet: #ECEEEA; --pencil: #8F9A95; --ink: #1F2A31;
+    --body: #33414A; --muted: #56636B; --cobalt: #2B4C8C; --cobalt-hover: #23407A; --link: #2B4C8C;
+    --oxide: #A2532E; --rule: #C4CAC4; --shadow: rgba(31, 42, 49, 0.16);
+    --r-panel: 20px; --r-btn: 14px; --r-shot: 22px; --r-tile: 12px;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --film: #161C20; --shade: #1E262B; --sheet: #222B31; --pencil: #6F7B76; --ink: #EEF0EC;
+      --body: #CDD3D0; --muted: #9CA7A3; --link: #9DB4E6; --rule: #2E3A40; --shadow: rgba(0, 0, 0, 0.45);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--film); color: var(--body);
+    font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1, h2, h3, .btn, .brand, .num { font-family: "Sofia Cond", system-ui, sans-serif; }
+  h1, h2, h3 { color: var(--ink); font-weight: 600; margin: 0; line-height: 1.04; letter-spacing: -0.01em; }
+  h2 { font-size: clamp(2rem, 4.4vw, 3.1rem); margin-bottom: 22px; }
+  h3 { font-size: 1.5rem; margin-bottom: 6px; }
+  p { margin: 0 0 14px; max-width: 64ch; }
+  a { color: var(--link); text-underline-offset: 3px; }
+  img { display: block; max-width: 100%; height: auto; }
+  .wrap { width: min(1160px, 100% - 40px); margin: 0 auto; }
+  section { padding: 92px 0; }
+
+  /* Header */
+  .top { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font-size: 1.55rem; font-weight: 600; text-decoration: none; }
+  .brand img { border-radius: 9px; }
+  .top nav { display: flex; gap: 24px; }
+  .top nav a { color: var(--muted); text-decoration: none; }
+  .top nav a:hover { color: var(--ink); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+    min-height: 54px; padding: 0 26px; border-radius: var(--r-btn); font-size: 1.22rem; font-weight: 600;
+    text-decoration: none; transition: transform 0.15s ease, background-color 0.2s ease;
+  }
+  .btn:active { transform: translateY(1px) scale(0.99); }
+  .btn.primary { background: var(--cobalt); color: #F4F6F2; }
+  .btn.primary:hover { background: var(--cobalt-hover); }
+  .btn.ghost { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--pencil); }
+  .btn.ghost:hover { box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+
+  .shot { border-radius: var(--r-shot); box-shadow: 0 1px 0 var(--rule), 0 22px 50px -18px var(--shadow); background: var(--sheet); }
+
+  /* Hero: split, copy left, the board right */
+  .hero { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 56px; align-items: center; padding: 40px 0 84px; min-height: calc(100dvh - 68px); }
+  .hero h1 { font-size: clamp(3rem, 7vw, 5.4rem); }
+  .hero .lede { font-size: 1.22rem; margin-top: 22px; max-width: 30ch; color: var(--body); }
+  .hero figure { margin: 0; justify-self: end; width: min(380px, 100%); }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero > div, .hero figure { animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .hero figure { animation-delay: 0.12s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  }
+
+  /* The three marks: a band on the film shade */
+  .marks { background: var(--shade); }
+  .marks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 12px; border-top: 1.5px solid var(--ink); }
+  .mark { padding: 26px 26px 6px 0; }
+  .mark + .mark { padding-left: 26px; border-left: 1px solid var(--rule); }
+  .mark img { width: 72px; height: 72px; border-radius: var(--r-tile); margin-bottom: 16px; }
+  .mark p { font-size: 1.02rem; }
+
+  /* How to play: long text with the legend beside it */
+  .howto { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 64px; align-items: start; }
+  .howto h3 { margin-top: 30px; }
+  .howto aside { position: sticky; top: 28px; }
+  .howto aside p { font-size: 0.95rem; color: var(--muted); margin-top: 14px; }
+
+  /* Two modes: two unequal panels */
+  .modes { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
+  .mode { background: var(--sheet); border-radius: var(--r-panel); padding: 34px; display: grid; grid-template-columns: 1fr 190px; gap: 26px; align-items: start; }
+  .mode img { border-radius: 14px; }
+  .mode p { font-size: 1rem; }
+  .sites { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px; margin-top: 16px; font-size: 0.95rem; }
+  .sites div { border-top: 1px solid var(--rule); padding-top: 8px; }
+  .sites b { display: block; font-family: "Sofia Cond", system-ui, sans-serif; font-weight: 600; font-size: 1.15rem; color: var(--ink); }
+
+  /* Museum: wide picture, copy over the lower left */
+  .museum { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 56px; align-items: center; }
+  .museum .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .museum .pair img:last-child { margin-top: 56px; }
+  .cultures { margin-top: 20px; }
+  .cultures p { margin-bottom: 10px; }
+  .cultures b { color: var(--ink); }
+
+  /* Tips: a two-column field list */
+  .tips { columns: 2 340px; column-gap: 56px; margin-top: 8px; }
+  .tip { break-inside: avoid; padding: 18px 0 8px; border-top: 1px solid var(--rule); }
+  .tip h3 { font-size: 1.32rem; }
+
+  /* Screenshots: a scroll-snap strip */
+  .strip { display: grid; grid-auto-flow: column; grid-auto-columns: 220px; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 4px 22px; }
+  .strip img { scroll-snap-align: start; border-radius: 18px; }
+
+  /* Price and ads */
+  .price { background: var(--ink); color: var(--film); border-radius: var(--r-panel); padding: 54px; display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: end; }
+  .price h2 { color: var(--film); }
+  .price p { color: var(--film); opacity: 0.88; }
+  .price .btn.primary { background: var(--film); color: var(--ink); }
+  .price .btn.primary:hover { background: var(--sheet); }
+  .price .btn.ghost { color: var(--film); box-shadow: inset 0 0 0 1.5px var(--pencil); }
+  @media (prefers-color-scheme: dark) {
+    .price { background: var(--sheet); color: var(--ink); }
+    .price h2, .price p { color: var(--ink); }
+    .price .btn.primary { background: var(--cobalt); color: #F4F6F2; }
+    .price .btn.ghost { color: var(--ink); }
+  }
+  .price .ctas { margin-top: 0; flex-direction: column; }
+
+  footer { padding: 44px 0 64px; color: var(--muted); font-size: 0.95rem; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 18px; border-top: 1px solid var(--rule); padding-top: 26px; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 22px; }
+  footer a { color: var(--muted); }
+
+  @media (max-width: 900px) {
+    section { padding: 64px 0; }
+    .hero { grid-template-columns: 1fr; min-height: 0; gap: 36px; padding-top: 20px; }
+    .hero figure { justify-self: start; width: min(320px, 100%); }
+    .marks-grid { grid-template-columns: 1fr; }
+    .mark, .mark + .mark { padding: 22px 0 6px; border-left: 0; }
+    .mark + .mark { border-top: 1px solid var(--rule); }
+    .howto { grid-template-columns: 1fr; gap: 28px; }
+    .howto aside { position: static; width: min(300px, 100%); }
+    .modes { grid-template-columns: 1fr; }
+    .museum { grid-template-columns: 1fr; gap: 32px; }
+    .price { grid-template-columns: 1fr; padding: 36px 26px; }
+    .price .ctas { flex-direction: row; }
+  }
+  @media (max-width: 560px) {
+    .top nav .optional { display: none; }
+    .mode { grid-template-columns: 1fr; padding: 26px; }
+    .mode img { width: 190px; }
+    .sites { grid-template-columns: 1fr; }
+    .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <a class="brand" href="/sherd/"><img src="icon-512.png" alt="" width="34" height="34">Sherd</a>
+  <nav>
+    <a class="optional" href="#how">How to play</a>
+    <a class="optional" href="#tips">Tips</a>
+    <a href="play/">Play</a>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <div>
+      <h1>Find the hidden shard in six tries.</h1>
+      <p class="lede">A calm logic puzzle with no words in play. Paint five cells, read three marks, and reason your way to it.</p>
+      <div class="ctas">
+        <a class="btn primary" href="play/">Play in your browser</a>
+        <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.sherd">Get it on Google Play</a>
+      </div>
+    </div>
+    <figure>
+      <img class="shot" src="shots/02-paint-a-probe.webp" width="540" height="960" alt="Sherd's daily dig: a 6 by 6 grid with blue glazed hits, hatched near rims and soil, and a new probe being painted.">
+    </figure>
+  </section>
+
+  <section class="marks">
+    <div class="wrap">
+      <h2>Three marks tell you everything</h2>
+      <div class="marks-grid">
+        <div class="mark">
+          <img src="marks/hit.webp" width="160" height="160" alt="A glazed cobalt tile">
+          <h3>Glaze</h3>
+          <p>The cell is part of the shard.</p>
+        </div>
+        <div class="mark">
+          <img src="marks/near.webp" width="160" height="160" alt="A tile with a hatched oxide rim">
+          <h3>Rim</h3>
+          <p>The shard is not here, but it touches this cell on a side.</p>
+        </div>
+        <div class="mark">
+          <img src="marks/soil.webp" width="160" height="160" alt="A plain soil tile with a few pebbles">
+          <h3>Soil</h3>
+          <p>Neither. The cell and its four side neighbours are ruled out.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" id="how">
+    <div class="howto">
+      <div>
+        <h2>How to play</h2>
+        <p>A shard of five connected cells is buried somewhere in a 6 by 6 dig. Connected means every cell of it touches another on a side, never only at a corner. The shard can be turned or flipped any way, which leaves 1,024 places where it could be. You have six tries to dig it up.</p>
+
+        <h3>Paint a probe</h3>
+        <p>Touch a cell and drag through its neighbours to paint five connected cells, or tap them one at a time. Dragging back onto the last cell takes it off again, and Undo and Clear sit under the board. Dig lights up once exactly five connected cells are painted. Your probe can be any shape at all: it does not have to look like the shard you are hunting.</p>
+
+        <h3>Read the marks</h3>
+        <p>Press Dig and every cell you probed is stamped with a mark. Glaze means that cell belongs to the shard. A hatched rim means the shard is not in that cell but touches it on at least one side; it never says which side. Plain soil means the shard is not there and does not touch it.</p>
+        <p>Soil carries more than it seems. If the shard sat in any side neighbour of a soil cell, that cell would have come back as a rim, so soil clears a whole plus shape: the cell and its four neighbours. The board shades those neighbours as sifted soil, so you can see at a glance where the shard cannot be.</p>
+
+        <h3>Close in</h3>
+        <p>Each try narrows the places the shard could still be. Paint exactly its five cells and it fuses into one glazed piece. The result card draws the narrowing as a line, from 1,024 before your first try down to one, so you can see which try did the most work.</p>
+
+        <h3>The daily and the Expedition</h3>
+        <p>The daily dig is the same 6 by 6 puzzle for everyone on a given date, with six tries. The Expedition is an endless run of digs that grows: the Terrace is 6 by 6, the Trench is 7 by 7 with six cell shards, and Bedrock and the Deep site add rock cells you cannot probe. Expedition digs have a par and give up to three stars.</p>
+      </div>
+      <aside>
+        <img class="shot" src="shots/03-wordless-marks.webp" width="540" height="960" alt="The animated legend in Sherd: a glazed hit, a rim touching the shard, and soil clearing a plus shape.">
+        <p>The game teaches the marks with this animated legend before the first dig. Tap the strip of marks under the board to see it again.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>Two ways to dig</h2>
+    <div class="modes">
+      <article class="mode">
+        <div>
+          <h3>The daily dig</h3>
+          <p>One dig a day, numbered from your own calendar date, so it changes at your midnight and not at a fixed hour somewhere else. Every day in the table was screened with a solver, and the hardest ones were left out.</p>
+          <p>Keep a streak, earn a glaze piece for each daily you solve, and share your result as rows of coloured squares that show how close each try came without giving the answer away. Past dailies wait in the archive.</p>
+        </div>
+        <img src="shots/05-daily-result.webp" width="540" height="960" alt="A daily result: found in four tries, a glaze piece, a 19 day streak and the narrowing line from 1,024 to 1.">
+      </article>
+      <article class="mode">
+        <div>
+          <h3>The Expedition</h3>
+          <p>Short digs of a minute or two along a site map, each with a par.</p>
+          <div class="sites">
+            <div><b>Terrace</b>6 by 6, five cells, 7 tries</div>
+            <div><b>Trench</b>7 by 7, six cells, 8 tries</div>
+            <div><b>Bedrock</b>rock cells, 7 tries</div>
+            <div><b>Deep site</b>more rock, 6 tries</div>
+          </div>
+        </div>
+        <img src="shots/06-bedrock-dig.webp" width="540" height="960" alt="An Expedition dig at the Bedrock site: a 7 by 7 grid with grey rock cells, four glazed hits and three rims.">
+      </article>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="museum">
+      <div>
+        <h2>A museum, rebuilt piece by piece</h2>
+        <p>Every solved Expedition dig earns fragments, and fragments rebuild eighteen vessels from three invented cultures, from the base up, the way a conservator puts a pot back together.</p>
+        <div class="cultures">
+          <p><b>Velan</b> tall necked jars with cobalt chevrons and wave lines.</p>
+          <p><b>Oru</b> squat round pots in iron red slip with dot rosettes.</p>
+          <p><b>Tesh</b> flared beakers with black stepped triangles.</p>
+        </div>
+        <p>The glaze pieces you earn from the daily dip your restored vessels in cobalt glaze.</p>
+      </div>
+      <div class="pair">
+        <img class="shot" src="shots/07-museum.webp" width="540" height="960" alt="The museum: a tall Velan jar, glazed in cobalt from the rim down, above a shelf of six restored vessels.">
+        <img class="shot" src="shots/01-vessel-restored.webp" width="540" height="960" alt="An Expedition result: found in five with three stars, three fragments and a vessel restored.">
+      </div>
+    </div>
+  </section>
+
+  <section class="marks" id="tips">
+    <div class="wrap">
+      <h2>Tips from the trench</h2>
+      <div class="tips">
+        <div class="tip">
+          <h3>Open wide</h3>
+          <p>Make your first probe a long line or a wide L across the middle. It touches many cells, and every soil mark it gets back clears a plus of five cells, so even a probe that finds nothing rules out a large band of the grid.</p>
+        </div>
+        <div class="tip">
+          <h3>Let rims point the way</h3>
+          <p>A rim says the shard touches that cell on some side. Look at its neighbours: if three of them are soil or already ruled out, the shard must sit on the fourth.</p>
+        </div>
+        <div class="tip">
+          <h3>Hits stay close together</h3>
+          <p>The daily shard is five connected cells, so any two of its cells are at most four steps apart along the grid. Once you have a glaze, forget everything more than four steps from it (five steps for the six cell shards deeper in the Expedition).</p>
+        </div>
+        <div class="tip">
+          <h3>Learn early, win late</h3>
+          <p>Any shape is a legal probe, and early on a probe chosen only to learn can be the better try. By the last two tries, paint a shape that could still be the shard: only that kind of probe can win.</p>
+        </div>
+        <div class="tip">
+          <h3>Count the pockets</h3>
+          <p>In the Bedrock and Deep sites, the shard never crosses rock. A pocket of open cells smaller than the shard, walled in by rock and the edge, can be ignored, and so can every shape that would have to pass through rock to fit.</p>
+        </div>
+        <div class="tip">
+          <h3>Read your narrowing line</h3>
+          <p>After a dig, look at how far each try cut the count of possible places. Tries that cut it by ten or more are the ones to copy; a try that barely moved it usually probed cells you had already ruled out.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>In pictures</h2>
+    <div class="strip">
+      <img src="shots/04-shard-found.webp" width="540" height="960" alt="The shard found: its five cells fuse into one glazed piece.">
+      <img src="shots/01-vessel-restored.webp" width="540" height="960" alt="A solved Expedition dig restoring a vessel.">
+      <img src="shots/02-paint-a-probe.webp" width="540" height="960" alt="Painting a probe on the daily dig.">
+      <img src="shots/05-daily-result.webp" width="540" height="960" alt="A daily result with its narrowing line.">
+      <img src="shots/06-bedrock-dig.webp" width="540" height="960" alt="A Bedrock dig with rock cells.">
+      <img src="shots/07-museum.webp" width="540" height="960" alt="The museum of restored vessels.">
+      <img src="shots/08-expedition-map.webp" width="540" height="960" alt="The Expedition map across four sites.">
+      <img src="shots/03-wordless-marks.webp" width="540" height="960" alt="The wordless legend of marks.">
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="price">
+      <div>
+        <h2>Free, with ads you can remove</h2>
+        <p>Sherd is free on Google Play with ads, and an optional one-time Remove ads and archive purchase takes them away. There are never ads during a dig or around the daily; a full screen ad can only come after Next on a solved Expedition dig. Rewarded ads are always your choice and name their reward first. Remove ads and archive is bought through Google Play, removes the ads between digs for good, opens every past daily and gives the rewarded bonuses without an ad.</p>
+        <p>In the browser, the same game plays with your progress kept in this browser; the rewarded bonuses and the purchase are in the Android app.</p>
+      </div>
+      <div class="ctas">
+        <a class="btn primary" href="play/">Play in your browser</a>
+        <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.sherd">Get it on Google Play</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Sherd by SocialSure Private Limited</span>
+    <nav>
+      <a href="/privacy-policies/sherd-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Play in your browser</a>
+      <a href="OFL-SofiaSansCondensed.txt">Sofia Sans Condensed licence</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

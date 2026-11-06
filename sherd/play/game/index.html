@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>Sherd</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="booting">
+  <canvas id="film" aria-hidden="true"></canvas>
+
+  <main id="app">
+    <section id="home" class="screen" aria-label="Home">
+      <header class="bar">
+        <span class="bar-gap"></span>
+        <button id="homeSettings" class="icon-btn" data-icon="gear" data-label="settings"></button>
+      </header>
+      <div class="home-hero">
+        <div class="hero-copy">
+          <h1 class="wordmark" data-text="appName"></h1>
+          <p class="tagline" data-text="tagline"></p>
+        </div>
+        <canvas id="heroVessel" class="hero-vessel" aria-hidden="true"></canvas>
+      </div>
+      <article id="dailyCard" class="ticket">
+        <span class="ticket-hole" aria-hidden="true"></span>
+        <div class="ticket-head">
+          <span class="ticket-label" data-text="daily"></span>
+          <span id="dailyDate" class="ticket-date"></span>
+        </div>
+        <div class="ticket-main">
+          <span id="dailyNo" class="ticket-no"></span>
+          <div class="ticket-side">
+            <span id="dailyState" class="ticket-state"></span>
+            <span id="streakLine" class="ticket-streak"></span>
+          </div>
+        </div>
+        <div class="ticket-actions">
+          <button id="dailyBtn" class="btn primary"></button>
+          <button id="dailyShare" class="btn icon-only" data-icon="share" data-label="share" hidden></button>
+        </div>
+      </article>
+      <div id="repairCard" class="offer" hidden>
+        <p id="repairNote" class="offer-note"></p>
+        <button id="repairBtn" class="btn reward"></button>
+      </div>
+      <nav class="rows" aria-label="Modes">
+        <button id="rowExp" class="row">
+          <span class="row-icon" data-icon="strata"></span>
+          <span class="row-text"><span class="row-title" data-text="expedition"></span><span id="rowExpSub" class="row-sub"></span></span>
+          <span class="row-go" data-icon="next"></span>
+        </button>
+        <button id="rowMuseum" class="row">
+          <canvas id="rowVessel" class="row-icon row-thumb" aria-hidden="true"></canvas>
+          <span class="row-text"><span class="row-title" data-text="museum"></span><span id="rowMuseumSub" class="row-sub"></span></span>
+          <span class="row-go" data-icon="next"></span>
+        </button>
+        <button id="rowArchive" class="row">
+          <span class="row-icon" data-icon="calendar"></span>
+          <span class="row-text"><span class="row-title" data-text="archive"></span><span id="rowArchiveSub" class="row-sub"></span></span>
+          <span class="row-go" data-icon="next"></span>
+        </button>
+      </nav>
+    </section>
+
+    <section id="dig" class="screen" aria-label="Dig" hidden>
+      <header class="bar dig-bar">
+        <button id="digPause" class="icon-btn" data-icon="pause" data-label="pause"></button>
+        <div class="dig-title">
+          <span id="digName" class="dig-name"></span>
+          <span id="digSub" class="dig-sub"></span>
+        </div>
+        <div id="pips" class="pips" aria-label="Tries"></div>
+      </header>
+      <div id="boardWrap" class="board-wrap">
+        <canvas id="board" class="board" aria-label="Dig grid"></canvas>
+      </div>
+      <div id="tray" class="tray">
+        <button id="undoBtn" class="icon-btn" data-icon="undo" data-label="undo"></button>
+        <div id="count" class="count" aria-hidden="true"></div>
+        <button id="clearBtn" class="icon-btn" data-icon="clear" data-label="clear"></button>
+        <button id="digBtn" class="btn primary dig-btn" disabled></button>
+      </div>
+      <div id="surveyTray" class="tray" hidden>
+        <button id="surveyCancel" class="icon-btn" data-icon="clear" data-label="close"></button>
+        <span class="survey-note" data-text="surveyPlace"></span>
+        <button id="surveyGo" class="btn reward"></button>
+      </div>
+      <div class="dig-extras">
+        <button id="surveyBtn" class="btn reward slim" hidden></button>
+        <span id="doubleTag" class="tag" hidden></span>
+      </div>
+      <button id="legendStrip" class="legend" data-label="legend">
+        <canvas id="legendMini" aria-hidden="true"></canvas>
+      </button>
+    </section>
+
+    <section id="map" class="screen" aria-label="Expedition" hidden>
+      <header class="bar">
+        <button id="mapBack" class="icon-btn" data-icon="back" data-label="back"></button>
+        <h2 class="bar-title" data-text="expedition"></h2>
+        <span class="bar-gap"></span>
+      </header>
+      <div id="mapScroll" class="scroll"><div id="mapBody" class="map-body"></div></div>
+      <footer class="dock">
+        <button id="mapDouble" class="btn reward slim" hidden></button>
+        <span id="mapDoubleTag" class="tag" hidden></span>
+        <button id="mapDig" class="btn primary wide"></button>
+      </footer>
+    </section>
+
+    <section id="museum" class="screen" aria-label="Museum" hidden>
+      <header class="bar">
+        <button id="museumBack" class="icon-btn" data-icon="back" data-label="back"></button>
+        <h2 class="bar-title" data-text="museum"></h2>
+        <span class="bar-gap"></span>
+      </header>
+      <div class="scroll">
+        <div id="museumOffer" class="offer offer-buy" hidden></div>
+        <div id="plinth" class="plinth">
+          <canvas id="plinthVessel" aria-hidden="true"></canvas>
+          <div class="plinth-text"><span id="plinthTitle" class="plinth-title"></span><span id="plinthSub" class="plinth-sub"></span></div>
+        </div>
+        <div id="wings" class="wings" role="tablist"></div>
+        <div id="vessels" class="vessels"></div>
+        <p id="glazeLine" class="muted-line"></p>
+      </div>
+    </section>
+
+    <section id="archive" class="screen" aria-label="Archive" hidden>
+      <header class="bar">
+        <button id="archiveBack" class="icon-btn" data-icon="back" data-label="back"></button>
+        <h2 class="bar-title" data-text="archive"></h2>
+        <span class="bar-gap"></span>
+      </header>
+      <p id="archiveStatus" class="muted-line pad"></p>
+      <div id="archiveScroll" class="scroll"><div id="archiveBody" class="archive-body"></div></div>
+    </section>
+  </main>
+
+  <div id="scrim" class="scrim" hidden></div>
+
+  <section id="resultSheet" class="sheet" role="dialog" aria-modal="true" hidden>
+    <div class="result-head">
+      <div>
+        <p id="resultKicker" class="kicker"></p>
+        <h2 id="resultTitle" class="result-title"></h2>
+      </div>
+      <div id="resultStars" class="stars" aria-hidden="true"></div>
+    </div>
+    <div class="result-body">
+      <div class="result-reward">
+        <canvas id="resultVessel" class="result-vessel" aria-hidden="true"></canvas>
+        <div class="result-reward-text">
+          <span id="resultGain" class="gain"></span>
+          <span id="resultProgress" class="muted"></span>
+        </div>
+        <canvas id="resultRows" class="result-rows" aria-hidden="true" hidden></canvas>
+      </div>
+      <div class="narrow">
+        <p class="kicker" data-text="narrowing"></p>
+        <canvas id="narrowCanvas" class="narrow-canvas" aria-hidden="true"></canvas>
+      </div>
+    </div>
+    <p id="resultNote" class="muted-line"></p>
+    <button id="resultReward" class="btn reward" hidden></button>
+    <div class="sheet-actions">
+      <button id="resultSecondary" class="btn"></button>
+      <button id="resultShare" class="btn icon-only" data-icon="share" data-label="share" hidden></button>
+      <button id="resultPrimary" class="btn primary"></button>
+    </div>
+  </section>
+
+  <section id="settingsSheet" class="sheet" role="dialog" aria-modal="true" hidden>
+    <div class="sheet-head"><h2 data-text="settings"></h2><button class="icon-btn sheet-close" data-icon="clear" data-label="close"></button></div>
+    <div class="list">
+      <button id="setSound" class="list-row toggle"><span data-text="sound"></span><span class="switch"></span></button>
+      <button id="setHaptics" class="list-row toggle"><span data-text="haptics"></span><span class="switch"></span></button>
+      <button id="setMotion" class="list-row toggle"><span data-text="reduceMotion"></span><span class="switch"></span></button>
+      <button id="setHowTo" class="list-row"><span data-text="howToPlay"></span><span data-icon="info"></span></button>
+    </div>
+    <div id="buyBlock" class="buy-block" hidden>
+      <h3 data-text="removeAds"></h3>
+      <p class="muted" data-text="removeAdsBody"></p>
+      <div class="buy-actions">
+        <button id="buyBtn" class="btn primary"></button>
+        <button id="restoreBtn" class="btn" data-text="restore"></button>
+      </div>
+    </div>
+    <p id="ownedLine" class="muted-line" hidden></p>
+    <div class="list">
+      <button id="privacyBtn" class="list-row" hidden><span data-text="privacyOptions"></span><span data-icon="shield"></span></button>
+      <a id="policyLink" class="list-row" href="https://apps.mohdshayan.com/privacy-policies/sherd-privacy-policy.html" target="_blank" rel="noopener"><span data-text="privacyPolicy"></span><span data-icon="link"></span></a>
+    </div>
+    <p id="versionLine" class="muted-line small"></p>
+  </section>
+
+  <section id="pauseSheet" class="sheet" role="dialog" aria-modal="true" hidden>
+    <div class="sheet-head"><h2 data-text="paused"></h2></div>
+    <div class="list">
+      <button id="pauseSound" class="list-row toggle"><span data-text="sound"></span><span class="switch"></span></button>
+      <button id="pauseHowTo" class="list-row"><span data-text="howToPlay"></span><span data-icon="info"></span></button>
+    </div>
+    <p class="muted-line" data-text="leaveNote"></p>
+    <div class="sheet-actions">
+      <button id="pauseLeave" class="btn" data-text="leave"></button>
+      <button id="pauseResume" class="btn primary" data-text="resume"></button>
+    </div>
+  </section>
+
+  <section id="openSheet" class="sheet" role="dialog" aria-modal="true" hidden>
+    <div class="sheet-head"><h2 id="openTitle"></h2><button class="icon-btn sheet-close" data-icon="clear" data-label="close"></button></div>
+    <p id="openNote" class="muted-line"></p>
+    <button id="openReward" class="btn reward" hidden></button>
+    <p id="openLeft" class="muted-line small"></p>
+  </section>
+
+  <section id="legendSheet" class="sheet full" role="dialog" aria-modal="true" hidden>
+    <canvas id="legendCanvas" class="legend-canvas" aria-label="How the marks work"></canvas>
+    <div class="sheet-actions center">
+      <button id="legendGo" class="btn primary wide"></button>
+    </div>
+  </section>
+
+  <div id="splash" class="splash" aria-hidden="true" hidden>
+    <canvas id="splashCanvas"></canvas>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <canvas id="fx" class="fx" aria-hidden="true"></canvas>
+
+  <script src="game-sdk.js"></script>
+  <script src="js/rng.js"></script>
+  <script src="js/strings.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/daily-table.js"></script>
+  <script src="js/daily.js"></script>
+  <script src="js/expedition.js"></script>
+  <script src="js/museum.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/legend.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
