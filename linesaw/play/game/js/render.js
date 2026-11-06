@@ -596,6 +596,9 @@
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.lineWidth = outline;
+      // Round joins: the default miter join draws long spikes off the sharp corners of Devanagari
+      // and Nastaliq glyphs (seen on the S22+ in the Hindi and Urdu hints).
+      ctx.lineJoin = 'round';
       ctx.strokeStyle = 'rgba(14, 20, 36, 0.85)';
       ctx.fillStyle = color;
       for (var i = 0; i < f.lines.length; i++) {
