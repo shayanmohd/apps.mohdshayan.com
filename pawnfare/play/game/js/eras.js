@@ -9,13 +9,14 @@
    * hit (its low end rejects trivial boards), the extra moves on top of par, and how strong the guards are
    * (tier 0 pawns and minor pieces, 1 adds knights and elephants, 2 adds a rukh, 3 the queen in era 2).
    * Boards 2 to 4 are eased for casual players (ship review, 2026-11-06): one more move each, board 3's
-   * guards stay at tier 0 and board 4 has 2 guards, not 3. Board 1 comes from starters.js.
+   * guards stay at tier 0 and board 4 has 2 guards, not 3. The phone check (2026-11-07) eased them again:
+   * one more move each (par + 4) and one guard on boards 3 and 4. Board 1 comes from starters.js.
    */
   var RUN_BOARDS = [
     { W: 5, H: 5, guards: 1, band: [2, 2], slack: 2, tier: 0 },
-    { W: 5, H: 5, guards: 2, band: [2, 3], slack: 3, tier: 0 },
-    { W: 5, H: 5, guards: 2, band: [3, 3], slack: 3, tier: 0 },
-    { W: 6, H: 6, guards: 2, band: [3, 3], slack: 3, tier: 1 },
+    { W: 5, H: 5, guards: 2, band: [2, 3], slack: 4, tier: 0 },
+    { W: 5, H: 5, guards: 1, band: [3, 3], slack: 4, tier: 0 },
+    { W: 6, H: 6, guards: 1, band: [3, 3], slack: 4, tier: 1 },
     { W: 6, H: 6, guards: 3, band: [3, 4], slack: 1, tier: 1 },
     { W: 6, H: 6, guards: 4, band: [3, 4], slack: 1, tier: 2 },
     { W: 6, H: 6, guards: 4, band: [4, 4], slack: 1, tier: 2 },
