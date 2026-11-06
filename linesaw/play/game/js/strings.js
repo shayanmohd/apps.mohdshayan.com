@@ -7,7 +7,8 @@
  *
  * The tables are the store listing's languages (store/listing-translations.json) and use its terms: the
  * game name Linesaw and the product name Remove ads stay in English, as the Play Console lists them.
- * Urdu is written right to left (dir()); the play field and the two halves never mirror.
+ * Urdu is written right to left (dir()); the play field and the two halves never mirror. Every table
+ * writes numbers in Latin digits, as the game draws every score, count and {n} that way.
  */
 (function (root, factory) {
   var m = factory();
@@ -143,7 +144,7 @@
     solo: 'Solo',
     twoPlayers: '2 jugadores',
     twoPlayersNote: 'Un teléfono. Mitad izquierda contra mitad derecha.',
-    keysSolo: 'Mantén Espacio',
+    keysSolo: 'Mantén pulsado Espacio',
     keysTwo: 'Izquierda: A    Derecha: L',
     nextSky: 'Siguiente cielo',
     retry: 'Reintentar',
@@ -163,7 +164,7 @@
     rewardNotReady: 'No hay ningún anuncio listo ahora. Inténtalo en un momento.',
     sunset: 'Puesta de sol',
     leftEarly: 'Saliste antes',
-    dailyDone: 'El cielo diario de hoy ya está. A medianoche llega uno nuevo.',
+    dailyDone: 'El cielo diario de hoy ya terminó. A medianoche llega uno nuevo.',
     playedToday: 'Jugado',
     secondMark: 'segundo cielo',
     cuts: 'Cortes',
@@ -210,7 +211,7 @@
     shareFailed: 'No se pudo compartir ahora.',
     mostCuts: 'Más cortes en un cielo',
     bestScore: 'Mejor puntaje',
-    skiesFlown: 'Cielos volados',
+    skiesFlown: 'Cielos jugados',
     matchesPlayed: 'Partidas jugadas',
     kites: 'Papalotes',
     patterns: ['Luna', 'Bicolor', 'Franja'],
@@ -329,8 +330,8 @@
     festival: { uttarayan: 'Céu de Uttarayan' },
     licences: 'Fonte: Barlow (SIL Open Font License). Ícones: Phosphor (MIT). Todos os sons são feitos no jogo.',
     howTo: [
-      'Segure para puxar a linha: a pipa dispara para onde o bico aponta. Solte para dar linha: ela desacelera, vai com o vento e o bico gira. Pilotar é questão de tempo: solte, espere o bico e segure de novo.',
-      'Cruze a linha de um rival e as duas linhas se enroscam. As duas se desgastam onde se cruzam. Puxar corta mais rápido, mas uma linha puxada por tempo demais esquenta e se desgasta sozinha: puxe em toques curtos e solte quando sua linha ficar vermelha.',
+      'Segure para puxar a linha: a pipa dispara para onde o bico aponta. Solte para dar linha: ela desacelera, vai com o vento e o bico gira. Pilotar é questão de ritmo: solte, espere o bico e segure de novo.',
+      'Cruze a linha de um rival e as duas linhas se enroscam. As duas se desgastam onde se cruzam. Puxar corta mais rápido, mas uma linha puxada por tempo demais esquenta e se desgasta sozinha: dê puxadas curtas e solte quando sua linha ficar vermelha.',
       'Um céu dura até o pôr do sol, 75 segundos, com três pipas. Cada corte vale mais quando vem depois de outro corte, sem perder uma pipa no meio.',
       'No modo 2 jogadores, cada pessoa usa metade da tela. Quem cortar três linhas primeiro vence.'
     ],
@@ -381,14 +382,14 @@
     rewardSkipped: 'La pub a été fermée trop tôt, pas de bonus cette fois.',
     rewardNotReady: "Aucune pub n'est prête pour l'instant. Réessayez dans un moment.",
     sunset: 'Coucher du soleil',
-    leftEarly: 'Quitté en cours',
+    leftEarly: 'Quitté avant la fin',
     dailyDone: 'Le ciel du jour est joué. Un nouveau ciel arrive à minuit.',
     playedToday: 'Joué',
     secondMark: 'deuxième ciel',
     cuts: 'Coupes',
     score: 'Score',
     kitesLost: 'Cerfs-volants perdus',
-    longestDuel: 'Plus long duel',
+    longestDuel: 'Duel le plus long',
     seconds: '{n} s',
     newRecord: 'Nouveau record',
     streak: 'Série',
@@ -427,7 +428,7 @@
     share: 'Partager',
     shareCopied: 'Copié. Collez-le où vous voulez.',
     shareFailed: 'Partage impossible pour le moment.',
-    mostCuts: 'Plus de coupes en un ciel',
+    mostCuts: 'Le plus de coupes en un ciel',
     bestScore: 'Meilleur score',
     skiesFlown: 'Ciels joués',
     matchesPlayed: 'Matchs joués',
@@ -439,7 +440,7 @@
     licences: 'Police\u00a0: Barlow (SIL Open Font License). Icônes\u00a0: Phosphor (MIT). Tous les sons sont créés par le jeu.',
     howTo: [
       "Maintenez pour tirer le fil\u00a0: le cerf-volant fonce là où pointe son nez. Relâchez pour donner du fil\u00a0: il ralentit, dérive avec le vent et son nez tourne. Diriger, c'est une question de rythme\u00a0: relâchez, attendez le nez, puis maintenez.",
-      "Croisez le fil d'un rival et les deux fils s'accrochent. Ils s'usent tous les deux là où ils se croisent. Tirer scie plus vite, mais un fil tiré trop longtemps chauffe et s'use tout seul\u00a0: tirez par petites salves et relâchez quand votre fil devient rouge.",
+      "Croisez le fil d'un rival et les deux fils s'accrochent. Ils s'usent tous les deux là où ils se croisent. Tirer scie plus vite, mais un fil tiré trop longtemps chauffe et s'use tout seul\u00a0: tirez par petits coups et relâchez quand votre fil devient rouge.",
       "Un ciel dure jusqu'au coucher du soleil, 75 secondes, avec trois cerfs-volants. Chaque coupe rapporte plus quand elle suit une autre coupe sans perte de cerf-volant entre les deux.",
       "À 2 joueurs, chacun tient une moitié de l'écran. Le premier à trois coupes gagne."
     ],
@@ -490,8 +491,8 @@
     rewardSkipped: 'Die Werbung wurde zu früh geschlossen, diesmal gibt es keinen Bonus.',
     rewardNotReady: 'Gerade ist keine Werbung bereit. Versuch es gleich nochmal.',
     sunset: 'Sonnenuntergang',
-    leftEarly: 'Früh verlassen',
-    dailyDone: 'Der heutige Tageshimmel ist geflogen. Um Mitternacht kommt ein neuer.',
+    leftEarly: 'Vorzeitig verlassen',
+    dailyDone: 'Der heutige Tageshimmel ist vorbei. Um Mitternacht kommt ein neuer.',
     playedToday: 'Gespielt',
     secondMark: 'zweiter Himmel',
     cuts: 'Schnitte',
@@ -534,7 +535,7 @@
       failed: 'Google Play ist nicht erreichbar. Versuch es später nochmal.'
     },
     share: 'Teilen',
-    shareCopied: 'Kopiert. Füg es überall ein.',
+    shareCopied: 'Kopiert. Füg es ein, wo du willst.',
     shareFailed: 'Teilen geht gerade nicht.',
     mostCuts: 'Meiste Schnitte in einem Himmel',
     bestScore: 'Bestes Ergebnis',
@@ -590,7 +591,7 @@
     leave: 'Esci',
     leaveDaily: 'Uscendo, il cielo del giorno finisce con quello che ha.',
     paused: 'In pausa',
-    endSky: 'Chiudi il cielo',
+    endSky: 'Termina il cielo',
     outOfKites: 'Aquiloni finiti',
     spareAd: 'Guarda un annuncio: +1 aquilone',
     spareFree: 'Prendi +1 aquilone',
@@ -600,7 +601,7 @@
     rewardNotReady: 'Nessun annuncio pronto ora. Riprova tra un attimo.',
     sunset: 'Tramonto',
     leftEarly: 'Uscito prima',
-    dailyDone: 'Il cielo del giorno è fatto. A mezzanotte ne arriva uno nuovo.',
+    dailyDone: 'Il cielo del giorno è finito. A mezzanotte ne arriva uno nuovo.',
     playedToday: 'Giocato',
     secondMark: 'secondo cielo',
     cuts: 'Tagli',
@@ -647,7 +648,7 @@
     shareFailed: 'Impossibile condividere ora.',
     mostCuts: 'Più tagli in un cielo',
     bestScore: 'Punteggio migliore',
-    skiesFlown: 'Cieli volati',
+    skiesFlown: 'Cieli giocati',
     matchesPlayed: 'Sfide giocate',
     kites: 'Aquiloni',
     patterns: ['Luna', 'Bicolore', 'Fascia'],
@@ -656,8 +657,8 @@
     festival: { uttarayan: 'Cielo di Uttarayan' },
     licences: 'Font: Barlow (SIL Open Font License). Icone: Phosphor (MIT). Ogni suono nasce nel gioco.',
     howTo: [
-      "Tieni premuto per tirare il filo: l'aquilone scatta dove punta il muso. Lascia per dare filo: rallenta, si lascia portare dal vento e il muso gira. Guidare è questione di tempo: lascia, aspetta il muso, poi tieni premuto.",
-      'Passa sopra il filo di un rivale e i due fili si agganciano. Tutti e due si consumano dove si incrociano. Tirare sega più in fretta, ma un filo tirato troppo a lungo si scalda e si consuma da solo: tira a colpi brevi e lascia quando il tuo filo diventa rosso.',
+      "Tieni premuto per tirare il filo: l'aquilone scatta dove punta il muso. Lascia per dare filo: rallenta, si lascia portare dal vento e il muso gira. Guidare è questione di tempismo: lascia, aspetta il muso, poi tieni premuto.",
+      'Passa sopra il filo di un rivale e i due fili si agganciano. Tutti e due si consumano dove si incrociano. Tirare taglia più in fretta, ma un filo tirato troppo a lungo si scalda e si consuma da solo: tira a colpi brevi e lascia quando il tuo filo diventa rosso.',
       'Un cielo dura fino al tramonto, 75 secondi, con tre aquiloni. Ogni taglio vale di più se arriva dopo un altro taglio senza perdere un aquilone nel mezzo.',
       'In 2 giocatori, ognuno usa una metà dello schermo. Vince chi taglia per primo tre fili.'
     ],
@@ -665,7 +666,7 @@
       game: 'Sfida di aquiloni. Tieni premuto per tirare il filo, lascia per dare filo.',
       pause: 'Pausa',
       settings: 'Impostazioni',
-      sound: 'Suono sì o no',
+      sound: 'Attiva o disattiva il suono',
       records: 'Record e aquiloni',
       close: 'Chiudi',
       kitesLeft: 'Aquiloni rimasti'
@@ -766,7 +767,7 @@
     festival: { uttarayan: 'Langit Uttarayan' },
     licences: 'Font: Barlow (SIL Open Font License). Ikon: Phosphor (MIT). Semua suara dibuat di dalam game.',
     howTo: [
-      'Tahan untuk menarik benang: layangan melesat ke arah hidungnya. Lepas untuk mengulur: layangan melambat, terbawa angin, dan hidungnya berputar. Mengarahkan itu soal waktu: lepas, tunggu hidungnya, lalu tahan.',
+      'Tahan untuk menarik benang: layangan melesat ke arah hidungnya. Lepas untuk mengulur: layangan melambat, terbawa angin, dan hidungnya berputar. Mengarahkan itu soal ketepatan waktu: lepas, tunggu hidungnya, lalu tahan.',
       'Terbang melintasi benang lawan dan kedua benang akan tersangkut. Keduanya aus di titik silang. Menarik menggesek paling cepat, tapi benang yang ditarik terlalu lama jadi panas dan aus sendiri, jadi tarik dengan hentakan pendek dan lepas saat benangmu memerah.',
       'Satu langit berlangsung sampai matahari terbenam, 75 detik, dengan tiga layangan. Setiap putusan bernilai lebih tinggi jika menyusul putusan lain tanpa kehilangan layangan di antaranya.',
       'Dalam mode 2 pemain, setiap orang memegang separuh layar. Yang lebih dulu memutus tiga benang menang.'
@@ -1031,7 +1032,7 @@
     leaveDaily: 'હમણાં નીકળશો તો આજનું આકાશ આ જ સ્કોર પર પૂરું થશે.',
     paused: 'થોભાવ્યું',
     endSky: 'આકાશ પૂરું કરો',
-    outOfKites: 'પતંગ ખૂટી',
+    outOfKites: 'પતંગ ખૂટી ગઈ',
     spareAd: 'જાહેરાત જુઓ: +1 પતંગ',
     spareFree: '+1 પતંગ લો',
     secondAd: 'જાહેરાત જુઓ: આજનું આકાશ ફરી ઉડાડો',
@@ -1097,7 +1098,7 @@
     licences: 'ફોન્ટ: Barlow (SIL Open Font License). આઇકન: Phosphor (MIT). દરેક અવાજ ગેમમાં જ બને છે.',
     howTo: [
       'દબાવી રાખો તો દોરી ખેંચાય છે: પતંગ એનું નાક જે તરફ હોય ત્યાં ઝડપથી જાય છે. છોડો તો ઢીલ મળે છે: પતંગ ધીમી પડે છે, પવન સાથે વહે છે અને એનું નાક ફરે છે. દિશા આપવી એ ટાઇમિંગની રમત છે: છોડો, નાક ફરે એની રાહ જુઓ, પછી દબાવો.',
-      'હરીફની દોરી પરથી ઉડો એટલે બંને દોરી ભરાઈ જાય છે અને પેચ લાગે છે. જ્યાં દોરી ઓળંગે ત્યાં બંને ઘસાય છે. ખેંચવાથી સૌથી ઝડપી કપાય છે, પણ બહુ વાર ખેંચેલી દોરી ગરમ થઈને પોતે જ ઘસાવા લાગે છે, એટલે ટૂંકા ટૂંકા ઝટકામાં ખેંચો અને દોરી લાલ થવા લાગે ત્યારે ઢીલ આપો.',
+      'હરીફની દોરી પરથી ઊડો એટલે બંને દોરી ભરાઈ જાય છે અને પેચ લાગે છે. જ્યાં દોરી ઓળંગે ત્યાં બંને ઘસાય છે. ખેંચવાથી સૌથી ઝડપી કપાય છે, પણ બહુ વાર ખેંચેલી દોરી ગરમ થઈને પોતે જ ઘસાવા લાગે છે, એટલે ટૂંકા ટૂંકા ઝટકામાં ખેંચો અને દોરી લાલ થવા લાગે ત્યારે ઢીલ આપો.',
       'એક આકાશ સૂરજ આથમે ત્યાં સુધી ચાલે છે, 75 સેકન્ડ, અને તમારી પાસે ત્રણ પતંગ હોય છે. પતંગ ગુમાવ્યા વગર એક પછી એક કાપ થાય તો દરેક નવા કાપના વધુ પોઇન્ટ મળે છે.',
       '2 ખેલાડીમાં દરેક જણ સ્ક્રીનનો એક અડધો ભાગ દબાવે છે. જે પહેલાં ત્રણ દોરી કાપે તે જીતે.'
     ],
@@ -1239,7 +1240,7 @@
     sky: 'আকাশ {n}',
     play: 'খেলো',
     solo: 'একা',
-    twoPlayers: '২ জন',
+    twoPlayers: '2 জন',
     twoPlayersNote: 'একটা ফোন। বাঁ অর্ধেক বনাম ডান অর্ধেক।',
     keysSolo: 'Space চেপে ধরো',
     keysTwo: 'বাঁ: A    ডান: L',
@@ -1253,8 +1254,8 @@
     paused: 'থামানো আছে',
     endSky: 'আকাশ শেষ করো',
     outOfKites: 'ঘুড়ি শেষ',
-    spareAd: 'বিজ্ঞাপন দেখো: +১ ঘুড়ি',
-    spareFree: '+১ ঘুড়ি নাও',
+    spareAd: 'বিজ্ঞাপন দেখো: +1 ঘুড়ি',
+    spareFree: '+1 ঘুড়ি নাও',
     secondAd: 'বিজ্ঞাপন দেখো: আজকের আকাশ আবার ওড়াও',
     secondFree: 'আজকের আকাশ আবার ওড়াও',
     rewardSkipped: 'বিজ্ঞাপন আগেই বন্ধ হয়ে গেছে, তাই এবার পুরস্কার নেই।',
@@ -1319,8 +1320,8 @@
     howTo: [
       'চেপে ধরে রাখলে সুতোয় টান পড়ে: ঘুড়ি তার নাক যেদিকে সেদিকে ছুটে যায়। ছেড়ে দিলে ঢিল পায়: ঘুড়ি ধীর হয়, বাতাসে ভেসে যায় আর তার নাক ঘোরে। দিক ঠিক করা টাইমিংয়ের খেলা: ছাড়ো, নাকের জন্য অপেক্ষা করো, তারপর চেপে ধরো।',
       'প্রতিপক্ষের সুতোর ওপর দিয়ে ওড়ালে দুটো সুতো আটকে গিয়ে প্যাঁচ লাগে। যেখানে পেরোয় সেখানে দুটোই ক্ষয় হয়। টানলে সবচেয়ে দ্রুত কাটে, কিন্তু বেশিক্ষণ টানা সুতো গরম হয়ে নিজেই ক্ষয়ে যায়, তাই ছোট ছোট টানে খেলো আর সুতো লাল হতে শুরু করলে ঢিল দাও।',
-      'একটা আকাশ চলে সূর্য ডোবা পর্যন্ত, ৭৫ সেকেন্ড, আর তোমার হাতে থাকে তিনটে ঘুড়ি। কোনো ঘুড়ি না হারিয়ে পরপর কাটলে প্রতিটা নতুন কাটায় বেশি পয়েন্ট মেলে।',
-      '২ জনের খেলায় প্রত্যেকে স্ক্রিনের এক অর্ধেক চেপে ধরে। যে আগে তিনটে সুতো কাটে, সে জেতে।'
+      'একটা আকাশ চলে সূর্য ডোবা পর্যন্ত, 75 সেকেন্ড, আর তোমার হাতে থাকে তিনটে ঘুড়ি। কোনো ঘুড়ি না হারিয়ে পরপর কাটলে প্রতিটা নতুন কাটায় বেশি পয়েন্ট মেলে।',
+      '2 জনের খেলায় প্রত্যেকে স্ক্রিনের এক অর্ধেক চেপে ধরে। যে আগে তিনটে সুতো কাটে, সে জেতে।'
     ],
     a11y: {
       game: 'ঘুড়ির লড়াই। চেপে ধরলে সুতোয় টান পড়ে, ছেড়ে দিলে ঢিল পায়।',
@@ -1349,7 +1350,7 @@
     sky: 'आकाश {n}',
     play: 'खेल्नुहोस्',
     solo: 'एक्लै',
-    twoPlayers: '२ जना',
+    twoPlayers: '2 जना',
     twoPlayersNote: 'एउटा फोन। देब्रे आधा विरुद्ध दाहिने आधा।',
     keysSolo: 'Space थिचिराख्नुहोस्',
     keysTwo: 'देब्रे: A    दाहिने: L',
@@ -1363,8 +1364,8 @@
     paused: 'रोकिएको',
     endSky: 'आकाश सक्नुहोस्',
     outOfKites: 'चङ्गा सकिए',
-    spareAd: 'विज्ञापन हेर्नुहोस्: +१ चङ्गा',
-    spareFree: '+१ चङ्गा लिनुहोस्',
+    spareAd: 'विज्ञापन हेर्नुहोस्: +1 चङ्गा',
+    spareFree: '+1 चङ्गा लिनुहोस्',
     secondAd: 'विज्ञापन हेर्नुहोस्: आजको आकाश फेरि उडाउनुहोस्',
     secondFree: 'आजको आकाश फेरि उडाउनुहोस्',
     rewardSkipped: 'विज्ञापन चाँडै बन्द भयो, त्यसैले यसपटक पुरस्कार छैन।',
@@ -1427,10 +1428,10 @@
     festival: { uttarayan: 'उत्तरायणको आकाश' },
     licences: 'फन्ट: Barlow (SIL Open Font License)। आइकन: Phosphor (MIT)। हरेक आवाज खेलभित्रै बनाइएको हो।',
     howTo: [
-      'थिचिराख्दा धागो तानिन्छ: चङ्गा त्यसको नाक जता छ उतै हुइँकिन्छ। छोड्दा ढील पाउँछ: चङ्गा सुस्त हुन्छ, हावासँगै बग्छ र त्यसको नाक घुम्छ। दिशा दिनु टाइमिङको खेल हो: छोड्नुहोस्, नाक घुम्ने पर्खनुहोस्, अनि थिच्नुहोस्।',
+      'थिचिराख्दा धागो तानिन्छ: चङ्गा त्यसको नाक जता छ उतै हुइँकिन्छ। छोड्दा ढील पाउँछ: चङ्गा सुस्त हुन्छ, हावासँगै बग्छ र त्यसको नाक घुम्छ। दिशा दिनु टाइमिङको खेल हो: छोड्नुहोस्, नाक घुमुन्जेल पर्खनुहोस्, अनि थिच्नुहोस्।',
       'प्रतिद्वन्द्वीको धागोमाथि उडाउँदा दुवै धागो अल्झिन्छन् र पेच पर्छ। जहाँ छुन्छन् त्यहाँ दुवै खिइन्छन्। तान्दा सबैभन्दा छिटो काटिन्छ, तर धेरैबेर तानिएको धागो तातेर आफैँ खिइन थाल्छ, त्यसैले छोटा छोटा झट्कामा तान्नुहोस् र धागो रातो हुन थालेपछि ढील दिनुहोस्।',
-      'एउटा आकाश सूर्य नअस्ताउन्जेल चल्छ, ७५ सेकेन्ड, र तपाईंसँग तीनवटा चङ्गा हुन्छन्। कुनै चङ्गा नगुमाई लगातार काट्दा हरेक नयाँ काटमा धेरै अङ्क मिल्छ।',
-      '२ जनाको खेलमा हरेकले स्क्रिनको एउटा आधा थिच्छ। जसले पहिले तीनवटा धागो काट्छ, उसले जित्छ।'
+      'एउटा आकाश सूर्य नअस्ताउन्जेल चल्छ, 75 सेकेन्ड, र तपाईंसँग तीनवटा चङ्गा हुन्छन्। कुनै चङ्गा नगुमाई लगातार काट्दा हरेक नयाँ काटमा धेरै अङ्क मिल्छ।',
+      '2 जनाको खेलमा हरेकले स्क्रिनको एउटा आधा थिच्छ। जसले पहिले तीनवटा धागो काट्छ, उसले जित्छ।'
     ],
     a11y: {
       game: 'चङ्गा चेट। थिचिराख्दा धागो तानिन्छ, छोड्दा ढील पाउँछ।',
@@ -1525,9 +1526,9 @@
     share: 'シェア',
     shareCopied: 'コピーしました。どこにでも貼り付けられます。',
     shareFailed: '今はシェアできませんでした。',
-    mostCuts: '1つの空で切った凧の最多',
+    mostCuts: '1つの空で切った凧の最多数',
     bestScore: 'ベストスコア',
-    skiesFlown: '飛んだ空',
+    skiesFlown: 'プレイした空',
     matchesPlayed: '対戦数',
     kites: '凧',
     patterns: ['月', '二色', '帯'],
@@ -1615,9 +1616,9 @@
     removeAdsPrice: 'Remove ads, {price}',
     removeAdsLine: '한 번 구매하면 하늘과 대결 사이의 광고가 영구히 사라져요. 솔로든 친구와 함께든 같아요. 보상은 광고 없이 받아요.',
     restore: '구매 복원',
-    adFreeThanks: '광고를 없앴어요. 고마워요.',
+    adFreeThanks: '광고를 없앴어요. 감사해요.',
     purchase: {
-      purchased: '광고를 없앴어요. 고마워요.',
+      purchased: '광고를 없앴어요. 감사해요.',
       owned: '이 계정에서는 이미 광고를 없앴어요.',
       pending: '결제 대기 중이에요. Google Play에서 확인되면 광고가 사라져요.',
       cancelled: '구매를 취소했어요.',
@@ -1634,7 +1635,7 @@
     share: '공유',
     shareCopied: '복사했어요. 아무 데나 붙여 넣으세요.',
     shareFailed: '지금은 공유할 수 없어요.',
-    mostCuts: '한 하늘 최다 끊은 연',
+    mostCuts: '한 하늘에서 끊은 연 최다',
     bestScore: '최고 점수',
     skiesFlown: '날린 하늘',
     matchesPlayed: '대결 횟수',
@@ -1643,7 +1644,7 @@
     patternHow: ['처음부터', '아래에서 대결 이기기', '한 하늘에서 연 5개 끊기'],
     newKite: '새 연: {name}',
     festival: { uttarayan: '우타라얀 하늘' },
-    licences: '글꼴: Barlow (SIL Open Font License). 아이콘: Phosphor (MIT). 모든 소리는 게임 안에서 만들어요.',
+    licences: '글꼴: Barlow (SIL Open Font License). 아이콘: Phosphor (MIT). 모든 소리는 게임 안에서 만들어져요.',
     howTo: [
       '누르고 있으면 줄을 당겨 연이 코끝이 향한 쪽으로 쏜살같이 날아갑니다. 손을 떼면 줄이 풀리면서 연이 느려지고 바람에 밀리며 코끝이 돌아갑니다. 조종은 타이밍입니다. 떼고, 코끝이 돌기를 기다렸다가, 다시 누르세요.',
       '상대의 줄을 가로지르면 두 줄이 서로 걸립니다. 엇갈린 곳에서 두 줄 모두 닳아 갑니다. 당기면 가장 빨리 끊어 내지만, 너무 오래 당긴 줄은 달아올라 스스로 닳습니다. 짧게 끊어 당기고, 줄이 빨개지면 손을 떼세요.',
@@ -1697,8 +1698,8 @@
     rewardSkipped: 'Реклама закрыта раньше времени, поэтому в этот раз без бонуса.',
     rewardNotReady: 'Сейчас нет готовой рекламы. Попробуйте чуть позже.',
     sunset: 'Закат',
-    leftEarly: 'Выход раньше',
-    dailyDone: 'Небо дня пройдено. Новое небо появится в полночь.',
+    leftEarly: 'Досрочный выход',
+    dailyDone: 'Небо дня сыграно. Новое небо появится в полночь.',
     playedToday: 'Сыграно',
     secondMark: 'второе небо',
     cuts: 'Срезы',
@@ -1754,7 +1755,7 @@
     festival: { uttarayan: 'Небо Уттараяна' },
     licences: 'Шрифт: Barlow (SIL Open Font License). Значки: Phosphor (MIT). Все звуки создаются в игре.',
     howTo: [
-      'Удерживайте, чтобы тянуть нить: змей рвётся туда, куда смотрит его нос. Отпустите, чтобы дать слабину: змей замедляется, плывёт по ветру, и нос поворачивает. Управление это ритм: отпустить, дождаться носа, снова удержать.',
+      'Удерживайте, чтобы тянуть нить: змей рвётся туда, куда смотрит его нос. Отпустите, чтобы дать слабину: змей замедляется, плывёт по ветру, и его нос поворачивается. Управлять нужно в ритме: отпустить, дождаться, пока нос повернётся, и снова удержать.',
       'Пролетите через нить соперника, и нити зацепятся. Обе стираются в месте пересечения. Натяжение пилит быстрее всего, но нить, которую тянут слишком долго, нагревается и стирается сама, поэтому тяните короткими рывками и отпускайте, когда нить краснеет.',
       'Небо длится до заката, 75 секунд, и у вас три змея. Каждый срез приносит больше очков, если идёт сразу за другим срезом без потери змея между ними.',
       'В режиме на 2 игроков каждый держит свою половину экрана. Побеждает тот, кто первым срежет три нити.'
@@ -1854,7 +1855,7 @@
     shareFailed: 'Şu an paylaşılamadı.',
     mostCuts: 'Bir gökte en çok kesme',
     bestScore: 'En iyi puan',
-    skiesFlown: 'Uçulan gök',
+    skiesFlown: 'Oynanan gök',
     matchesPlayed: 'Oynanan maç',
     kites: 'Uçurtmalar',
     patterns: ['Ay', 'Yarım', 'Şerit'],
