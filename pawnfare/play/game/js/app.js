@@ -657,6 +657,7 @@
     sheetName = name;
     sheetBack = onBack || null;
     while (el.sheet.firstChild) el.sheet.removeChild(el.sheet.firstChild);
+    offerRefreshers = []; // only the open sheet's offers: the list grew by one per sheet during a run
     el.sheet.setAttribute('data-sheet', name);
     build(el.sheet);
     el.sheetWrap.hidden = false;
@@ -1052,9 +1053,10 @@
     run.board = null;
     run.moves = [];
     persist();
-    prefetch(run, run.draftOptions);
     var rewardedHere = game.rewarded;
     fall.then(function () {
+      // Built after the king's fall, not during it: three busy workers made the fall stutter on a phone.
+      prefetch(run, run.draftOptions);
       breakRewarded = rewardedHere;
       return maybeInterstitial('board_break', run);
     }).then(function () {
@@ -1510,14 +1512,24 @@
     audio.suspend();
   });
   Shell.onResume(function () { audio.resume(); });
+  // On a phone where ads keep failing to load, the shell reports caps often: during a board, redo only what
+  // actually changed (the board's place, the offers).
+  var offerState = '';
   Shell.onChange(function () {
     caps = Shell.caps;
-    if (screen === 'play' && game && game.def) view.layout(boardRect());
+    if (screen === 'play' && game && game.def) {
+      var r = boardRect();
+      var o = view.rect;
+      if (!o || r.x !== o.x || r.y !== o.y || r.cell !== o.cell) view.layout(r);
+    }
     if (!sheetName && screen !== 'play') {
       var top = el.screen.scrollTop;
       showScreen(screen);
       el.screen.scrollTop = top;
     }
+    var state = offerVisible() + '|' + !!caps.adFree;
+    if (screen === 'play' && state === offerState) return;
+    offerState = state;
     refreshOffers();
     if (screen === 'play' && game && !game.over) updateTray();
   });

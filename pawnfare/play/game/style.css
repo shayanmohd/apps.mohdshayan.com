@@ -357,3 +357,8 @@ html.reduced *, html.reduced *::after { animation: none !important; transition: 
   .draft { gap: 8px; }
   .option { min-height: 156px; }
 }
+
+/* Veils over the board canvas, under the HUD: the lost-board tint and the dim under a sheet (board.js). */
+.veil { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.veil.lost { background: radial-gradient(circle 75vmax at 50% 50%, rgba(181, 67, 47, 0) 30vmin, rgba(181, 67, 47, 0.28) 75vmax), rgba(14, 21, 48, 0.5); }
+.veil.dim { background: rgba(9, 13, 32, 0.55); }
