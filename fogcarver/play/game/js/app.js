@@ -40,7 +40,7 @@
   var sheet = null;         // settings, pause, unlock, null
   var game = null;          // the island being played
   var view = null;          // what the canvas shows: { island, board, box, fog, tray, frame }
-  var layers = { bg: null, land: null, coast: null, fog: null, box: null };
+  var layers = { bg: null, land: null, coast: null, fog: null, fogMask: null, box: null };
   var dirty = true;
   var anims = [];           // { t0, dur, draw(p, now), done }
   var parts = [];           // wisps and specks
@@ -178,6 +178,7 @@
       layers.coast = co.c;
       var fw = Math.max(8, Math.round(b.w / 2)), fh = Math.max(8, Math.round(b.h / 2));
       layers.fog = art.canvas(fw, fh);
+      layers.fogMask = null;
     }
     dirty = true;
   }
@@ -1220,24 +1221,37 @@
     return false;
   }
 
+  // A 120 Hz screen would redraw the whole canvas twice as often as the eye needs, on two busy cores:
+  // draw at most 60 times a second while something moves, and 30 while only the fog drifts (it moves
+  // well under a pixel a frame). Input is handled in its own events; this only paces the drawing.
+  var FRAME_MS = 1000 / 60, DRIFT_MS = 1000 / 30;
+  var lastDraw = -1e9;
+
   function frame(ts) {
     requestAnimationFrame(frame);
     var tnow = now();
+    var moving = dirty || anims.length || parts.length || pops.length || flashes.length ||
+      (game && (game.drag || game.tutorial || game.pending >= 0)) || veil.t0 + veil.dur > tnow ||
+      shakeT0 + 200 > tnow || hasFogAnim() || stampsLive(tnow) || (frameAnim && view && view.kind === 'result' && view.frameBox && layers.box) || (game && game.trayTurnAnim + 200 > tnow) ||
+      hudCounting();
+    if (!moving && (reduced() || !fogActive())) return;
+    var step = moving ? FRAME_MS : DRIFT_MS;
+    if (ts - lastDraw + 3 < step) return;
+    lastDraw = ts - lastDraw < step + 10 ? lastDraw + step : ts;
     if (frames.last) {
       var dt = tnow - frames.last;
-      if (dt > 24) frames.slow++;
+      if (dt > step * 1.5) frames.slow++;
       if (dt > frames.worst && frames.n > 30) frames.worst = dt;
     }
     frames.last = tnow;
     frames.n++;
     tickHud();
-    var drifting = !reduced() && fogActive();
-    var live = dirty || drifting || anims.length || parts.length || pops.length || flashes.length ||
-      (game && (game.drag || game.tutorial || game.pending >= 0)) || veil.t0 + veil.dur > tnow ||
-      shakeT0 + 200 > tnow || hasFogAnim() || stampsLive(tnow) || (frameAnim && view && view.kind === 'result' && view.frameBox && layers.box) || (game && game.trayTurnAnim + 200 > tnow);
-    if (!live) return;
     dirty = false;
     draw(tnow);
+  }
+
+  function hudCounting() {
+    return screen === 'play' && !!view && !!view.sc && shownScore !== view.sc.total;
   }
 
   function hasFogAnim() {
@@ -1313,8 +1327,9 @@
     var v = view;
     var L = v.lay.L, b = layers.box, fc = layers.fog;
     if (!fc) return;
-    var any = false;
+    var any = false, lifting = false;
     for (var i in v.fogAnim) {
+      lifting = true;
       var a = v.fogAnim[i];
       var p = Math.min(1, (tn - a.t0) / a.dur);
       v.fogA[i] = a.from + (a.to - a.from) * (a.to < a.from ? p * p : ease(p));
@@ -1322,22 +1337,30 @@
     }
     for (var j = 0; j < v.board.n; j++) if (v.fogA[j] > 0.01) { any = true; break; }
     if (!any) return;
-    var fg = fc.getContext('2d');
     var k = fc.width / b.w;
+    // the fog's shape (one puff per fogged cell) is drawn once and kept until fog lifts or falls again
+    var mask = layers.fogMask;
+    if (!mask || lifting) {
+      if (!mask) mask = layers.fogMask = art.canvas(fc.width, fc.height);
+      var mg = mask.getContext('2d');
+      mg.clearRect(0, 0, mask.width, mask.height);
+      var puff = art.puff();
+      for (var m = 0; m < v.board.n; m++) {
+        var al = v.fogA[m];
+        if (al <= 0.01) continue;
+        var c = art.cellXY(L, m);
+        var carving = v.fogAnim[m] && v.fogAnim[m].to === 0;
+        var R = L.s * 1.22 * (carving && !reduced() ? 1 + (1 - al) * 0.6 : 1) * k;
+        mg.globalAlpha = Math.min(1, al);
+        mg.drawImage(puff, (c.x - b.x) * k - R, (c.y - b.y) * k - R, R * 2, R * 2);
+      }
+      mg.globalAlpha = 1;
+    }
+    var fg = fc.getContext('2d');
     fg.setTransform(1, 0, 0, 1, 0, 0);
     fg.globalCompositeOperation = 'source-over';
     fg.clearRect(0, 0, fc.width, fc.height);
-    var puff = art.puff();
-    for (var m = 0; m < v.board.n; m++) {
-      var al = v.fogA[m];
-      if (al <= 0.01) continue;
-      var c = art.cellXY(L, m);
-      var carving = v.fogAnim[m] && v.fogAnim[m].to === 0;
-      var R = L.s * 1.22 * (carving && !reduced() ? 1 + (1 - al) * 0.6 : 1) * k;
-      fg.globalAlpha = Math.min(1, al);
-      fg.drawImage(puff, (c.x - b.x) * k - R, (c.y - b.y) * k - R, R * 2, R * 2);
-    }
-    fg.globalAlpha = 1;
+    fg.drawImage(mask, 0, 0);
     {
       // the cloud texture always shades the fog; it only drifts when motion is allowed
       if (!fogPattern) {
