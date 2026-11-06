@@ -21,7 +21,7 @@
       w: 1, h: 1, d: 1, s: 4, ox: 0, roofY: 0, insets: { top: 0, right: 0, bottom: 0, left: 0 },
       reduced: false, scene: null, layers: null, stars: [], streaks: [], far: [],
       particles: [], debris: [], shake: 0, flash: 0, fx: rng.make(0xfeed5),
-      pops: []
+      pops: [], dir: 'ltr'
     };
 
     R.resize = function (w, h, d, insets) {
@@ -35,6 +35,7 @@
       R.s = Math.min(w / physics.W, (R.roofY - topRoom) / physics.H);
       R.ox = (w - physics.W * R.s) / 2;
       R.layers = null;
+      fitCache = {};
       var r = rng.make(0x57a25);
       R.stars = [];
       for (var i = 0; i < 70; i++) R.stars.push({ x: r.next() * w, y: r.next() * R.roofY * 0.7, a: 0.3 + 0.7 * r.next(), z: r.next() < 0.15 ? 1.6 : 1 });
@@ -44,6 +45,9 @@
     };
 
     R.setReduced = function (v) { R.reduced = !!v; };
+
+    /** The words' direction: rtl for Urdu. Only words follow it; numbers, the field and the halves never mirror. */
+    R.setDir = function (d) { R.dir = d === 'rtl' ? 'rtl' : 'ltr'; };
 
     /** scene: {seed, festival, hands: [left x, right x] in world units}. Rebuilds the roofs when it changes. */
     R.setScene = function (scene) {
@@ -539,6 +543,68 @@
     }
     R.text = text;
 
+    // Words on the canvas never run off it, in any language: the largest size from size down to 70
+    // percent at which the text fits maxW, else two lines split at the space nearest the middle (between
+    // any two characters in a script written without spaces), else the smallest two lines (over: true).
+    // Cached, since the hints redraw every frame; resize() clears it.
+    var fitCache = {};
+    var NO_BREAK_BEFORE = /[\u3001\u3002\uff01\uff1f\uff09\u300d\u30fc\u3099\u309a\u0300-\u036f\udc00-\udfff]/;
+    function fit(str, size, maxW, weight) {
+      weight = weight || 700;
+      var key = weight + '|' + size + '|' + Math.round(maxW) + '|' + str;
+      if (fitCache[key]) return fitCache[key];
+      var min = Math.max(12, Math.round(size * 0.7));
+      var res = null, s;
+      for (s = size; s >= min && !res; s--) {
+        ctx.font = weight + ' ' + s + 'px ' + FONT;
+        if (ctx.measureText(str).width <= maxW) res = { size: s, lines: [str], over: false };
+      }
+      if (!res) {
+        var cuts = [];
+        for (var i = 1; i < str.length; i++) if (str.charAt(i) === ' ') cuts.push(i);
+        if (!cuts.length) for (var j = 1; j < str.length; j++) if (!NO_BREAK_BEFORE.test(str.charAt(j))) cuts.push(j);
+        for (s = size; s >= min && !res; s--) {
+          ctx.font = weight + ' ' + s + 'px ' + FONT;
+          var best = null, bw = Infinity;
+          for (var c = 0; c < cuts.length; c++) {
+            var a = str.slice(0, cuts[c]).trim(), b = str.slice(cuts[c]).trim();
+            var w = Math.max(ctx.measureText(a).width, ctx.measureText(b).width);
+            if (w < bw) { bw = w; best = [a, b]; }
+          }
+          if (best && (bw <= maxW || s === min)) res = { size: s, lines: best, over: bw > maxW };
+        }
+        if (!res) res = { size: min, lines: [str], over: true };
+      }
+      ctx.font = weight + ' ' + res.size + 'px ' + FONT;
+      res.widths = res.lines.map(function (l) { return ctx.measureText(l).width; });
+      fitCache[key] = res;
+      return res;
+    }
+    R.fit = fit;
+
+    /** The room the centred hints have: the screen less 20 px and the insets on each side. */
+    R.hintRoom = function () { return R.w - 40 - R.insets.left - R.insets.right; };
+
+    // Fitted words with a dark outline, centred on x; the first line at y, further lines below
+    // (up: above). Words follow the language's direction.
+    function words(str, x, y, size, color, maxW, outline, up) {
+      var f = fit(str, size, maxW);
+      var lh = Math.round(f.size * 1.25);
+      var y0 = up ? y - (f.lines.length - 1) * lh : y;
+      ctx.direction = R.dir;
+      ctx.font = '700 ' + f.size + 'px ' + FONT;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineWidth = outline;
+      ctx.strokeStyle = 'rgba(14, 20, 36, 0.85)';
+      ctx.fillStyle = color;
+      for (var i = 0; i < f.lines.length; i++) {
+        ctx.strokeText(f.lines[i], x, y0 + i * lh);
+        ctx.fillText(f.lines[i], x, y0 + i * lh);
+      }
+      ctx.direction = 'ltr';
+    }
+
     function drawHud(v) {
       var h = v.hud;
       if (!h) return;
@@ -591,16 +657,11 @@
       hand(R.w * 0.25, hy, 30, C.marigold, false, v.realT);
       hand(R.w * 0.75, hy, 30, C.jade, false, v.realT);
       if (v.halves.label) {
-        // above the hand, clear of the kites parked on the roofs, outlined like the lesson's hints
-        ctx.font = '700 16px ' + FONT;
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = 'rgba(14, 20, 36, 0.85)';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.strokeText(v.halves.label, R.w * 0.25, hy - 46);
-        ctx.strokeText(v.halves.label, R.w * 0.75, hy - 46);
-        text(v.halves.label, R.w * 0.25, hy - 46, 16, C.marigold);
-        text(v.halves.label, R.w * 0.75, hy - 46, 16, C.jade);
+        // above the hand, clear of the kites parked on the roofs, outlined like the lesson's hints;
+        // each half keeps its side whatever the language's direction
+        var room = R.w / 2 - 24;
+        words(v.halves.label, R.w * 0.25, hy - 46, 16, C.marigold, room, 4, true);
+        words(v.halves.label, R.w * 0.75, hy - 46, 16, C.jade, room, 4, true);
       }
       ctx.globalAlpha = 1;
     }
@@ -633,15 +694,7 @@
         }
         hand(x, y, 30, C.cotton, !down, v.realT);
       }
-      if (h.text) {
-        ctx.font = '700 20px ' + FONT;
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = 'rgba(14, 20, 36, 0.85)';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.strokeText(h.text, x, y + 48);
-        text(h.text, x, y + 48, 20, C.cotton);
-      }
+      if (h.text) words(h.text, x, y + 48, 20, C.cotton, R.hintRoom(), 5);
       if (h.arrowTo && h.arrowFrom) {
         var ax = R.sx(h.arrowFrom.x), ay = R.sy(h.arrowFrom.y), bx = R.sx(h.arrowTo.x), by = R.sy(h.arrowTo.y);
         ctx.strokeStyle = 'rgba(255, 214, 120, 0.85)';
@@ -661,15 +714,72 @@
       ctx.globalAlpha = 1;
     }
 
+    // The newcomer pulse lesson (coach.js): a ghost thumb presses and lifts beside a small kite on its
+    // line, whose nose turns while the thumb is up and which darts along its nose while it is down,
+    // over the steering hint. Drawn where the lesson's hints sit, on a dark card; never mirrored.
+    function drawCoach(v) {
+      var c = v.coach;
+      if (!c) return;
+      var fade = clamp(Math.min(c.age / 0.25, (c.show - c.age) / 0.4), 0, 1);
+      if (fade <= 0) return;
+      var y = R.roofY - Math.max(84, R.h * 0.14);
+      var x = R.w / 2;
+      // a dark card behind the demonstration, so it reads over the sun and the roofs alike
+      ctx.globalAlpha = fade * 0.6;
+      ctx.fillStyle = 'rgba(14, 20, 36, 1)';
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x - 78, y - 78, 156, 104, 18); else ctx.rect(x - 78, y - 78, 156, 104);
+      ctx.fill();
+      // the kite on its line, left: its nose sweeps clockwise while the thumb is up, then it darts
+      var th = -0.7 + 1.4 * ease(c.turn);
+      var d = 24 * ease(c.dart);
+      var ax = x - 34, ay = y + 18;
+      var kx = ax + Math.sin(th) * d, ky = y - 34 - Math.cos(th) * d;
+      ctx.globalAlpha = fade;
+      ctx.strokeStyle = 'rgba(239, 230, 210, 0.75)';
+      ctx.lineWidth = c.down ? 1.6 : 1.2;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      if (c.down) ctx.lineTo(kx, ky);
+      else ctx.quadraticCurveTo((ax + kx) / 2 + 10, (ay + ky) / 2 + 8, kx, ky);
+      ctx.stroke();
+      if (!c.down) {
+        ctx.fillStyle = C.marigold;
+        for (var i = 1; i <= 4; i++) {
+          ctx.globalAlpha = fade * 0.75 * (1 - i / 5);
+          ctx.beginPath();
+          ctx.arc(kx + Math.sin(th) * (8 + i * 6), ky - Math.cos(th) * (8 + i * 6), 1.6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = fade;
+      art.kite(ctx, kx, ky, th, 12, { color: C.marigold, pattern: 0 });
+      // the thumb, right: pressed with a glow, or lifted
+      var hx = x + 42;
+      if (c.down) {
+        ctx.fillStyle = 'rgba(255, 214, 120, 0.38)';
+        ctx.beginPath();
+        ctx.arc(hx - 4, y - 14, 22, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = fade * 0.9;
+      hand(hx, y + (c.down ? 4 : -8), 24, C.cotton, false, 0);
+      ctx.globalAlpha = fade;
+      if (c.text) words(c.text, x, y + 48, 20, C.cotton, R.hintRoom(), 5);
+      ctx.globalAlpha = 1;
+    }
+
     /**
      * One frame. v: {world, snaps, alpha, p (sunset 0 to 1), realT, rdt, dt (sim time this frame),
      * colors [left, right], aim [left, right], aimLen (the aim line's length in world units, the lesson
-     * only), hud, hint, ring, halves, wind, gust, dim, sunLift (the
+     * only), hud, hint, coach (the newcomer pulse lesson: age, show, down, turn, dart, text), ring,
+     * halves, wind, gust, dim, sunLift (the
      * menu's sun height over the roofs, as a share of the sky; otherwise the sun sets with p)}.
      */
     R.draw = function (v) {
       stepFx(v.dt || 0, v.wind);
       ctx.setTransform(R.d, 0, 0, R.d, 0, 0);
+      ctx.direction = 'ltr';
       var sh = R.shake;
       if (sh) ctx.translate((R.fx.next() - 0.5) * sh * 2, (R.fx.next() - 0.5) * sh * 2);
       drawSkyAndRoofs(v);
@@ -692,6 +802,7 @@
       ctx.setTransform(R.d, 0, 0, R.d, 0, 0);
       drawHalves(v);
       drawHint(v);
+      drawCoach(v);
       drawHud(v);
       if (v.dim) {
         ctx.fillStyle = 'rgba(10, 13, 24, ' + (v.dim * 0.55) + ')';

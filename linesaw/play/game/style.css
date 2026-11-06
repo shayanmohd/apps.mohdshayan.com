@@ -45,6 +45,8 @@ canvas#view { position: fixed; inset: 0; width: 100%; height: 100%; display: blo
 [hidden] { display: none !important; }
 button { font: inherit; color: inherit; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--marigold); outline-offset: 3px; }
+/* Korean wraps between words, not between any two syllables */
+html:lang(ko) { word-break: keep-all; }
 
 .ico { width: 22px; height: 22px; flex: none; }
 
@@ -62,14 +64,14 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--marigold); outl
 .tagline { margin: 12px 0 0; color: var(--muted); font-size: 16px; }
 .festival-tag { margin: 8px 0 0; color: var(--marigold); font-weight: 700; font-size: 15px; }
 .menu-stack { display: grid; gap: 12px; width: 100%; max-width: 440px; margin: 0 auto; }
-.card { display: grid; gap: 4px; width: 100%; text-align: left; padding: 14px 16px; border-radius: var(--r-btn);
+.card { display: grid; gap: 4px; width: 100%; text-align: start; padding: 14px 16px; border-radius: var(--r-btn);
   background: var(--panel); border: 1px solid var(--panel-line); cursor: pointer; }
 .card:active { transform: translateY(1px); }
 .card-row { display: flex; align-items: center; gap: 10px; }
 .card-icon { display: inline-flex; color: var(--marigold); }
 .card-title { font-weight: 700; font-size: 20px; }
 .card-meta { color: var(--muted); font-size: 15px; }
-.streak { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; color: var(--marigold); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
+.streak { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 4px; color: var(--marigold); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
 .streak .ico { width: 20px; height: 20px; }
 .friend-card { border-color: rgba(245, 179, 53, 0.5); }
 .play-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
@@ -81,9 +83,11 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--marigold); outl
 .btn.big { min-height: 60px; font-size: 20px; }
 .btn.wide { width: 100%; }
 .btn.quiet { background: transparent; border-color: transparent; color: var(--muted); font-weight: 400; font-size: 15px; min-height: 44px; padding: 6px 8px; }
-.btn.reward { background: rgba(245, 179, 53, 0.14); border-color: rgba(245, 179, 53, 0.55); color: var(--cotton); white-space: normal; text-align: left; }
+.btn.reward { background: rgba(245, 179, 53, 0.14); border-color: rgba(245, 179, 53, 0.55); color: var(--cotton); white-space: normal; text-align: start; }
 .btn.reward .ico { color: var(--marigold); }
 .duo .ico { color: var(--jade); }
+/* in a right-to-left language "next" points left; nothing else mirrors */
+[dir="rtl"] .ico.forward { transform: scaleX(-1); }
 .ads-row { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; justify-self: center; padding: 2px 8px; border-radius: var(--r-btn); background: var(--panel); border: 1px solid var(--panel-line); }
 .menu-foot { display: flex; justify-content: center; gap: 18px; }
 .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%;
@@ -118,16 +122,19 @@ body[data-mode="match"] .hud-pause { right: auto; left: 50%; transform: translat
 .badges { display: flex; flex-wrap: wrap; gap: 8px; }
 .badge { padding: 4px 10px; border-radius: 999px; background: rgba(245, 179, 53, 0.16); color: var(--marigold); font-weight: 700; font-size: 14px; }
 .actions { display: grid; gap: 10px; }
-.actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.actions-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+/* a long word in a half-width button wraps inside it rather than pushing the card off the screen */
+.actions-row .btn { white-space: normal; text-align: center; }
 .offer-box { display: grid; gap: 8px; padding: 14px; border-radius: var(--r-btn); border: 1px solid var(--panel-line); }
 .offer-box p { margin: 0; color: var(--muted); font-size: 15px; }
-.match-score { display: flex; align-items: center; justify-content: center; gap: 18px; font-weight: 700; font-size: 60px; font-variant-numeric: tabular-nums; }
+/* the left rooftop's score stays on the left in a right-to-left language */
+.match-score { direction: ltr; display: flex; align-items: center; justify-content: center; gap: 18px; font-weight: 700; font-size: 60px; font-variant-numeric: tabular-nums; }
 .match-score .l { color: var(--marigold); }
 .match-score .r { color: var(--jade); }
 .match-score i { font-style: normal; color: var(--muted); font-size: 36px; }
 .match-score canvas { width: 40px; height: 50px; }
 .rows { display: grid; gap: 2px; }
-.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 8px 4px; border: 0; background: transparent; text-align: left; width: 100%; cursor: pointer; color: var(--cotton); text-decoration: none; font-size: 17px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 8px 4px; border: 0; background: transparent; text-align: start; width: 100%; cursor: pointer; color: var(--cotton); text-decoration: none; font-size: 17px; }
 .row + .row { border-top: 1px solid var(--panel-line); }
 .row .val { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
 .prose p { margin: 0 0 10px; color: var(--cotton); }

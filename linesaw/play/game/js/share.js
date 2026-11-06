@@ -42,6 +42,7 @@
     c.width = size;
     c.height = size;
     var x = c.getContext('2d');
+    x.direction = 'ltr'; // wordless numbers, never mirrored in a right-to-left language
     art.sky(x, size, 0, 470, size, 0.35, false);
     art.sun(x, 420, 430, 34, 0.35);
     // rooftops

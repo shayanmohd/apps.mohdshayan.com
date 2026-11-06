@@ -15,6 +15,7 @@
   var LS = window.LS;
   var S = LS.strings.t, fmt = LS.strings.format;
   var physics = LS.physics, skyMod = LS.sky, matchMod = LS.match, rules = LS.rules, progress = LS.progress;
+  var coachMod = LS.coach;
   var daily = LS.daily, festival = LS.festival, share = LS.share, audio = LS.audio, art = LS.art;
   var icon = LS.icons.icon;
   var clockMod = LS.clock;
@@ -66,6 +67,12 @@
   };
 
   function staticText() {
+    // The device's language picks the table; its lang lets the browser choose the right system font
+    // for scripts Barlow lacks (Devanagari, Gujarati, Gurmukhi, Bengali, Urdu, Japanese, Korean,
+    // Cyrillic), and Urdu runs right to left. The canvas field and the two halves never mirror.
+    document.documentElement.lang = LS.strings.code;
+    document.documentElement.dir = LS.strings.dir;
+    R.setDir(LS.strings.dir);
     canvas.setAttribute('aria-label', S.a11y.game);
     canvas.setAttribute('role', 'img');
     $('wordmark').textContent = S.title;
@@ -109,6 +116,9 @@
   var pending = null;   // {at, fn}: a timed step after a cut or at sunset
   var lastHold = [false, false];
   var lessonDuelSeen = false;
+  var coach = null;        // the newcomer pulse lesson for the one-player sky being flown (coach.js)
+  var coachNext = false;   // the last one-player sky, a newcomer's, ended with no cut
+  var coachFrames = 0;     // frames drawn with the lesson showing, for automated tests
   var boughtAdFree = false;
   var sheetKind = null;
   var adBusy = false;   // a full-screen ad was asked for: the card ignores taps and Back until it answers
@@ -171,7 +181,15 @@
     R.setScene({ seed: seed, festival: fest, hands: hands });
   }
 
+  // The pulse lesson rides along with every one-player sky; it starts armed after a newcomer's sky that
+  // cut nothing.
+  function coachFor(m) {
+    coach = coachMod.create({ mode: m, number: game.number, reached: save.sky, armed: coachNext });
+    coachNext = false;
+  }
+
   function startLesson() {
+    coach = null;
     setMode('lesson');
     game = skyMod.create({ tutorial: true, pattern: save.pattern });
     lessonDuelSeen = false;
@@ -182,6 +200,7 @@
   function startSolo(number) {
     setMode('solo');
     game = skyMod.create({ number: number, pattern: save.pattern });
+    coachFor('solo');
     sceneFor(game.seed, [skyMod.PLAYER_HAND, skyMod.RIVAL_HAND]);
     beginPlay();
   }
@@ -193,6 +212,7 @@
     progress.startDaily(save, today, second);
     persist();
     game = skyMod.create({ day: today, pattern: save.pattern });
+    coachFor('daily');
     sceneFor(game.seed, [skyMod.PLAYER_HAND, skyMod.RIVAL_HAND]);
     beginPlay();
   }
@@ -200,11 +220,13 @@
   function startFriend(day) {
     setMode('friend');
     game = skyMod.create({ day: day, pattern: save.pattern });
+    coachFor('friend');
     sceneFor(game.seed, [skyMod.PLAYER_HAND, skyMod.RIVAL_HAND]);
     beginPlay();
   }
 
   function startMatch() {
+    coach = null;
     setMode('match');
     var seed = (Date.now() ^ Math.floor(realT * 1000)) >>> 0;
     game = matchMod.create({ seed: seed, patterns: [save.pattern, (save.pattern + 1) % 3] });
@@ -289,6 +311,7 @@
       var hold = holdFor(0);
       edgeSounds([hold, false]);
       skyMod.step(game, hold);
+      if (coach) coachMod.step(coach, game, hold, DT);
       handleSkyEvents();
     }
   }
@@ -436,6 +459,14 @@
             score: game.score, mult: Math.min(skyMod.MULT_CAP, game.streak + 1),
             secondsLeft: Math.max(0, game.duration - world.t), overtime: game.overtime && world.t > game.duration
           };
+          if (coach && state === 'play') {
+            var ca = coachMod.age(coach, world.t);
+            if (ca >= 0) {
+              var cp = coachMod.pose(ca);
+              v.coach = { age: ca, show: coachMod.SHOW, down: cp.down, turn: cp.turn, dart: cp.dart, text: S.hintSteer };
+              coachFrames++;
+            }
+          }
         } else if (state === 'play') {
           v.hint = lessonHint(world);
           if (game.ring >= 0 && game.ring < game.rings.length) {
@@ -559,6 +590,8 @@
       progress.finishDaily(save, game.day, res, second);
       out = progress.recordSky(save, res);
     }
+    // A sky that cut nothing arms the pulse lesson for the next one, unless it was only a 20 s look.
+    coachNext = counts && coachMod.after(res, save.sky);
     persist();
     out.unlocked.forEach(function (i) { toast(fmt(S.newKite, { name: S.patterns[i] })); });
     if (out.records.length) audio.chime([0, 4, 7, 12]);
@@ -605,7 +638,7 @@
   function btn(text, cls, fn, iconName) {
     var b = el('button', 'btn ' + (cls || ''));
     b.type = 'button';
-    if (iconName) b.appendChild(icon(iconName));
+    if (iconName) b.appendChild(icon(iconName, iconName === 'arrow-right' ? 'forward' : ''));
     b.appendChild(el('span', null, text));
     b.addEventListener('click', function () {
       if (adBusy) return;
@@ -839,7 +872,7 @@
     }
     if (d.done) {
       var best = progress.dailyBest(d);
-      ui.dailyMeta.textContent = S.playedToday + ': ' + S.score + ' ' + (best ? best.score : 0) + (d.second ? ', ' + S.secondMark.toLowerCase() : '');
+      ui.dailyMeta.textContent = S.playedToday + ': ' + S.score + ' ' + (best ? best.score : 0) + (d.second ? ', ' + S.secondMark : '');
     } else {
       ui.dailyMeta.textContent = S.play;
     }
@@ -1199,7 +1232,16 @@
       var sorted = frameTimes.slice().sort(function (a, b) { return a - b; });
       return { avg: frameTimes.length / s, p95ms: sorted[Math.floor(sorted.length * 0.95)] * 1000, frames: frameTimes.length };
     },
-    friendDay: function () { return friendDay; }
+    friendDay: function () { return friendDay; },
+    get coach() {
+      return coach ? { on: coach.on, armed: coach.armed, at: coach.at, why: coach.why, held: coach.held, frames: coachFrames } : null;
+    },
+    get coachNext() { return coachNext; },
+    lang: LS.strings.code,
+    dir: LS.strings.dir,
+    fit: function (str, size, maxW) { var f = R.fit(str, size, maxW); return { size: f.size, lines: f.lines.slice(), widths: f.widths.slice(), over: f.over }; },
+    hintRoom: function () { return R.hintRoom(); },
+    halfRoom: function () { return R.w / 2 - 24; }
   };
 
   // ---- boot ----
