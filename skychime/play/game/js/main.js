@@ -117,9 +117,11 @@
   }
 
   // ---- layout ----
+  // Drops to 1 for the rest of the session when frames stay slow (see watchSpeed).
+  var renderScale = 2;
   function resize() {
     var ins = Shell.caps.insets;
-    renderer.resize(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1, ins);
+    renderer.resize(window.innerWidth, window.innerHeight, Math.min(renderScale, window.devicePixelRatio || 1), ins);
     var v = renderer.view;
     var city = Math.round(window.innerHeight - (v.ground - 34 * v.s));
     document.documentElement.style.setProperty('--city', Math.max(120, city) + 'px');
@@ -853,9 +855,24 @@
   if (systemReduce && systemReduce.addEventListener) systemReduce.addEventListener('change', applySettings);
 
   // ---- the frame loop ----
+  // Some WebViews draw this canvas on the CPU: a Galaxy S22+ on WebView 156 managed about 25 frames a second
+  // at full resolution from the second launch on. When 90 frames in a row average over 24 ms, draw at one
+  // canvas pixel per CSS pixel for the rest of the session (a quarter of the pixels).
+  var slowSum = 0, slowN = 0;
+  function watchSpeed(gap) {
+    if (renderScale === 1 || gap <= 0 || gap > 100 || document.hidden) return;
+    slowSum += gap; slowN++;
+    if (slowN < 90) return;
+    if (slowSum / slowN > 24 && (window.devicePixelRatio || 1) > 1) { renderScale = 1; resize(); }
+    slowSum = 0; slowN = 0;
+  }
   var last = performance.now();
   var stepsLastFrame = 0;
   function frame(ms) {
+    // Off the show (menus, results, pause) draw at most about 60 frames a second: on a 120 Hz phone the
+    // idle menu otherwise kept more than a core busy and the phone warm while the player only reads.
+    if (screen !== 'play' && ms - last < 15) { requestAnimationFrame(frame); return; }
+    watchSpeed(ms - last);
     var now = ms / 1000;
     var dt = Math.min(0.1, Math.max(0, (ms - last) / 1000));
     last = ms;
