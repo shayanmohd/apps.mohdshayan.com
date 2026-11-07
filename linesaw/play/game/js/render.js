@@ -24,11 +24,40 @@
       pops: [], dir: 'ltr'
     };
 
+    // The backing store and the three skyline layers are sized once, before Shell.ready(), and in the app
+    // never again: the ads SDK's hidden WebView makes WebView 156 draw every canvas created or resized after
+    // it on the CPU (WEBGAME-RECIPE.md section 2b). A window change there lowers the scale to fit instead.
+    // On the web there is no such WebView, so the canvases still follow the window.
+    var BW = 1, BH = 1, follow = true, layerSet = null;
+    function layerCanvas(pw, ph) {
+      var c = document.createElement('canvas');
+      c.width = pw;
+      c.height = ph;
+      return { c: c, x: c.getContext('2d') };
+    }
+    function allocate(pw, ph) {
+      BW = Math.max(1, pw); BH = Math.max(1, ph);
+      canvas.width = BW;
+      canvas.height = BH;
+      layerSet = { far: layerCanvas(BW, BH), near: layerCanvas(BW, BH), lit: layerCanvas(BW, BH) };
+      R.layers = null;
+    }
+
+    /** Once, before Shell.ready(): w and h in CSS px, fixed true in the app (never resized afterwards). */
+    R.alloc = function (w, h, d, fixed) {
+      var dd = Math.min(2, d || 1);
+      allocate(Math.round(w * dd), Math.round(h * dd));
+      follow = !fixed;
+    };
+
     R.resize = function (w, h, d, insets) {
       R.w = w; R.h = h; R.d = Math.min(2, d || 1);
       R.insets = insets || R.insets;
-      canvas.width = Math.max(1, Math.round(w * R.d));
-      canvas.height = Math.max(1, Math.round(h * R.d));
+      var pw = Math.max(1, Math.round(w * R.d)), ph = Math.max(1, Math.round(h * R.d));
+      if (follow && (pw !== BW || ph !== BH)) allocate(pw, ph);
+      R.d = Math.min(R.d, BW / w, BH / h);
+      canvas.style.width = BW / R.d + 'px';
+      canvas.style.height = BH / R.d + 'px';
       var bottomBand = Math.max(64, h * 0.085) + R.insets.bottom;
       R.roofY = h - bottomBand;
       var topRoom = Math.max(96, h * 0.12) + R.insets.top;
@@ -71,7 +100,7 @@
     function ensureLayers() {
       if (R.layers || !R.scene) return;
       var hands = R.scene.hands.map(function (x) { return R.ox + x * R.s; });
-      R.layers = art.skyline(R.w, R.h, R.roofY, R.d, R.scene.seed, hands);
+      R.layers = art.skyline(R.w, R.h, R.roofY, R.d, R.scene.seed, hands, layerSet);
     }
 
     R.sx = function (x) { return R.ox + x * R.s; };
@@ -271,10 +300,12 @@
       ctx.stroke();
       ensureLayers();
       if (R.layers) {
-        ctx.drawImage(R.layers.far, 0, 0, R.w, R.h);
-        ctx.drawImage(R.layers.near, 0, 0, R.w, R.h);
+        // The layers are the backing store's size; only the window's part of them is drawn.
+        var lw = R.w * R.d, lh = R.h * R.d;
+        ctx.drawImage(R.layers.far, 0, 0, lw, lh, 0, 0, R.w, R.h);
+        ctx.drawImage(R.layers.near, 0, 0, lw, lh, 0, 0, R.w, R.h);
         ctx.globalAlpha = 0.2 + 0.8 * clamp((p - 0.15) / 0.6, 0, 1);
-        ctx.drawImage(R.layers.lit, 0, 0, R.w, R.h);
+        ctx.drawImage(R.layers.lit, 0, 0, lw, lh, 0, 0, R.w, R.h);
         ctx.globalAlpha = 1;
       }
     }

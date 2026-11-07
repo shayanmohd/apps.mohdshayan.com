@@ -182,21 +182,20 @@
   }
 
   /**
-   * The skyline below and around the roofline, pre-rendered once per size and sky. Returns
-   * {far, near, lit}: canvases the size of the screen (in device px, scale d). hands: screen x of the two
-   * rooftops whose roof sits exactly on the roofline.
+   * The skyline below and around the roofline, pre-rendered once per size and sky into the three canvases
+   * of into ({far, near, lit}, each {c, x}, made before Shell.ready() and never resized: render.js), drawn
+   * at scale d from their top left corner. Returns {far, near, lit}: those canvases. hands: screen x of
+   * the two rooftops whose roof sits exactly on the roofline.
    */
-  function skyline(width, height, roofY, d, seed, hands) {
+  function skyline(width, height, roofY, d, seed, hands, into) {
     var r = rng.make(seed >>> 0 || 7);
-    function layer() {
-      var c = document.createElement('canvas');
-      c.width = Math.max(1, Math.round(width * d));
-      c.height = Math.max(1, Math.round(height * d));
-      var x = c.getContext('2d');
-      x.scale(d, d);
-      return { c: c, x: x };
+    function layer(L) {
+      L.x.setTransform(1, 0, 0, 1, 0, 0);
+      L.x.clearRect(0, 0, L.c.width, L.c.height);
+      L.x.scale(d, d);
+      return L;
     }
-    var far = layer(), near = layer(), lit = layer();
+    var far = layer(into.far), near = layer(into.near), lit = layer(into.lit);
     var unit = Math.max(3, Math.min(width / 90, 6));
 
     // far layer: taller, lighter blocks with tanks

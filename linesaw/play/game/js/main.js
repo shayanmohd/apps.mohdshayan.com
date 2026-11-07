@@ -107,7 +107,8 @@
   var second = false;   // the Daily's second sky
   var lastSky = null;   // the finished sky, for Retry and Next
   var clock = clockMod.create();
-  var realT = 0, lastFrame = 0;
+  var realT = 0, lastFrame = 0, nextDraw = 0;
+  var FRAME_MS = 1000 / 60;
   var timeScale = 1, slowUntil = 0, slowTo = 1;
   var pointers = {};
   var keys = {};
@@ -259,6 +260,10 @@
   }
 
   function frame(now) {
+    // About 60 drawn frames a second on high refresh screens (section 2b): the 120 Hz physics runs the
+    // same steps either way, from the real time between drawn frames.
+    if (lastFrame && now < nextDraw - 3) { requestAnimationFrame(frame); return; }
+    nextDraw = lastFrame && now - nextDraw < FRAME_MS ? nextDraw + FRAME_MS : now + FRAME_MS;
     var rdt = lastFrame ? Math.min(0.1, (now - lastFrame) / 1000) : 1 / 60;
     lastFrame = now;
     realT += rdt;
@@ -1247,6 +1252,11 @@
   // ---- boot ----
   staticText();
   audio.setMuted(!save.settings.sound);
+  // Every canvas the frame loop uses is made and sized here, before Shell.ready() (render.js R.alloc).
+  var inApp = Shell.caps.platform === 'android';
+  R.alloc(inApp ? Math.max(window.innerWidth, screen.width || 0) : window.innerWidth,
+    inApp ? Math.max(window.innerHeight, screen.height || 0) : window.innerHeight,
+    window.devicePixelRatio || 1, inApp);
   resize();
   setState('boot');
   attract = matchMod.createAttract(LS.rng.hashString('attract-' + today));

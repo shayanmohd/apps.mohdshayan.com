@@ -41,7 +41,8 @@ html, body {
   touch-action: manipulation;
   overscroll-behavior: none;
 }
-canvas#view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+/* sized by render.js: the backing store never changes in the app, so the canvas may run past the window */
+canvas#view { position: fixed; left: 0; top: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 [hidden] { display: none !important; }
 button { font: inherit; color: inherit; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
 button:focus-visible, a:focus-visible { outline: 2px solid var(--marigold); outline-offset: 3px; }
