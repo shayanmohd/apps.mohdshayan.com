@@ -139,18 +139,43 @@
     }
     this.snow = null;
     this.twinkles = null;
+    this.maxW = 1; this.maxH = 1;
+    this.lowRes = false;
   }
 
-  Renderer.prototype.resize = function (w, h, dpr, insets) {
-    this.w = Math.max(1, w); this.h = Math.max(1, h);
-    this.dpr = Math.min(2, Math.max(1, dpr || 1));
-    this.insets = insets || this.insets;
-    this.canvas.width = Math.round(this.w * this.dpr);
-    this.canvas.height = Math.round(this.h * this.dpr);
-    this.trail = makeCanvas(this.w, this.h);
+  /**
+   * Makes and sizes every canvas the frame loop uses, once, before Shell.ready(): the Mobile Ads SDK's
+   * hidden WebView makes WebView 156 draw any canvas created or resized after it on the CPU
+   * (WEBGAME-RECIPE.md section 2b). maxW and maxH (CSS pixels) are the largest area the game will draw;
+   * no backing store is resized afterwards, resize() only changes the part of them in use.
+   */
+  Renderer.prototype.alloc = function (maxW, maxH, dpr) {
+    var W = this.maxW = Math.max(1, Math.ceil(maxW)), H = this.maxH = Math.max(1, Math.ceil(maxH));
+    var d = this.dpr = Math.min(2, Math.max(1, dpr || 1));
+    this.canvas.width = Math.round(W * d);
+    this.canvas.height = Math.round(H * d);
+    // One canvas pixel per device pixel: the element is the backing store's size, pinned top left, and
+    // the viewport clips whatever the current window does not show.
+    if (this.canvas.style) {
+      this.canvas.style.width = this.canvas.width / d + 'px';
+      this.canvas.style.height = this.canvas.height / d + 'px';
+    }
+    this.trail = makeCanvas(W, H);
     this.trailCtx = this.trail.getContext('2d');
-    this.glow = makeCanvas(this.w / 4, this.h / 4);
+    this.glow = makeCanvas(W / 4, H / 4);
     this.glowCtx = this.glow.getContext('2d');
+    this.bg = makeCanvas((W + 16) * d, (H + 16) * d);
+    this.city = makeCanvas(W * d, H * d);
+    this.rim = makeCanvas(W * d, H * d);
+    this.ripple = makeCanvas(W * d, H * d);
+    // The slow-frame fallback: one pixel per CSS pixel, scaled up onto the frame with drawImage.
+    this.low = makeCanvas(W, H);
+    this.lowCtx = this.low.getContext('2d', { alpha: false });
+  };
+
+  Renderer.prototype.resize = function (w, h, insets) {
+    this.w = Math.min(this.maxW, Math.max(1, w)); this.h = Math.min(this.maxH, Math.max(1, h));
+    this.insets = insets || this.insets;
     this.layout();
     if (this.def) this.prerender();
   };
@@ -190,8 +215,9 @@
   Renderer.prototype.prerender = function () {
     var def = this.def, w = this.w, h = this.h, v = this.view;
     var m = 8;
-    this.bg = makeCanvas((w + 2 * m) * this.dpr, (h + 2 * m) * this.dpr);
     var g = this.bg.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, this.bg.width, this.bg.height);
     g.setTransform(this.dpr, 0, 0, this.dpr, m * this.dpr, m * this.dpr);
     var grad = g.createLinearGradient(0, -m, 0, v.ground);
     grad.addColorStop(0, def.sky[0]);
@@ -228,11 +254,13 @@
     }
 
     // The skyline, in its own layer.
-    this.city = makeCanvas(w * this.dpr, h * this.dpr);
     var c = this.city.getContext('2d');
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, this.city.width, this.city.height);
     c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    this.rim = makeCanvas(w * this.dpr, h * this.dpr);
     var rc = this.rim.getContext('2d');
+    rc.setTransform(1, 0, 0, 1, 0, 0);
+    rc.clearRect(0, 0, this.rim.width, this.rim.height);
     rc.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     c.fillStyle = def.silhouette;
     rc.strokeStyle = def.rim;
@@ -276,17 +304,17 @@
     }
     this.windowPaths = paths;
     // ripples over the water reflection
+    this.rippleOn = !!def.water;
     if (def.water) {
-      this.ripple = makeCanvas(w * this.dpr, Math.max(1, (h - gy)) * this.dpr);
       var rp = this.ripple.getContext('2d');
+      rp.setTransform(1, 0, 0, 1, 0, 0);
+      rp.clearRect(0, 0, this.ripple.width, this.ripple.height);
       rp.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       var rr = R.create(def.seed + 5);
       for (var y = 2; y < h - gy; y += 2 + rr.float() * 3) {
         rp.fillStyle = 'rgba(0,0,0,' + (0.25 + 0.35 * rr.float()).toFixed(2) + ')';
         rp.fillRect(0, y, w, 1 + rr.float());
       }
-    } else {
-      this.ripple = null;
     }
     if (def.snow) {
       var sr = R.create(def.seed + 9);
@@ -443,7 +471,10 @@
    * lights, beatPhase, bar, guide, mode, hud }
    */
   Renderer.prototype.frame = function (st) {
-    var ctx = this.ctx, dpr = this.dpr, w = this.w, h = this.h, v = this.view, s = v.s;
+    // In the slow-frame fallback the frame is drawn at one pixel per CSS pixel and scaled up at the end.
+    var low = this.lowRes;
+    var ctx = low ? this.lowCtx : this.ctx, dpr = low ? 1 : this.dpr, w = this.w, h = this.h, v = this.view, s = v.s;
+    var ld = this.dpr; // the prerendered layers' pixels per CSS pixel
     var now = st.now, dt = st.dt;
     this.frameNo++;
     var ox = 0, oy = 0;
@@ -456,7 +487,7 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = 1;
-    ctx.drawImage(this.bg, -8 + ox, -8 + oy, w + 16, h + 16);
+    ctx.drawImage(this.bg, 0, 0, (w + 16) * ld, (h + 16) * ld, -8 + ox, -8 + oy, w + 16, h + 16);
     ctx.setTransform(dpr, 0, 0, dpr, ox * dpr, oy * dpr);
 
     var pulse = st.beatPhase == null ? 0 : Math.exp(-st.beatPhase * 5) * (st.bar ? 1 : 0.6);
@@ -536,7 +567,7 @@
     }
     tc.globalAlpha = 1;
     ctx.globalCompositeOperation = 'lighter';
-    if (!this.trailClear) ctx.drawImage(this.trail, 0, 0, w, h); // cleared and quiet: nothing to add
+    if (!this.trailClear) ctx.drawImage(this.trail, 0, 0, w, h, 0, 0, w, h); // cleared and quiet: nothing to add
 
     // Rising shells draw a short fading tail from their own closed-form path, straight onto the frame:
     // never onto the long-exposure layer, so a shell's whole climb is never left painted on the sky.
@@ -633,9 +664,9 @@
 
     // ---- the city ----
     ctx.globalCompositeOperation = 'source-over';
-    ctx.drawImage(this.city, 0, 0, w, h);
+    ctx.drawImage(this.city, 0, 0, w * ld, h * ld, 0, 0, w, h);
     ctx.globalAlpha = 0.25 + 0.55 * pulse;
-    ctx.drawImage(this.rim, 0, 0, w, h);
+    ctx.drawImage(this.rim, 0, 0, w * ld, h * ld, 0, 0, w, h);
     ctx.globalAlpha = 1;
     this.updateDistricts(st.lights == null ? 10 : st.lights, dt, now);
     ctx.fillStyle = '#F2B04C';
@@ -657,12 +688,12 @@
       ctx.globalAlpha = 0.3;
       ctx.translate(0, v.ground * 2);
       ctx.scale(1, -1);
-      if (!this.trailClear) ctx.drawImage(this.trail, 0, 0, w, h);
+      if (!this.trailClear) ctx.drawImage(this.trail, 0, 0, w, h, 0, 0, w, h);
       if (glowOn) ctx.drawImage(this.glow, gsx, gsy, gsw, gsh, gsx * 4, gsy * 4, gsw * 4, gsh * 4);
       ctx.restore();
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
-      if (this.ripple) ctx.drawImage(this.ripple, 0, v.ground, w, h - v.ground);
+      if (this.rippleOn && h > v.ground) ctx.drawImage(this.ripple, 0, 0, w * ld, (h - v.ground) * ld, 0, v.ground, w, h - v.ground);
     }
 
     // ---- snow ----
@@ -684,6 +715,13 @@
     this.drawOverlays(ctx, st, now);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (st.hud) this.drawHud(ctx, st.hud, now);
+    if (low) {
+      var out = this.ctx;
+      out.setTransform(1, 0, 0, 1, 0, 0);
+      out.globalCompositeOperation = 'source-over';
+      out.globalAlpha = 1;
+      out.drawImage(this.low, 0, 0, w, h, 0, 0, w * this.dpr, h * this.dpr);
+    }
   };
 
   Renderer.prototype.drawShells = function (ctx, shells, t, now) {

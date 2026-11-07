@@ -117,11 +117,9 @@
   }
 
   // ---- layout ----
-  // Drops to 1 for the rest of the session when frames stay slow (see watchSpeed).
-  var renderScale = 2;
   function resize() {
     var ins = Shell.caps.insets;
-    renderer.resize(window.innerWidth, window.innerHeight, Math.min(renderScale, window.devicePixelRatio || 1), ins);
+    renderer.resize(window.innerWidth, window.innerHeight, ins);
     var v = renderer.view;
     var city = Math.round(window.innerHeight - (v.ground - 34 * v.s));
     document.documentElement.style.setProperty('--city', Math.max(120, city) + 'px');
@@ -393,7 +391,12 @@
 
   function drawCard(canvas, defId, bursts) {
     var def = SL.BY_ID[defId];
-    canvas.width = 640; canvas.height = 480;
+    // The card canvases keep their 640 by 480 from the page; only their drawing state is reset here.
+    var g = canvas.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalCompositeOperation = 'source-over';
+    g.globalAlpha = 1;
+    g.clearRect(0, 0, canvas.width, canvas.height);
     if (bursts && bursts.length) Sky.render.postcard(canvas, def, bursts, {});
     else Sky.render.postcard(canvas, def, [], {});
   }
@@ -859,16 +862,15 @@
   if (systemReduce && systemReduce.addEventListener) systemReduce.addEventListener('change', applySettings);
 
   // ---- the frame loop ----
-  // Some WebViews draw this canvas on the CPU: a Galaxy S22+ on WebView 156 managed about 25 frames a second
-  // at full resolution from the second launch on. When 90 frames in a row average over 21 ms (under about 48
-  // of the 60 the pacer asks for), draw at one canvas pixel per CSS pixel for the rest of the session (a
-  // quarter of the pixels).
+  // A slow device or WebView: when 90 frames in a row average over 21 ms (under about 48 of the 60 the pacer
+  // asks for), draw at one pixel per CSS pixel for the rest of the session (a quarter of the pixels) into the
+  // small canvas made at boot, scaled up onto the frame. No canvas is resized (WEBGAME-RECIPE.md section 2b).
   var slowSum = 0, slowN = 0;
   function watchSpeed(gap) {
-    if (renderScale === 1 || gap <= 0 || gap > 100 || document.hidden) return;
+    if (renderer.lowRes || gap <= 0 || gap > 100 || document.hidden) return;
     slowSum += gap; slowN++;
     if (slowN < 90) return;
-    if (slowSum / slowN > 21 && (window.devicePixelRatio || 1) > 1) { renderScale = 1; resize(); }
+    if (slowSum / slowN > 21 && renderer.dpr > 1) renderer.lowRes = true;
     slowSum = 0; slowN = 0;
   }
   var last = performance.now();
@@ -994,6 +996,10 @@
   // ---- boot ----
   fillText();
   applySettings();
+  // Every frame-loop canvas is made and sized here, before Shell.ready() lets the shell start the ads SDK
+  // (WEBGAME-RECIPE.md section 2b): the largest of the window and the screen, in CSS pixels.
+  renderer.alloc(Math.max(window.innerWidth, (window.screen && window.screen.width) || 0),
+    Math.max(window.innerHeight, (window.screen && window.screen.height) || 0), window.devicePixelRatio || 1);
   resize();
   renderer.setSkyline(SL.BY_ID[selected] || SL.BY_ID.harbour);
   if (!save.stats.firstShowDone) {

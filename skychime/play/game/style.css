@@ -42,7 +42,8 @@ html, body {
   touch-action: manipulation;
   overscroll-behavior: none;
 }
-canvas#sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+/* Sized once from the screen by Renderer.alloc (WEBGAME-RECIPE.md section 2b); the viewport clips the rest. */
+canvas#sky { position: fixed; left: 0; top: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 [hidden] { display: none !important; }
 
 h1, h2, p { margin: 0; }
@@ -124,7 +125,8 @@ button:disabled { opacity: 0.5; }
   border: 1.5px solid var(--champagne);
 }
 .begin-ring span { inset: 30px; background: var(--champagne); border: 0; }
-.begin-ring::before { animation: ring 1.6s var(--ease) infinite; }
+/* Four pulses, then a still ring: an endless CSS animation keeps a 120 Hz screen presenting every frame. */
+.begin-ring::before { opacity: 0.4; animation: ring 1.6s var(--ease) 4; }
 @keyframes ring { 0% { transform: scale(0.35); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
 .begin-text { color: var(--muted); font-size: 15px; }
 
