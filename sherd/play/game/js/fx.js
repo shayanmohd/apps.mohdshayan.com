@@ -11,19 +11,19 @@
     var ctx = canvas.getContext('2d');
     var w = 0;
     var h = 0;
-    var dpr = 1;
     var parts = [];
     var rings = [];
     var flights = [];
     var wasActive = false;
     var reduced = false;
 
+    // The backing store is sized once, here, before Shell.ready(); window changes only move the transform.
+    var scr = art.screenCss();
+    art.allocate(canvas, scr.w, scr.h, 2.5);
+
     function resize() {
-      dpr = Math.min(2.5, root.devicePixelRatio || 1);
-      w = root.innerWidth;
-      h = root.innerHeight;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
+      w = Math.max(1, root.innerWidth);
+      h = Math.max(1, root.innerHeight);
     }
 
     function burst(x, y, opts) {
@@ -68,7 +68,7 @@
     function render(now, dt) {
       var any = active();
       if (!any && !wasActive) return false;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
       ctx.clearRect(0, 0, w, h);
       wasActive = !!any;
       for (var i = parts.length - 1; i >= 0; i--) {

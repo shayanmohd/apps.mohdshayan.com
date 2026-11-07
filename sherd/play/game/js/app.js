@@ -142,7 +142,7 @@
     ui.sheet = name;
     $('scrim').hidden = name === 'legend';
     if (name === 'settings') renderSettings();
-    if (name === 'legend') { ui.legendStart = performance.now(); sizeLegend(); }
+    if (name === 'legend') ui.legendStart = performance.now();
     syncBanner();
   }
 
@@ -1112,27 +1112,16 @@
     }
   });
 
-  function sizeLegend() {
-    var c = $('legendCanvas');
-    var dpr = Math.min(3, root.devicePixelRatio || 1);
-    var w = c.clientWidth;
-    var h = c.clientHeight;
-    c.width = Math.round(w * dpr);
-    c.height = Math.round(h * dpr);
-  }
-
   function runSplash(done) {
     var el = $('splash');
     el.hidden = false;
     var c = $('splashCanvas');
     var start = performance.now();
     ui.splash = function (now) {
-      var dpr = Math.min(3, root.devicePixelRatio || 1);
-      var w = c.clientWidth;
-      var h = c.clientHeight;
-      if (c.width !== Math.round(w * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+      var w = Math.max(1, c.clientWidth);
+      var h = Math.max(1, c.clientHeight);
       var ctx = c.getContext('2d');
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.setTransform(c.width / w, 0, 0, c.height / h, 0, 0);
       ctx.clearRect(0, 0, w, h);
       var k = (now - start) / (reduced() ? 600 : 2100);
       var vh = Math.min(h * 0.36, w * 0.7);
@@ -1165,13 +1154,18 @@
     art.paintFilm(filmCanvas, root.innerWidth, root.innerHeight, Math.min(2, root.devicePixelRatio || 1));
     S.fxLayer.resize();
     if (ui.screen === 'dig') layoutDig();
-    if (ui.sheet === 'legend') sizeLegend();
     if (ui.screen === 'home') drawHero();
   }
 
   var last = performance.now();
   var boardBusy = false;
+  var FRAME_MS = 1000 / 60;
+  var nextDraw = 0;
   function frame(now) {
+    // About 60 fps on 90 and 120 Hz screens: skip a frame that comes too soon after the last drawn one.
+    // Animations run on these timestamps and input on its own events, so play is the same at any rate.
+    if (now < nextDraw - 2) { root.requestAnimationFrame(frame); return; }
+    nextDraw = now - nextDraw > FRAME_MS ? now + FRAME_MS : nextDraw + FRAME_MS;
     var dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     if (ui.screen === 'dig' && (boardBusy || board.isDirty())) boardBusy = board.render(now);
@@ -1179,8 +1173,7 @@
     if (ui.sheet === 'legend') {
       var c = $('legendCanvas');
       var ctx = c.getContext('2d');
-      var dpr = c.width / Math.max(1, c.clientWidth);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.setTransform(c.width / Math.max(1, c.clientWidth), 0, 0, c.height / Math.max(1, c.clientHeight), 0, 0);
       S.legend.render(ctx, c.clientWidth, c.clientHeight, now, ui.legendStart, reduced());
     }
     if (ui.splash) ui.splash(now);
@@ -1239,6 +1232,10 @@
   // ---- boot ----
 
   S.fxLayer = S.fx.create($('fx'));
+  // The other frame-loop canvases get their backing stores now, before Shell.ready() (recipe 2b).
+  var screenCss = art.screenCss();
+  art.allocate($('legendCanvas'), screenCss.w, screenCss.h, 3);
+  if (!save.flags.legendSeen) art.allocate($('splashCanvas'), screenCss.w, screenCss.h, 3);
   fillStatic();
   audio.setMuted(!save.settings.sound);
   applyMotion();

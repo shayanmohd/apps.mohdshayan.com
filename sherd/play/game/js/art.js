@@ -716,7 +716,31 @@
     }
   }
 
+  // ---- backing stores ----
+
+  /**
+   * Gives a frame-loop canvas its backing store once, from the screen in device pixels with the DPR capped,
+   * and makes its 2D context there. Call it before Shell.ready() and never resize it afterwards: the ads SDK's
+   * hidden WebView makes WebView 156 draw every canvas created or resized after it on the CPU (recipe 2b).
+   * Draw with ctx.setTransform(canvas.width / cssW, 0, 0, canvas.height / cssH, 0, 0) in CSS pixels.
+   */
+  function allocate(canvas, cssW, cssH, dprCap) {
+    var dpr = Math.min(dprCap, root.devicePixelRatio || 1);
+    canvas.width = Math.max(1, Math.round(cssW * dpr));
+    canvas.height = Math.max(1, Math.round(cssH * dpr));
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    return ctx;
+  }
+
+  /** The screen in CSS pixels, at least the window. */
+  function screenCss() {
+    var sc = root.screen || {};
+    return { w: Math.max(sc.width || 0, root.innerWidth || 0), h: Math.max(sc.height || 0, root.innerHeight || 0) };
+  }
+
   root.Sherd.art = {
+    allocate: allocate, screenCss: screenCss,
     PAL: PAL, rr: rr, ease: ease, easeBack: easeBack, paintFilm: paintFilm, cellTexture: cellTexture,
     drawEmpty: drawEmpty, drawCleared: drawCleared, drawMiss: drawMiss, drawNear: drawNear, drawHit: drawHit,
     drawBedrock: drawBedrock, loops: loops, shapePath: shapePath, drawProbe: drawProbe, drawShard: drawShard,

@@ -23,19 +23,20 @@
       cssSize: 0, s: 0, ox: 0, oy: 0, dpr: 1, reduced: false, hover: -1, dirty: true, lastAnim: 0
     };
     var stroke = null;
+    // The backing store is sized once, here, before Shell.ready(): as big as the board can get on this
+    // screen. layout() only changes its CSS size and the drawing scale (recipe 2b).
+    var scr = art.screenCss();
+    var side = Math.max(120, Math.min(560, scr.w, scr.h));
+    art.allocate(canvas, side, side, 3);
 
     // ---- layout ----
 
     function layout(size) {
-      var dpr = Math.min(3, root.devicePixelRatio || 1);
       var css = Math.max(120, Math.floor(size));
-      if (css === b.cssSize && dpr === b.dpr && canvas.width) { fit(); b.dirty = true; return; } // same size: no blank frame
-      b.dpr = dpr;
       b.cssSize = css;
+      b.dpr = canvas.width / css;
       canvas.style.width = b.cssSize + 'px';
       canvas.style.height = b.cssSize + 'px';
-      canvas.width = Math.round(b.cssSize * b.dpr);
-      canvas.height = Math.round(b.cssSize * b.dpr);
       fit();
       b.dirty = true;
     }
