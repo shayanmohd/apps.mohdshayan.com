@@ -66,12 +66,55 @@
     return c.insets || { top: 0, right: 0, bottom: 0, left: 0 };
   }
 
+  // Every canvas the frame loop draws, or draws into, is made and sized once, before Shell.ready(), and
+  // never resized afterwards: in the Android shell the ads SDK starts after ready, and its hidden WebView
+  // makes WebView 156 draw every canvas made or resized after it on the CPU (WEBGAME-RECIPE.md section 2b).
+  // The backing stores cover the whole screen; a smaller window draws into their top left corner and the
+  // rest is clipped. Only a window larger than the screen (a desktop browser) grows them again.
+  var CW = 0, CH = 0;  // backing size in CSS px
+  var store = null;    // the kept layer canvases: bg, land, coast (device px), fog and fogMask (half CSS px)
+  var EDGE = 8;        // how far the island box may reach past the window (covers the shake)
+
+  function keptCanvas(w, h) {
+    var c = art.canvas(w, h);
+    var g = c.getContext('2d');
+    g.fillRect(0, 0, 1, 1);  // a first draw, so the backing store is made now
+    g.clearRect(0, 0, 1, 1);
+    g.save();                // the default state each reuse goes back to
+    return c;
+  }
+
+  function sizeStores() {
+    var sw = window.screen ? Math.max(window.screen.width || 0, 0) : 0;
+    var sh = window.screen ? Math.max(window.screen.height || 0, 0) : 0;
+    var needW = Math.ceil(Math.max(W, Shell.platform === 'android' ? sw : 0));
+    var needH = Math.ceil(Math.max(H, Shell.platform === 'android' ? sh : 0));
+    if (store && needW <= CW && needH <= CH) return;
+    if (!store) DPR = Math.min(window.devicePixelRatio || 1, 3);
+    CW = Math.max(CW, needW);
+    CH = Math.max(CH, needH);
+    cv.width = Math.round(CW * DPR);
+    cv.height = Math.round(CH * DPR);
+    cv.style.width = CW + 'px';
+    cv.style.height = CH + 'px';
+    var lw = (CW + 2 * EDGE) * DPR, lh = (CH + 2 * EDGE) * DPR;
+    var fw = Math.ceil((CW + 2 * EDGE) / 2) + 2, fh = Math.ceil((CH + 2 * EDGE) / 2) + 2;
+    store = {
+      bg: keptCanvas(CW * DPR, CH * DPR),
+      land: keptCanvas(lw, lh),
+      coast: keptCanvas(lw, lh),
+      fog: keptCanvas(fw, fh),
+      fogMask: keptCanvas(fw, fh)
+    };
+    art.keepScratch(store.bg.width, store.bg.height);
+    art.puff();
+    art.cloud();
+  }
+
   function resize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 3);
     W = window.innerWidth;
     H = window.innerHeight;
-    cv.width = Math.round(W * DPR);
-    cv.height = Math.round(H * DPR);
+    sizeStores();
     art.setRes(DPR);
     layoutView();
   }
@@ -142,15 +185,21 @@
   // Layers
   // =====================================================================================
 
-  function layerCanvas(w, h) {
-    var c = art.canvas(w * DPR, h * DPR);
+  /** A kept layer canvas, cleared, back in its default state, clipped to w by h CSS px and scaled by DPR. */
+  function layerCanvas(c, w, h) {
     var g = c.getContext('2d');
+    g.restore();
+    g.save();
+    g.clearRect(0, 0, c.width, c.height);
+    g.beginPath();
+    g.rect(0, 0, Math.ceil(w * DPR), Math.ceil(h * DPR));
+    g.clip();
     g.setTransform(DPR, 0, 0, DPR, 0, 0);
     return { c: c, g: g };
   }
 
   function buildLayers() {
-    var bg = layerCanvas(W, H);
+    var bg = layerCanvas(store.bg, CW, CH);
     var g = bg.g;
     g.fillStyle = P.sea;
     g.fillRect(0, 0, W, H);
@@ -171,14 +220,17 @@
       var b = islandBox(L);
       layers.box = b;
       buildLand();
-      var co = layerCanvas(b.w, b.h);
+      var co = layerCanvas(store.coast, b.w, b.h);
       co.g.translate(-b.x, -b.y);
       art.drawCoastline(co.g, L, 1);
       art.drawFeatures(co.g, L, view.island, 1);
       layers.coast = co.c;
-      var fw = Math.max(8, Math.round(b.w / 2)), fh = Math.max(8, Math.round(b.h / 2));
-      layers.fog = art.canvas(fw, fh);
-      layers.fogMask = null;
+      // the fog is drawn at half CSS resolution into the top left fw by fh of the kept fog canvases
+      layers.fog = store.fog;
+      layers.fogMask = store.fogMask;
+      layers.fogW = Math.max(8, Math.round(b.w / 2));
+      layers.fogH = Math.max(8, Math.round(b.h / 2));
+      layers.fogMaskOk = false;
     }
     dirty = true;
   }
@@ -190,13 +242,18 @@
     var x1 = L.ox + L.s * hex.SQRT3 * b.maxX + pad;
     var y0 = L.oy + L.s * 1.5 * b.minR - pad;
     var y1 = L.oy + L.s * 1.5 * b.maxR + pad;
-    return { x: Math.floor(x0), y: Math.floor(y0), w: Math.ceil(x1 - x0) + 1, h: Math.ceil(y1 - y0) + 1 };
+    var x = Math.floor(x0), y = Math.floor(y0);
+    var xr = x + Math.ceil(x1 - x0) + 1, yb = y + Math.ceil(y1 - y0) + 1;
+    // kept inside the window plus EDGE, so the box always fits the kept layer canvases
+    x = Math.max(-EDGE, x); y = Math.max(-EDGE, y);
+    xr = Math.min(W + EDGE, xr); yb = Math.min(H + EDGE, yb);
+    return { x: x, y: y, w: Math.max(1, xr - x), h: Math.max(1, yb - y) };
   }
 
   function buildLand() {
     if (!view || !view.lay || !layers.box) return;
     var b = layers.box;
-    var la = layerCanvas(b.w, b.h);
+    var la = layerCanvas(store.land, b.w, b.h);
     la.g.translate(-b.x, -b.y);
     art.drawTiles(la.g, view.lay.L, view.board, 1);
     art.drawBrokenSeams(la.g, view.lay.L, view.board, 1);
@@ -1278,10 +1335,11 @@
     }
     ctx.setTransform(DPR, 0, 0, DPR, sx * DPR, sy * DPR);
     var b = layers.box;
-    if (layers.land) ctx.drawImage(layers.land, b.x, b.y, b.w, b.h);
+    var lw = Math.ceil(b.w * DPR), lh = Math.ceil(b.h * DPR);
+    if (layers.land) ctx.drawImage(layers.land, 0, 0, lw, lh, b.x, b.y, b.w, b.h);
     drawFlashes(tn);
     drawFog(tn);
-    if (layers.coast) ctx.drawImage(layers.coast, b.x, b.y, b.w, b.h);
+    if (layers.coast) ctx.drawImage(layers.coast, 0, 0, lw, lh, b.x, b.y, b.w, b.h);
     drawLandmarks(tn);
     drawAnims(tn);
     drawParts(tn);
@@ -1337,13 +1395,18 @@
     }
     for (var j = 0; j < v.board.n; j++) if (v.fogA[j] > 0.01) { any = true; break; }
     if (!any) return;
-    var k = fc.width / b.w;
+    var fw = layers.fogW, fh = layers.fogH;
+    var k = fw / b.w;
     // the fog's shape (one puff per fogged cell) is drawn once and kept until fog lifts or falls again
     var mask = layers.fogMask;
-    if (!mask || lifting) {
-      if (!mask) mask = layers.fogMask = art.canvas(fc.width, fc.height);
+    if (!layers.fogMaskOk || lifting) {
+      layers.fogMaskOk = true;
       var mg = mask.getContext('2d');
       mg.clearRect(0, 0, mask.width, mask.height);
+      mg.save();
+      mg.beginPath();
+      mg.rect(0, 0, fw, fh);
+      mg.clip();
       var puff = art.puff();
       for (var m = 0; m < v.board.n; m++) {
         var al = v.fogA[m];
@@ -1355,6 +1418,7 @@
         mg.drawImage(puff, (c.x - b.x) * k - R, (c.y - b.y) * k - R, R * 2, R * 2);
       }
       mg.globalAlpha = 1;
+      mg.restore();
     }
     var fg = fc.getContext('2d');
     fg.setTransform(1, 0, 0, 1, 0, 0);
@@ -1372,15 +1436,15 @@
       if (fogPattern.setTransform) fogPattern.setTransform(new DOMMatrix().translate(sec * 7 % 128, sec * 2.5 % 128).scale(1.4));
       fg.fillStyle = fogPattern;
       fg.globalAlpha = 0.9;
-      fg.fillRect(0, 0, fc.width, fc.height);
+      fg.fillRect(0, 0, fw, fh);
       if (fogPattern2.setTransform) fogPattern2.setTransform(new DOMMatrix().translate(-sec * 4.5 % 128, sec * 1.5 % 128).scale(0.9));
       fg.fillStyle = fogPattern2;
       fg.globalAlpha = 0.6;
-      fg.fillRect(0, 0, fc.width, fc.height);
+      fg.fillRect(0, 0, fw, fh);
       fg.globalAlpha = 1;
       fg.globalCompositeOperation = 'source-over';
     }
-    ctx.drawImage(fc, b.x, b.y, b.w, b.h);
+    ctx.drawImage(fc, 0, 0, fw, fh, b.x, b.y, b.w, b.h);
   }
 
   function drawLandmarks(tn) {

@@ -526,11 +526,21 @@
     return { x: L.ox + p.x, y: L.oy + p.y };
   }
 
+  // The waterlines' scratch canvas for the background layer, made before Shell.ready() so it is drawn on the
+  // GPU (WEBGAME-RECIPE.md section 2b); other sizes (cards, thumbnails) get a fresh one.
+  var scratchC = null;
+  function keepScratch(w, h) {
+    scratchC = canvas(w, h);
+    var t = scratchC.getContext('2d');
+    t.fillRect(0, 0, 1, 1);
+    t.clearRect(0, 0, 1, 1);
+  }
+
   /** Engraved waterlines round the island: scalloped rings fading out to sea. */
   function drawWaterlines(g, L, u, rings) {
     rings = rings || 4;
     var w = g.canvas.width, h = g.canvas.height;
-    var tmp = canvas(w, h);
+    var tmp = scratchC && scratchC.width === w && scratchC.height === h ? scratchC : canvas(w, h);
     var t = tmp.getContext('2d');
     var ri = L.s * hex.SQRT3 / 2;
     for (var k = rings; k >= 1; k--) {
@@ -933,7 +943,7 @@
   }
 
   FC.art = {
-    P: P, FILL: FILL, FONT: FONT, canvas: canvas, drawTile: drawTile, tileCanvas: tileCanvas,
+    P: P, FILL: FILL, FONT: FONT, canvas: canvas, keepScratch: keepScratch, drawTile: drawTile, tileCanvas: tileCanvas,
     drawCachedTile: drawCachedTile, setRes: setRes, grain: grain, puff: puff, cloud: cloud, cellXY: cellXY,
     drawWaterlines: drawWaterlines, drawLandBase: drawLandBase, drawCoastline: drawCoastline,
     drawBrokenSeams: drawBrokenSeams, drawTiles: drawTiles, drawSpring: drawSpring, drawRuin: drawRuin,
