@@ -10,6 +10,10 @@
  * Rendering: nothing is drawn unless something changed; at most 60 fps during play (frames skipped by
  * rAF timestamp); the flicker redraws small rectangles about 12 times a second; devicePixelRatio capped
  * at 2, with a drop to a lower resolution when frames run slow.
+ * Canvases (WEBGAME-RECIPE.md section 2b): the screen canvas, the low resolution canvas and the two full
+ * screen layers are made and sized once, before Shell.ready(), and never resized after it (the ads SDK's
+ * hidden WebView would put them on the CPU). A window change moves and clips the drawing instead; the
+ * slow frame fallback draws into the low resolution canvas and scales it up with drawImage.
  */
 (function () {
   'use strict';
@@ -50,19 +54,36 @@
   // ---- canvas, layers, layout ----
   var canvas = $('c');
   var ctx = canvas.getContext('2d');
-  var W = 0, H = 0, R = 1, quality = 1;
+  // R: device pixels per CSS px for the screen canvas and every layer and sprite; quality scales only
+  // the frame target (the low canvas) when frames run slow.
+  var W = 0, H = 0, R = Math.max(1, Math.min(2, window.devicePixelRatio || 1)), quality = 1;
+  var BW = 0, BH = 0; // the backing stores' size in CSS px: the screen, or the window if larger
+  var low = null, lowCtx = null, bgCanvas = null, homeCanvas = null;
   var lay = null;
   var bgLayer = null, planLayer = null, litLayer = null, homeLayer = null, sprites = null;
   var litValid = false, litPath = null;
 
-  function dpr() { return Math.min(2, window.devicePixelRatio || 1) * quality; }
+  function dpr() { return R * quality; }
+
+  /** Makes the full screen canvases at their one size. Only at boot, or if the window outgrows them. */
+  function makeBacking() {
+    BW = Math.ceil(Math.max(window.screen.width || 0, window.innerWidth, 1));
+    BH = Math.ceil(Math.max(window.screen.height || 0, window.innerHeight, 1));
+    canvas.width = Math.ceil(BW * R);
+    canvas.height = Math.ceil(BH * R);
+    canvas.style.width = BW + 'px';
+    canvas.style.height = BH + 'px';
+    low = art.layer(BW * R * 0.75, BH * R * 0.75);
+    lowCtx = low.getContext('2d');
+    bgCanvas = art.layer(BW * R, BH * R);
+    homeCanvas = art.layer(BW * R, BH * R);
+  }
 
   function resize() {
     W = window.innerWidth;
     H = window.innerHeight;
-    R = Math.max(1, dpr());
-    canvas.width = Math.round(W * R);
-    canvas.height = Math.round(H * R);
+    // Only a window larger than the screen (a foldable opening) makes new canvases.
+    if (W > BW || H > BH) makeBacking();
     bgLayer = null;
     homeLayer = null;
     relayout();
@@ -119,8 +140,10 @@
   // ---- drawing ----
 
   function buildBg() {
-    bgLayer = art.layer(W * R, H * R);
+    bgLayer = bgCanvas;
     var g = bgLayer.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, bgLayer.width, bgLayer.height);
     g.setTransform(R, 0, 0, R, 0, 0);
     g.fillStyle = art.C.ink;
     g.fillRect(0, 0, W, H);
@@ -449,8 +472,10 @@
 
   // The home: sky with the lantern string at the top, today's plan in its slot.
   function buildHome() {
-    homeLayer = art.layer(W * R, H * R);
+    homeLayer = homeCanvas;
     var g = homeLayer.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, homeLayer.width, homeLayer.height);
     g.setTransform(R, 0, 0, R, 0, 0);
     var day = today, ram = cal.ramadan(day, P.shift);
     var daylight = !!(ram && ram.phase === 'eid');
@@ -574,8 +599,8 @@
     stats.ms += performance.now() - t0;
   }
   function drawSceneInner(clips, now) {
-    var g = ctx;
-    g.setTransform(R, 0, 0, R, 0, 0);
+    var q = quality < 1, g = q ? lowCtx : ctx, k = R * quality;
+    g.setTransform(k, 0, 0, k, 0, 0);
     if (clips) {
       g.save();
       g.beginPath();
@@ -584,13 +609,19 @@
     }
     if (screen === 'home') {
       if (!homeLayer) buildHome();
-      g.drawImage(homeLayer, 0, 0, W, H);
+      g.drawImage(homeLayer, 0, 0, W * R, H * R, 0, 0, W, H);
     } else {
       if (!bgLayer) buildBg();
-      g.drawImage(bgLayer, 0, 0, W, H);
+      g.drawImage(bgLayer, 0, 0, W * R, H * R, 0, 0, W, H);
       if (game && (screen === 'play' || screen === 'result')) drawCourt(g, now);
     }
     if (clips) g.restore();
+    if (q) {
+      // The slow frame fallback: the low canvas scaled up onto the screen canvas.
+      var sw = Math.min(low.width, Math.ceil(W * k)), sh = Math.min(low.height, Math.ceil(H * k));
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.drawImage(low, 0, 0, sw, sh, 0, 0, sw / quality, sh / quality);
+    }
   }
 
   // ---- the frame scheduler: on demand, 60 fps cap, a slow timer for the flicker alone ----
@@ -668,7 +699,7 @@
       slow.n = 0; slow.sum = 0;
       if (avg > 26 && quality > 0.6 && dpr() > 1.01) {
         quality = quality > 0.8 ? 0.75 : 0.5;
-        resize();
+        relayout();
       }
     }
   }
@@ -1736,6 +1767,7 @@
   au.setSound(P.sound);
   applyStrings();
   applyMotion();
+  makeBacking();
   resize();
   persist();
   if (!P.tutorial) startCourt('walk', 0);
