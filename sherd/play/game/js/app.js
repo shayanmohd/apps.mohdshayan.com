@@ -22,7 +22,7 @@
   var art = S.art;
   var audio = S.audio;
   var icons = S.icons;
-  var VERSION = '1.0.0';
+  var VERSION = '1.0.1';
   var POLICY_URL = 'https://apps.mohdshayan.com/privacy-policies/sherd-privacy-policy.html';
   var $ = function (id) { return document.getElementById(id); };
 
