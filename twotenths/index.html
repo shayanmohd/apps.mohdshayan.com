@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Twotenths: Pit Stop Reflex</title>
+<meta name="description" content="Twotenths is a one thumb pit stop game. Tap on lights out, call the tyre, gun four wheels and release into the gap, timed against the 1.80 second record. Play in your browser or on Android.">
+<meta name="theme-color" content="#0E1116">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="canonical" href="https://apps.mohdshayan.com/twotenths/">
+<meta property="og:title" content="Twotenths: Pit Stop Reflex">
+<meta property="og:description" content="A one thumb pit crew game against the stopwatch. Race in your browser or on Android.">
+<meta property="og:image" content="https://apps.mohdshayan.com/twotenths/og.jpg">
+<meta property="og:url" content="https://apps.mohdshayan.com/twotenths/">
+<link rel="preload" href="fonts/archivo-narrow-semibold.ttf" as="font" type="font/ttf" crossorigin>
+<style>
+  @font-face { font-family: "Archivo Narrow"; src: url("fonts/archivo-narrow-semibold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+
+  :root {
+    --asphalt: #0E1116;
+    --lane: #1A1E25;
+    --lane-2: #141820;
+    --paint: #E5C13A;
+    --ink: #EEF1F4;
+    --muted: #9AA4B2;
+    --line: rgba(238, 241, 244, 0.11);
+    --purple: #B07CFF;
+    --green: #35D483;
+    --r: 14px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--asphalt); color: var(--ink);
+    font: 600 18px/1.6 "Archivo Narrow", "Arial Narrow", system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  img { display: block; max-width: 100%; height: auto; }
+  a { color: var(--paint); text-underline-offset: 3px; }
+  a:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 3px solid var(--paint); outline-offset: 3px; }
+  h1, h2, h3 { font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(46px, 8vw, 92px); line-height: 0.96; }
+  h2 { font-size: clamp(32px, 4.4vw, 52px); line-height: 1.04; }
+  h3 { font-size: 24px; line-height: 1.15; }
+  p { margin: 0 0 1em; color: #CBD2DB; max-width: 62ch; }
+  .wrap { width: min(1160px, 100% - 40px); margin-inline: auto; }
+  section { padding: clamp(64px, 9vw, 120px) 0; }
+
+  /* nav */
+  .nav { position: sticky; top: 0; z-index: 10; background: rgba(14, 17, 22, 0.9); border-bottom: 1px solid var(--line);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-size: 22px; }
+  .brand img { width: 34px; height: 34px; border-radius: 9px; }
+  .nav nav { display: flex; gap: 22px; align-items: center; white-space: nowrap; }
+  .nav nav a { color: var(--ink); text-decoration: none; font-size: 17px; }
+  .nav nav a:hover { color: var(--paint); }
+  .nav nav a.go { color: var(--asphalt); background: var(--paint); padding: 8px 16px; border-radius: var(--r); }
+  .nav nav a.go:hover { color: var(--asphalt); filter: brightness(1.08); }
+  @media (max-width: 640px) { .nav nav .opt { display: none; } }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; border-radius: var(--r);
+    font: inherit; font-size: 19px; text-decoration: none; white-space: nowrap; transition: transform .18s cubic-bezier(.16, 1, .3, 1), filter .18s; }
+  .btn:active { transform: translateY(1px) scale(0.98); }
+  .btn.primary { background: var(--paint); color: var(--asphalt); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.ghost { color: var(--ink); border: 1.5px solid rgba(238, 241, 244, 0.4); }
+  .btn.ghost:hover { border-color: var(--ink); }
+
+  /* hero */
+  .hero { padding-top: clamp(40px, 6vw, 72px); padding-bottom: clamp(48px, 7vw, 96px); }
+  .hero .wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(32px, 6vw, 88px); align-items: center; }
+  .hero p.lead { font-size: 21px; margin: 24px 0 30px; max-width: 30em; }
+  .cta { display: flex; flex-wrap: wrap; gap: 14px; }
+  .hero-shot { justify-self: center; width: min(100%, 360px); }
+  .hero-shot img { border-radius: 28px; border: 2px solid var(--line); box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55); }
+  .note { margin-top: 18px; font-size: 16px; color: var(--muted); }
+  @media (max-width: 820px) { .hero .wrap { grid-template-columns: 1fr; } .hero-shot { width: min(86%, 320px); } }
+
+  /* ruler */
+  .ruler { background: var(--lane-2); border-block: 1px solid var(--line); padding: clamp(48px, 7vw, 84px) 0; }
+  .ruler .scale { position: relative; height: 96px; margin-top: 44px; }
+  .ruler .track { position: absolute; left: 0; right: 0; top: 36px; height: 6px; background: #2A303A; border-radius: 3px; }
+  .ruler .band { position: absolute; top: 28px; height: 22px; left: 20%; width: 20%; background: linear-gradient(90deg, rgba(176, 124, 255, 0.45), rgba(53, 212, 131, 0.45)); border-left: 3px solid var(--purple); border-right: 3px solid var(--green); }
+  .ruler .tick { position: absolute; top: 50px; width: 1px; height: 10px; background: #566070; }
+  .ruler .lbl { position: absolute; top: 62px; font-size: 20px; transform: translateX(-50%); }
+  .ruler .lbl.a { left: 20%; color: var(--purple); }
+  .ruler .lbl.b { left: 40%; color: var(--green); }
+  .ruler .end { position: absolute; top: 62px; font-size: 16px; color: var(--muted); }
+  .ruler .end.l { left: 0; } .ruler .end.r { right: 0; }
+  .ruler .big { position: absolute; left: 30%; top: 0; transform: translateX(-50%); font-size: 20px; color: var(--ink); white-space: nowrap; }
+  @media (max-width: 560px) { .ruler .big { left: 50%; } }
+
+  /* shots strip */
+  .strip { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 8px 20px 28px; margin-top: 36px; -webkit-overflow-scrolling: touch; }
+  .strip figure { margin: 0; flex: 0 0 min(260px, 62vw); scroll-snap-align: start; }
+  .strip img { border-radius: 22px; border: 1.5px solid var(--line); }
+  .strip figcaption { margin-top: 10px; font-size: 17px; color: var(--muted); }
+  .strip::-webkit-scrollbar { height: 8px; } .strip::-webkit-scrollbar-thumb { background: #2A303A; border-radius: 4px; }
+  @media (min-width: 1240px) { .strip { padding-left: calc((100vw - 1160px) / 2); } }
+
+  /* how to play */
+  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 72px); margin-top: 44px; }
+  .step { border-top: 2px solid var(--paint); padding-top: 18px; }
+  .step h3 { margin-bottom: 10px; }
+  .step p { margin-bottom: 0.8em; }
+  @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+
+  /* places table */
+  .places { margin-top: 56px; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(28px, 5vw, 72px); align-items: start; }
+  table { border-collapse: collapse; width: 100%; font-size: 19px; }
+  caption { text-align: left; color: var(--muted); padding-bottom: 10px; font-size: 17px; }
+  th, td { text-align: left; padding: 10px 12px 10px 0; vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 16px; }
+  tbody tr:nth-child(even) { background: rgba(238, 241, 244, 0.03); }
+  td.num { color: var(--paint); white-space: nowrap; }
+  @media (max-width: 820px) { .places { grid-template-columns: 1fr; } }
+
+  /* modes */
+  .modes { display: grid; grid-template-columns: 1.4fr 1fr; grid-template-rows: auto auto; gap: 18px; margin-top: 44px; }
+  .mode { background: var(--lane); border: 1px solid var(--line); border-radius: var(--r); padding: 28px; }
+  .mode.daily { grid-row: span 2; display: grid; grid-template-columns: 1fr 180px; gap: 24px; align-items: end; background: linear-gradient(160deg, #20252E, #161A21); }
+  .mode.daily img { border-radius: 16px; border: 1.5px solid var(--line); }
+  .mode p { margin-bottom: 0; }
+  .mode h3 { margin-bottom: 10px; color: var(--paint); }
+  @media (max-width: 820px) { .modes { grid-template-columns: 1fr; } .mode.daily { grid-row: auto; grid-template-columns: 1fr 140px; } }
+  @media (max-width: 460px) { .mode.daily { grid-template-columns: 1fr; } .mode.daily img { max-width: 200px; } }
+
+  /* tips */
+  .tips { margin-top: 40px; display: grid; gap: 28px; max-width: 760px; }
+  .tip h3 { margin-bottom: 8px; }
+  .tip p { margin-bottom: 0; }
+
+  /* faq */
+  details { border-top: 1px solid var(--line); padding: 18px 0; max-width: 760px; }
+  details:last-of-type { border-bottom: 1px solid var(--line); }
+  summary { cursor: pointer; font-size: 22px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--paint); font-size: 26px; line-height: 1; }
+  details[open] summary::after { content: "-"; }
+  details p { margin: 12px 0 0; }
+
+  /* ads */
+  .ads { background: var(--lane-2); border-block: 1px solid var(--line); }
+  .ads .wrap { max-width: 860px; }
+
+  footer { padding: 40px 0 56px; border-top: 1px solid var(--line); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; justify-content: space-between; font-size: 17px; color: var(--muted); }
+  footer a { color: var(--ink); }
+
+  /* motion: enter on scroll, only for people who allow it */
+  @media (prefers-reduced-motion: no-preference) {
+    .rise { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.16, 1, .3, 1), transform .7s cubic-bezier(.16, 1, .3, 1); }
+    .rise.in { opacity: 1; transform: none; }
+    .ruler .band { transform-origin: left; transform: scaleX(0); transition: transform 1.1s cubic-bezier(.16, 1, .3, 1) .2s; }
+    .ruler.in .band { transform: scaleX(1); }
+  }
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="icon-512.png" alt="" width="34" height="34">Twotenths</a>
+    <nav aria-label="Main">
+      <a class="opt" href="#how">How to play</a>
+      <a class="opt" href="#tips">Tips</a>
+      <a class="go" href="play/">Play in your browser</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Two tenths of a second.</h1>
+      <p class="lead">One thumb, four wheels and a stopwatch. Race through a pit stop and see how close you get to the 1.80 second record.</p>
+      <div class="cta">
+        <a class="btn primary" href="play/">Play in your browser</a>
+        <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.twotenths">Get it on Google Play</a>
+      </div>
+      <p class="note">Free with ads. An optional one time purchase, Remove ads and archive, takes them away.</p>
+    </div>
+    <div class="hero-shot">
+      <img src="shots/04-wheels.webp" width="540" height="960" alt="A pit stop in Twotenths: four wheel rings around the car, the stopwatch at 1.13 seconds above a timing ruler.">
+    </div>
+  </div>
+</section>
+
+<section class="ruler rise" id="ruler">
+  <div class="wrap">
+    <h2>The gap is the game.</h2>
+    <p style="margin-top:18px">Every stop is timed to a hundredth of a second against a ruler. Under 2.00 puts you in the club. 1.80 is the fastest pit stop on record. Everything in between is two tenths of practice.</p>
+    <div class="scale" aria-hidden="true">
+      <span class="big">0.20 s of room</span>
+      <span class="track"></span><span class="band"></span>
+      <span class="tick" style="left:0"></span><span class="tick" style="left:10%"></span><span class="tick" style="left:20%"></span><span class="tick" style="left:30%"></span><span class="tick" style="left:40%"></span><span class="tick" style="left:50%"></span><span class="tick" style="left:60%"></span><span class="tick" style="left:70%"></span><span class="tick" style="left:80%"></span><span class="tick" style="left:90%"></span><span class="tick" style="left:100%"></span>
+      <span class="lbl a">1.80</span><span class="lbl b">2.00</span>
+      <span class="end l">1.60</span><span class="end r">2.60</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>A race in eight screens.</h2>
+    <p style="margin-top:18px">A race is a lights out start and three stops, about thirty seconds in all. These are the real game, captured from play.</p>
+  </div>
+  <div class="strip" tabindex="0" aria-label="Screenshots, scroll sideways">
+    <figure><img src="shots/01-lights.webp" width="540" height="960" alt="Five red lamp pairs lit above the pit lane" loading="lazy"><figcaption>Lights out</figcaption></figure>
+    <figure><img src="shots/02-call.webp" width="540" height="960" alt="The pit wall call: a radar strip of five laps and three tyre buttons" loading="lazy"><figcaption>The pit wall call</figcaption></figure>
+    <figure><img src="shots/03-catch.webp" width="540" height="960" alt="The car brakes up the pit lane toward the marker" loading="lazy"><figcaption>Catch the car</figcaption></figure>
+    <figure><img src="shots/04-wheels.webp" width="540" height="960" alt="Wheel rings filling around the car" loading="lazy"><figcaption>Gun the wheels</figcaption></figure>
+    <figure><img src="shots/05-hold.webp" width="540" height="960" alt="The release lamp is red while a rival car passes in the fast lane" loading="lazy"><figcaption>Hold for the rival</figcaption></figure>
+    <figure><img src="shots/06-result.webp" width="540" height="960" alt="A race result card: P9 to P3, start 0.206, three stop times" loading="lazy"><figcaption>The result</figcaption></figure>
+    <figure><img src="shots/07-daily.webp" width="540" height="960" alt="The menu with the Daily Grand Prix card, a six day streak and the best stop" loading="lazy"><figcaption>The daily</figcaption></figure>
+    <figure><img src="shots/08-rush.webp" width="540" height="960" alt="Stop Rush at rung four with a target time marked on the ruler" loading="lazy"><figcaption>Stop Rush</figcaption></figure>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How to play</h2>
+    <p style="margin-top:18px">Race 1 teaches each part when you need it with a ghost thumb, and nobody can fail it. This is the same thing in writing.</p>
+    <div class="steps">
+      <div class="step rise">
+        <h3>Lights out</h3>
+        <p>Five pairs of red lamps light one at a time. They hold for a random moment, then go out. Tap anywhere the instant they do. Your reaction is timed to the millisecond from the tap's own timestamp, so a slow frame never costs you.</p>
+        <p>Tap while the lamps are still lit and it is a jump start: five seconds are added and you lose three places. The lamps take a different time every race, so guessing does not work.</p>
+      </div>
+      <div class="step rise">
+        <h3>The pit wall call</h3>
+        <p>Before each stop the radar shows five laps of sky: dry, damp or wet. Pick the tyre that fits the most of them. Each button shows the sky it suits: sun and cloud for Dry, drizzle for Inter, rain for Wet. A cloudy lap counts as dry.</p>
+        <p>Some calls are a safety car instead. When the board shows SC with flashing lamps, box now for a cheap stop. When it shows SC IN with dark lamps, the safety car is ending this lap, so stay out. From race 4 the call has a four second clock, and if it runs out the car keeps its current tyre.</p>
+      </div>
+      <div class="step rise">
+        <h3>Catch the car</h3>
+        <p>The car brakes up the pit lane. Tap as its nose meets the marker line. Within 0.035 seconds is Perfect and costs nothing. Further off costs 0.06, 0.15 or 0.30 seconds. Miss the tap altogether and the car rolls long, which costs 0.40 seconds. Taps earlier than a third of a second before the marker are ignored, so an eager thumb is safe.</p>
+      </div>
+      <div class="step rise">
+        <h3>Gun the wheels</h3>
+        <p>The stopwatch runs from the catch. Four rings light in a numbered order, one per corner. Each fills in about a third of a second. Tap a ring inside the last part of its fill and the gun finishes the nut right at the full mark. Tap before that zone and the nut cross threads: the ring flashes red, locks for a moment and falls back.</p>
+        <p>From race 4 some nuts cross thread by themselves partway through and flash red until you tap them again. Tap them as soon as you see the flash, because the clock keeps running.</p>
+      </div>
+      <div class="step rise">
+        <h3>Drop, hold and release</h3>
+        <p>After the fourth wheel the release lamp at the bottom arms. Press and hold it to drop the jacks. Keep holding while the lamp is red: a rival is passing in the fast lane. Lift your thumb when it goes green. Lifting into a passing car is an unsafe release and adds five seconds.</p>
+        <p>The stop ends when the car moves. That is the later of your lift and the jacks touching the ground, so lifting a hair early gains nothing.</p>
+      </div>
+      <div class="step rise">
+        <h3>Places</h3>
+        <p>You start on the grid in P9 and there is no field to beat, only the clock. Your start, your calls and your three stops each move you up or down, and the position chip updates after every part so you can feel the race build. A clean race ends around P2. A messy one ends around P13.</p>
+      </div>
+    </div>
+
+    <div class="places rise">
+      <div>
+        <h3>What each stop is worth</h3>
+        <p style="margin-top:12px">The stop table is the one thing worth knowing by heart. Each of your three stops moves you by this many places.</p>
+      </div>
+      <table>
+        <thead><tr><th>Stop time</th><th>Places</th></tr></thead>
+        <tbody>
+          <tr><td>1.80 or under</td><td class="num">gain 3</td></tr>
+          <tr><td>Under 1.90</td><td class="num">gain 2</td></tr>
+          <tr><td>Under 2.00</td><td class="num">gain 1</td></tr>
+          <tr><td>Under 2.40</td><td class="num">no change</td></tr>
+          <tr><td>Under 3.00</td><td class="num">lose 1</td></tr>
+          <tr><td>Under 4.50</td><td class="num">lose 2</td></tr>
+          <tr><td>4.50 or more</td><td class="num">lose 3</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section style="background: var(--lane-2); border-block: 1px solid var(--line)">
+  <div class="wrap">
+    <h2>Three ways to race</h2>
+    <div class="modes">
+      <div class="mode daily rise">
+        <div>
+          <h3>Daily Grand Prix</h3>
+          <p>Everyone gets the same start, the same calls and the same three stops on the same day. You get one try. Your result is a stopwatch card with your start, your stop times and the places you gained, and it holds no spoilers for friends who have not raced yet. The link on the card opens the same race in a browser, no install needed. Race on consecutive days and your streak grows.</p>
+        </div>
+        <img src="shots/07-daily.webp" width="540" height="960" alt="The menu showing the Daily Grand Prix card and a six day streak" loading="lazy">
+      </div>
+      <div class="mode rise">
+        <h3>Stop Rush</h3>
+        <p>An endless ladder of stops with no start and no calls. Each rung has a target time and the tempo rises. Beat the target to climb. Miss it, or release unsafely, and the run is over. By about the seventeenth rung the target is close to what a human hand can do, so every run ends.</p>
+      </div>
+      <div class="mode rise">
+        <h3>Records</h3>
+        <p>Your best stop, best start, best finish and best Rush run, plus three clubs: under 2.00, under 1.90 and record pace at 1.80 or under.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tips">
+  <div class="wrap">
+    <h2>Tips from the pit wall</h2>
+    <div class="tips">
+      <div class="tip rise">
+        <h3>Look at the ring, not at your thumb</h3>
+        <p>The next ring to tap is outlined before it starts to fill, so your thumb can already be moving. Rings sit well inside the screen on purpose, and a tap that lands nearer another ring is ignored, so you cannot hit the wrong wheel by a small slip.</p>
+      </div>
+      <div class="tip rise">
+        <h3>Be early in the zone, not late</h3>
+        <p>A tap inside the zone finishes the nut at the full mark, wherever in the zone it lands. A tap after the full mark finishes at your tap, so lateness is the only way to lose time on a ring. Aim for the front half of the zone and you give up nothing.</p>
+      </div>
+      <div class="tip rise">
+        <h3>Spend your calm on the lamp</h3>
+        <p>Most lost seconds are on the release. If a rival is coming, the lamp is red for a short, readable window. Press the lamp as soon as it arms so the jacks drop, then wait for green and lift. Never guess the gap.</p>
+      </div>
+      <div class="tip rise">
+        <h3>Count the sky before you tap</h3>
+        <p>The radar numbers its five laps from left to right. When the strip is mixed, count: the tyre that suits three of the five laps is the right call. A cloudy lap counts as dry, so do not let one cloud talk you into Inter.</p>
+      </div>
+      <div class="tip rise">
+        <h3>Do not chase the start</h3>
+        <p>A reaction under 0.200 seconds gains you two places, but a jump start loses three and adds five seconds. Tap on what you see, not on what you expect. Under 0.280 still gains a place, and anything under 0.400 costs nothing.</p>
+      </div>
+      <div class="tip rise">
+        <h3>Race the Daily last</h3>
+        <p>You get one scored try each day, so warm up on a career race or a Rush run first. Your thumb learns the rhythm within a few stops, and you only get one scored try at the daily.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ads">
+  <div class="wrap">
+    <h2>Free, with ads you can mostly skip</h2>
+    <p style="margin-top:18px">Twotenths is free to play and has ads. Full screen ads appear only at a natural break, such as after a few finished races when you press Next race, and never during a race, between its stops or around the Daily Grand Prix. Rewarded ads are always your choice: watch one to redo your slowest stop, to carry on a Stop Rush run or to race today's daily once more.</p>
+    <p>Remove ads and archive is an optional one time purchase in the Android app, made through Google Play. It removes the ads for good, opens every past Daily Grand Prix and gives the rewarded bonuses without an ad. The web version at <a href="play/">apps.mohdshayan.com/twotenths/play/</a> shows ads from Google AdSense and has no purchases. How the data works is in the <a href="/privacy-policies/twotenths-privacy-policy.html">privacy policy</a>.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Questions</h2>
+    <div style="margin-top:32px">
+      <details>
+        <summary>Does it work offline?</summary>
+        <p>Yes. The game is packaged inside the app and needs no network to play. Ads, the purchase and the consent message need a connection, and without one the game simply plays on without them.</p>
+      </details>
+      <details>
+        <summary>Is the 1.80 second record real?</summary>
+        <p>It is the fastest pit stop on record at the time of writing, and the game states it as a plain fact with no team named. In the game a stop near 1.80 takes a clean catch, four tight taps and a calm release, so only a near perfect stop reaches it.</p>
+      </details>
+      <details>
+        <summary>Is my progress saved?</summary>
+        <p>Yes, on your device. In the app it lives in the app's storage. In the browser it lives in this site's local storage, so clearing site data clears it. There is no account and no server holding your progress.</p>
+      </details>
+      <details>
+        <summary>Who is it for?</summary>
+        <p>Players aged 16 and over. It is an independent game and is not connected to any racing series, team, driver or sponsor.</p>
+      </details>
+      <details>
+        <summary>How do I get my purchase back on a new phone?</summary>
+        <p>Open the menu and choose Restore purchases. Google Play tells the app that your Google account owns Remove ads and archive, and the app unlocks it again.</p>
+      </details>
+    </div>
+    <div class="cta" style="margin-top:40px">
+      <a class="btn primary" href="play/">Play in your browser</a>
+      <a class="btn ghost" href="https://play.google.com/store/apps/details?id=com.mohdshayan.twotenths">Get it on Google Play</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Twotenths by SocialSure Private Limited</span>
+    <a href="/privacy-policies/twotenths-privacy-policy.html">Privacy policy</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll('.rise, .ruler');
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      els.forEach(function (e) { e.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (list) {
+      list.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } });
+    }, { threshold: 0.15 });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
+</body>
+</html>

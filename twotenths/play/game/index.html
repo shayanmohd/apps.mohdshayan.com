@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0E1116">
+  <title>Twotenths</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-state="boot">
+  <canvas id="view" aria-label="Pit lane"></canvas>
+
+  <button id="pauseBtn" class="icon-btn hud-pause" type="button" hidden></button>
+
+  <section id="menu" class="screen menu" hidden>
+    <header class="brand">
+      <h1 id="wordmark" class="wordmark"></h1>
+      <div class="mark" aria-hidden="true"><span class="mark-band"></span></div>
+      <p id="tagline" class="tagline"></p>
+    </header>
+    <div class="menu-stack">
+      <button id="friendCard" class="card friend-card" type="button" hidden>
+        <span id="friendTitle" class="card-title"></span>
+        <span id="friendNote" class="card-meta"></span>
+      </button>
+      <div id="dailyCard" class="card daily-card">
+        <button id="dailyBtn" class="daily-main" type="button">
+          <span class="daily-head">
+            <span id="dailyTitle" class="card-title"></span>
+            <span id="dailyDay" class="card-day"></span>
+          </span>
+          <span id="dailyStatus" class="card-meta"></span>
+        </button>
+        <div id="dailyActions" class="daily-actions" hidden>
+          <button id="dailyShareBtn" class="btn quiet small" type="button" hidden></button>
+          <button id="dailyAgainBtn" class="btn quiet small" type="button" hidden></button>
+        </div>
+      </div>
+      <button id="raceBtn" class="btn primary big" type="button"></button>
+      <button id="rushBtn" class="btn big split" type="button">
+        <span id="rushLabel"></span>
+        <span id="rushBest" class="btn-meta"></span>
+      </button>
+      <dl id="bests" class="bests"></dl>
+      <div id="adsRow" class="ads-row" hidden>
+        <button id="removeAdsBtn" class="btn quiet small" type="button"></button>
+        <button id="restoreBtn" class="btn quiet small" type="button"></button>
+      </div>
+      <nav class="menu-foot">
+        <button id="recordsBtn" class="icon-btn" type="button"></button>
+        <button id="archiveBtn" class="icon-btn" type="button" hidden></button>
+        <button id="settingsBtn" class="icon-btn" type="button"></button>
+        <button id="soundBtn" class="icon-btn" type="button"></button>
+      </nav>
+    </div>
+  </section>
+
+  <section id="call" class="screen call" hidden>
+    <div class="call-clock"><span id="callBar"></span></div>
+    <div id="callOptions" class="call-options"></div>
+  </section>
+
+  <section id="pause" class="screen scrim" hidden>
+    <div class="panel center-panel">
+      <h2 id="pauseTitle" class="panel-title"></h2>
+      <button id="resumeBtn" class="btn primary wide" type="button"></button>
+      <button id="leaveBtn" class="btn wide" type="button"></button>
+      <p id="leaveNote" class="note" hidden></p>
+      <button id="pauseSoundBtn" class="icon-btn" type="button"></button>
+    </div>
+  </section>
+
+  <section id="result" class="screen sheet-screen" hidden>
+    <div id="resultPanel" class="panel sheet"></div>
+  </section>
+
+  <section id="offer" class="screen scrim" hidden>
+    <div id="offerPanel" class="panel center-panel"></div>
+  </section>
+
+  <section id="sheet" class="screen scrim sheet-screen" hidden>
+    <div id="sheetPanel" class="panel sheet tall" role="dialog" aria-modal="true"></div>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="game-sdk.js"></script>
+  <script src="js/rng.js"></script>
+  <script src="js/strings.js"></script>
+  <script src="js/clock.js"></script>
+  <script src="js/pace.js"></script>
+  <script src="js/daily.js"></script>
+  <script src="js/stop.js"></script>
+  <script src="js/race.js"></script>
+  <script src="js/rush.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/breaks.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
