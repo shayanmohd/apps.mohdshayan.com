@@ -49,12 +49,24 @@
     var stars = [];
     var hills = null;
 
-    function resize(w, h, dpr, ins) {
+    // The backing store is sized once, before Shell.ready(), from the screen (portrait way round, DPR capped
+    // at 2), and never again: in WebView 156 a canvas resized after the ads SDK has started is drawn on the
+    // CPU (WEBGAME-RECIPE.md section 2b). A window change only moves the scale and the CSS box; the CSS box
+    // can be larger than the window, and the part beyond it is never drawn and never seen.
+    var BW = 0, BH = 0;
+    function resize(w, h, dpr, ins, sw, sh) {
       W = Math.max(1, w);
       H = Math.max(1, h);
-      DPR = Math.min(2, dpr || 1);
-      canvas.width = Math.round(W * DPR);
-      canvas.height = Math.round(H * DPR);
+      var cap = Math.min(2, dpr || 1);
+      if (!BW) {
+        BW = Math.ceil(Math.max(Math.min(sw || W, sh || H), W) * cap);
+        BH = Math.ceil(Math.max(Math.max(sw || W, sh || H), H) * cap);
+        canvas.width = BW;
+        canvas.height = BH;
+      }
+      DPR = Math.min(cap, BW / W, BH / H);
+      canvas.style.width = (BW / DPR) + 'px';
+      canvas.style.height = (BH / DPR) + 'px';
       ui = clamp(Math.min(W / 412, H / 860), 0.72, 1.35);
       if (ins) insets = ins;
       skyCache = null;

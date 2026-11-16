@@ -88,6 +88,8 @@
   var realT = 0, lastFrame = 0;
   var pointers = {};
   var keyHold = false;
+  var hold = new BL.pace.Hold(); // the thumb as edges at event times, read per sim step
+  var pacer = new BL.pace.Pacer(60);
   var ghost = null;        // first-approach thumb guide
   var dim = 0, dimTarget = 0, flash = 0;
   var stampPop = null;
@@ -100,6 +102,12 @@
   function held() {
     for (var k in pointers) if (pointers[k]) return true;
     return keyHold;
+  }
+  function noteHold(e) { hold.set(held(), e && e.timeStamp ? e.timeStamp : performance.now()); }
+  function releaseAll() {
+    pointers = {};
+    keyHold = false;
+    hold.reset();
   }
 
   function today() { return daily.dayNumber(new Date()); }
@@ -158,8 +166,7 @@
     audio.setAircraft(f.ac.id);
     hideScreens();
     ui.pauseBtn.hidden = false;
-    pointers = {};
-    keyHold = false;
+    releaseAll();
     setState('play');
     Shell.banner(false).then(function () { caps = Shell.caps; layoutBanner(); });
     dimTarget = 0;
@@ -237,7 +244,10 @@
   }
 
   // ---- the loop ----
+  // Every screen draws at most about 60 frames a second (js/pace.js): at the display rate a 120 Hz phone
+  // runs hot for nothing. The thumb keeps its event times, so the cap changes nothing in the flight.
   function frame(now) {
+    if (!pacer.due(now)) { requestAnimationFrame(frame); return; }
     var rdt = lastFrame ? Math.min(0.1, (now - lastFrame) / 1000) : 1 / 60;
     lastFrame = now;
     realT += rdt;
@@ -263,16 +273,19 @@
     var simDt = 0;
     if (f && stepIt) {
       if (f === flight) updateGhost(f);
-      var n = BL.clock.advance(clock, rdt, f === flight ? timeScale : 1);
+      var scale = f === flight ? timeScale : 1;
+      var n = BL.clock.advance(clock, rdt, scale);
       for (var i = 0; i < n; i++) {
         snapshot(f);
-        var h = decide ? decide(f) : (state === 'play' || state === 'beat') && held();
+        var h = decide ? decide(f) : (state === 'play' || state === 'beat') &&
+          hold.at(BL.pace.stepTime(now, i, n, clock.acc, DT, scale));
         sim.step(f, h);
         if (h && !decide) holdLog++;
         simDt += DT;
         if (f === flight) handleEvents(f); else f.events.length = 0;
       }
     }
+    hold.at(now);
     if (attract && f === attract.f && attract.f.done) {
       if (!attract.until) attract.until = realT + 2.2;
       if (realT > attract.until) newAttract(attract.n + 1);
@@ -1128,8 +1141,7 @@
   function pauseGame() {
     if (state !== 'play') return;
     setState('paused');
-    pointers = {};
-    keyHold = false;
+    releaseAll();
     ui.pause.hidden = false;
     ui.pauseBtn.hidden = true;
     var isDaily = session && session.mode === 'daily';
@@ -1170,11 +1182,13 @@
     audio.unlock();
     if (state !== 'play') return;
     pointers[e.pointerId] = true;
+    noteHold(e);
     try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* not capturable */ }
     e.preventDefault();
   }
   function onPointerUp(e) {
     delete pointers[e.pointerId];
+    noteHold(e);
   }
   canvas.addEventListener('pointerdown', onPointerDown);
   window.addEventListener('pointerup', onPointerUp);
@@ -1186,6 +1200,7 @@
     if (e.code === 'Space' || e.key === ' ') {
       if (state === 'play') {
         keyHold = true;
+        noteHold(e);
         e.preventDefault();
       }
       audio.unlock();
@@ -1194,9 +1209,9 @@
     }
   });
   window.addEventListener('keyup', function (e) {
-    if (e.code === 'Space' || e.key === ' ') keyHold = false;
+    if (e.code === 'Space' || e.key === ' ') { keyHold = false; noteHold(e); }
   });
-  window.addEventListener('blur', function () { pointers = {}; keyHold = false; });
+  window.addEventListener('blur', function (e) { pointers = {}; keyHold = false; noteHold(e); });
   document.addEventListener('pointerdown', function () { audio.unlock(); }, { passive: true });
 
   ui.pauseBtn.addEventListener('click', function () { audio.click(); pauseGame(); });
@@ -1266,7 +1281,8 @@
 
   function resize() {
     caps = Shell.caps;
-    R.resize(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1, caps.insets);
+    R.resize(window.innerWidth, window.innerHeight, window.devicePixelRatio || 1, caps.insets,
+      window.screen && screen.width, window.screen && screen.height);
     if (flight) R.setScene(flight); else if (attract) R.setScene(attract.f);
   }
   window.addEventListener('resize', resize);
