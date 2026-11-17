@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0E2B21">
+  <title>Slogstop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-screen="boot">
+  <canvas id="view" aria-hidden="true"></canvas>
+
+  <!-- Solo play: the score bug, the ground (drawn on the canvas inside #stage), the why line, the deck. -->
+  <section id="play" class="play" hidden>
+    <header id="bug" class="bug">
+      <div class="bug-main">
+        <span id="bugBig" class="bug-big"></span>
+        <span id="bugSmall" class="bug-small"></span>
+      </div>
+      <ol id="bugLine" class="balls"></ol>
+      <div class="bug-tools">
+        <button id="soundBtn" class="icon-btn" type="button"></button>
+        <button id="pauseBtn" class="icon-btn" type="button"></button>
+      </div>
+    </header>
+    <div id="stage" class="stage"></div>
+    <p id="why" class="why" aria-live="polite"></p>
+    <div id="plan" class="plan"></div>
+    <div id="deck" class="deck"></div>
+  </section>
+
+  <!-- The duel: two halves facing their players, the ground between them on the canvas. -->
+  <section id="duel" class="duel" hidden>
+    <div id="halfTop" class="half top">
+      <div class="half-bug"><span class="hb-score"></span><span class="hb-note"></span></div>
+      <p class="half-hint"></p>
+      <div class="half-deck"></div>
+    </div>
+    <div id="duelMid" class="duel-mid">
+      <button id="duelPause" class="icon-btn" type="button"></button>
+    </div>
+    <div id="halfBottom" class="half bottom">
+      <div class="half-bug"><span class="hb-score"></span><span class="hb-note"></span></div>
+      <p class="half-hint"></p>
+      <div class="half-deck"></div>
+    </div>
+  </section>
+
+  <section id="menu" class="screen menu" hidden>
+    <header class="brand">
+      <h1 id="wordmark" class="wordmark">Slogstop</h1>
+      <p id="tagline" class="tagline"></p>
+    </header>
+    <div class="menu-stack">
+      <button id="dailyCard" class="card daily-card" type="button">
+        <span class="card-row"><span id="dailyTitle" class="card-title"></span><span id="dailyStreak" class="streak"></span></span>
+        <span id="dailyMeta" class="card-meta"></span>
+      </button>
+      <div id="dailyExtra" class="daily-extra" hidden></div>
+      <button id="duelBtn" class="btn primary big" type="button">
+        <span id="duelLabel"></span><span id="duelNote" class="btn-note"></span>
+      </button>
+      <button id="ladderBtn" class="btn big" type="button">
+        <span id="ladderLabel"></span><span id="ladderNote" class="btn-note"></span>
+      </button>
+      <div class="pair">
+        <button id="defendBtn" class="btn" type="button"></button>
+        <button id="chaseBtn" class="btn" type="button"></button>
+      </div>
+      <div id="adsRow" class="ads-row" hidden>
+        <button id="removeAdsBtn" class="btn quiet" type="button"></button>
+        <button id="restoreBtn" class="btn quiet" type="button"></button>
+      </div>
+      <nav class="menu-foot">
+        <button id="archiveBtn" class="icon-btn" type="button" hidden></button>
+        <button id="howBtn" class="icon-btn" type="button"></button>
+        <button id="settingsBtn" class="icon-btn" type="button"></button>
+        <button id="menuSoundBtn" class="icon-btn" type="button"></button>
+      </nav>
+    </div>
+  </section>
+
+  <section id="card" class="screen card-screen" hidden>
+    <div id="cardPanel" class="panel sheet"></div>
+  </section>
+
+  <section id="result" class="screen card-screen" hidden>
+    <div id="resultPanel" class="panel sheet"></div>
+  </section>
+
+  <section id="sheet" class="screen scrim" hidden>
+    <div id="sheetPanel" class="panel tall" role="dialog" aria-modal="true"></div>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="game-sdk.js"></script>
+  <script src="js/rng.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/over.js"></script>
+  <script src="js/scenarios.js"></script>
+  <script src="js/daily-table.js"></script>
+  <script src="js/daily.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/run.js"></script>
+  <script src="js/lang-hi.js"></script>
+  <script src="js/lang-ur.js"></script>
+  <script src="js/lang-bn.js"></script>
+  <script src="js/lang-ta.js"></script>
+  <script src="js/lang-te.js"></script>
+  <script src="js/lang-mr.js"></script>
+  <script src="js/lang-si.js"></script>
+  <script src="js/strings.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

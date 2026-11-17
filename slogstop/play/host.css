@@ -1,0 +1,92 @@
+/* Web host for one game. The play area takes what is left after the header and the reserved ad space,
+   so showing or hiding an ad never moves or resizes the game. */
+:root {
+  --bg: #14161c;
+  --fg: #ece8df;
+  --muted: #a7a399;
+  --line: #2a2e38;
+  --gap: 24px;
+  --below-h: 100px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg); }
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  height: 100dvh;
+  font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+a { color: var(--fg); }
+.bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+}
+.bar .home { font-weight: 600; text-decoration: none; }
+.bar nav a { margin-left: 16px; color: var(--muted); text-decoration: none; }
+.bar nav a:hover { color: var(--fg); }
+
+.stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  /* The ad row is a fixed track: an ad can never push into the play area or resize it. */
+  grid-template-rows: minmax(0, 1fr) calc(var(--gap) + 16px + var(--below-h));
+  padding: 12px;
+}
+.play { min-height: 0; min-width: 0; display: flex; justify-content: center; }
+.play iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 100%;
+  border: 0;
+  border-radius: 12px;
+  background: #0d0f13;
+  display: block;
+}
+
+/* Reserved ad space, always laid out. Hidden while the game has not asked for it. AdSense rewrites the
+   height of a responsive unit's parents, so the size is fixed here, contained, and the units are sized
+   by CSS (AdSense: "exact ad unit size per screen width"), without data-ad-format. */
+.slot { position: relative; visibility: hidden; overflow: hidden; contain: strict; }
+.slot.on { visibility: visible; }
+.slot .label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  visibility: hidden;
+}
+.slot:has(ins[data-ad-status="filled"]) .label { visibility: inherit; }
+.slot ins[data-ad-status="unfilled"] { display: none !important; }
+.slot-below ins.adsbygoogle { display: block; width: 100%; height: var(--below-h); }
+.slot-side ins.adsbygoogle { display: block; width: 300px; height: 600px; }
+
+/* Narrow screens: one slot below the game, past a gap that keeps it out of reach of play taps. */
+.slot-side { display: none; }
+.slot-below {
+  margin-top: var(--gap);
+  height: calc(16px + var(--below-h));
+  width: 100%;
+  max-width: 728px;
+  justify-self: center;
+}
+/* No below unit (SHELL_WEB.slots.below empty; host.js marks the stage): nothing is reserved under the
+   game on a narrow screen, so the game runs down to the bottom safe area. */
+@media not all and (min-width: 960px) {
+  .stage.no-below { grid-template-rows: minmax(0, 1fr); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .stage.no-below .slot-below { display: none; }
+}
+
+/* Wide screens: one tall slot beside the game, none below. */
+@media (min-width: 960px) {
+  .stage { grid-template-columns: minmax(0, 1fr) 300px; grid-template-rows: minmax(0, 1fr); column-gap: 40px; }
+  .slot-side { display: block; width: 300px; height: 616px; max-height: 100%; align-self: center; }
+  .slot-below { display: none; }
+}

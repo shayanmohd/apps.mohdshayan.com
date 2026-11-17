@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Slogstop: 2 Player Cricket</title>
+<meta name="description" content="Slogstop is a turn based cricket duel for two friends face to face on one phone. Set the field, pick your ball and win the last over. Play in your browser or on Android.">
+<meta name="theme-color" content="#0E2B21">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="canonical" href="https://apps.mohdshayan.com/slogstop/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Slogstop: the last over of a cricket match, on one phone">
+<meta property="og:description" content="Two friends face to face, one phone, a floodlit ground. Set the field, outguess each other, win the over.">
+<meta property="og:image" content="https://apps.mohdshayan.com/slogstop/og.jpg">
+<meta property="og:url" content="https://apps.mohdshayan.com/slogstop/">
+<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face { font-family: Archivo; src: url("fonts/archivo.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+
+  :root {
+    --turf: #0E2B21;
+    --stripe: #12352A;
+    --ink: #07150F;
+    --chalk: #E9EFE6;
+    --muted: #9BB0A4;
+    --amber: #FFB23E;
+    --on-amber: #1B1200;
+    --line: rgba(233, 239, 230, 0.14);
+    --r: 14px;
+    --r-btn: 12px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--turf); color: var(--chalk);
+    font: 400 18px/1.65 Archivo, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+  img { display: block; max-width: 100%; height: auto; }
+  a { color: var(--amber); text-underline-offset: 3px; }
+  a:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+  h1, h2, h3 { margin: 0; letter-spacing: -0.01em; }
+  h1 { font-stretch: 62%; font-weight: 800; font-size: clamp(46px, 7.4vw, 92px); line-height: 0.98; }
+  h2 { font-stretch: 62%; font-weight: 800; font-size: clamp(34px, 4.6vw, 56px); line-height: 1.02; }
+  .tips h3, .tile h3 { margin-bottom: 6px; }
+  h3 { font-size: 21px; line-height: 1.25; font-weight: 700; }
+  p { margin: 0 0 1em; max-width: 66ch; }
+  .wrap { width: min(1160px, 100% - 40px); margin-inline: auto; }
+  section { padding: clamp(64px, 9vw, 120px) 0; }
+  .lede { color: var(--muted); font-size: 20px; }
+  .num { font-stretch: 62%; font-weight: 800; }
+
+  /* nav */
+  .nav { position: sticky; top: 0; z-index: 20; background: #0E2B21; border-bottom: 1px solid var(--line); }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; }
+  .mark { font-stretch: 62%; font-weight: 800; font-size: 30px; letter-spacing: 0.01em; color: var(--chalk); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .mark img { width: 32px; height: 32px; border-radius: 8px; }
+  .nav ul { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; }
+  .nav ul a { color: var(--muted); text-decoration: none; font-size: 16px; font-weight: 500; }
+  .nav ul a:hover { color: var(--chalk); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+    min-height: 52px; padding: 0 24px; border-radius: var(--r-btn);
+    font: 700 17px/1 Archivo, system-ui, sans-serif; text-decoration: none; cursor: pointer;
+    border: 2px solid transparent; transition: transform .18s cubic-bezier(.16,1,.3,1), background-color .18s;
+  }
+  .btn:active { transform: translateY(1px) scale(0.98); }
+  .btn.primary { background: var(--amber); color: var(--on-amber); }
+  .btn.primary:hover { background: #ffc261; }
+  .btn.ghost { border-color: rgba(233, 239, 230, 0.4); color: var(--chalk); }
+  .btn.ghost:hover { border-color: var(--chalk); }
+  .btn.small { min-height: 42px; padding: 0 18px; font-size: 15px; }
+
+  /* hero */
+  .hero { padding: clamp(28px, 4vw, 56px) 0 clamp(48px, 6vw, 80px); background:
+    radial-gradient(1100px 600px at 78% 30%, rgba(40, 90, 66, 0.55), transparent 70%), var(--turf); }
+  .hero .wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(28px, 5vw, 72px); align-items: center; min-height: calc(100dvh - 64px - 40px); }
+  .hero p.lede { margin: 22px 0 30px; max-width: 34ch; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .phone { border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(2, 12, 8, 0.55); background: var(--ink); }
+  .hero .phone { justify-self: center; height: min(calc(100dvh - 150px), 680px); aspect-ratio: 9 / 16; }
+  .hero .phone img { width: 100%; height: 100%; object-fit: cover; }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero .phone { animation: rise .9s cubic-bezier(.16,1,.3,1) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  }
+
+  /* modes bento */
+  .modes h2 { margin-bottom: 14px; }
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-top: 44px; }
+  .tile { border-radius: var(--r); padding: 28px; background: var(--ink); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  .tile p { color: var(--muted); margin: 0; font-size: 17px; }
+  .tile h3 { font-stretch: 75%; font-size: 28px; font-weight: 800; }
+  .t-duel { grid-column: 1 / 5; display: grid; grid-template-columns: 1fr 190px; gap: 22px; align-items: center; background: var(--amber); border-color: var(--amber); color: var(--on-amber); }
+  .t-duel p { color: #3a2a06; }
+  .t-duel img { border-radius: 10px; border: 1px solid rgba(27, 18, 0, 0.25); width: 100%; height: 250px; object-fit: cover; object-position: top; }
+  .t-daily { grid-column: 5 / 7; grid-row: 1 / 3; padding-bottom: 0; }
+  .t-daily img { margin: 8px -28px 0; width: calc(100% + 56px); max-width: none; border-top: 1px solid var(--line); height: 250px; object-fit: cover; object-position: 50% 85%; }
+  .t-defend { grid-column: 1 / 3; background: var(--stripe); }
+  .t-chase { grid-column: 3 / 5; background: var(--stripe); }
+  .t-ladder { grid-column: 1 / 7; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: center; }
+  .t-ladder img { border-radius: 10px; height: 260px; width: 100%; object-fit: cover; object-position: 50% 40%; border: 1px solid var(--line); }
+
+  /* how a ball works */
+  .ball { background: var(--ink); }
+  .ball .cols { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 72px); margin-top: 40px; align-items: start; }
+  table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  caption { text-align: left; color: var(--muted); padding-bottom: 12px; font-size: 15px; }
+  th, td { text-align: left; padding: 14px 12px 14px 0; vertical-align: top; }
+  th { font-weight: 700; color: var(--chalk); white-space: nowrap; }
+  td { color: var(--muted); }
+  tbody tr + tr th, tbody tr + tr td { border-top: 1px solid var(--line); }
+  thead th { color: var(--amber); font-size: 14px; text-transform: none; padding-top: 0; }
+
+  /* gallery */
+  .gallery { padding-bottom: clamp(40px, 6vw, 80px); }
+  .strip { display: grid; grid-auto-flow: column; grid-auto-columns: min(250px, 66vw); gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 36px max(20px, calc((100vw - 1160px) / 2)) 18px; scroll-padding-inline: max(20px, calc((100vw - 1160px) / 2)); scrollbar-color: var(--muted) transparent; }
+  .strip figure { margin: 0; scroll-snap-align: start; }
+  .strip .phone { box-shadow: none; }
+  .strip figcaption { color: var(--muted); font-size: 15px; margin-top: 10px; line-height: 1.4; }
+  .gallery .wrap { padding-bottom: 0; }
+
+  /* how to play and tips */
+  .flow { display: grid; grid-template-columns: 1fr 1fr; gap: 40px clamp(28px, 5vw, 72px); margin-top: 44px; }
+  .flow h3 { margin-bottom: 8px; color: var(--amber); }
+  .flow p { color: var(--chalk); margin: 0; }
+  .tips { background: var(--stripe); }
+  .tips .wrap { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(28px, 5vw, 80px); align-items: start; }
+  .tips .sticky { position: sticky; top: 96px; }
+  .tips article + article { margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--line); }
+  .tips article p { color: var(--chalk); }
+  .tips article p:last-child { margin-bottom: 0; }
+
+  /* ads */
+  .ads .box { border-radius: var(--r); background: var(--ink); border: 1px solid var(--line); padding: clamp(28px, 4vw, 52px); display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+  .ads p { color: var(--muted); }
+  .ads p:last-child { margin-bottom: 0; }
+
+  /* faq */
+  .faq .list { margin-top: 36px; max-width: 820px; }
+  details { border-bottom: 1px solid var(--line); }
+  details:first-child { border-top: 1px solid var(--line); }
+  summary { cursor: pointer; padding: 20px 0; font-weight: 700; font-size: 19px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--amber); font-size: 26px; line-height: 1; }
+  details[open] summary::after { content: "-"; }
+  details p { color: var(--muted); padding-bottom: 20px; margin: 0; }
+
+  footer { border-top: 1px solid var(--line); padding: 48px 0 64px; background: var(--ink); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 28px 48px; justify-content: space-between; align-items: center; }
+  footer .links { display: flex; flex-wrap: wrap; gap: 8px 26px; }
+  footer small { display: block; color: var(--muted); font-size: 14px; margin-top: 10px; }
+
+  @media (max-width: 900px) {
+    .nav ul { display: none; }
+    .hero .wrap { grid-template-columns: 1fr; min-height: 0; }
+    .hero .phone { width: min(100%, 320px); height: auto; justify-self: start; }
+    .hero .phone img { height: auto; }
+    .bento { grid-template-columns: 1fr; }
+    .t-duel, .t-daily, .t-defend, .t-chase, .t-ladder { grid-column: 1; grid-row: auto; }
+    .t-duel { grid-template-columns: 1fr; }
+    .t-duel img { max-width: 220px; height: 220px; }
+    .t-ladder { grid-template-columns: 1fr; }
+    .ball .cols, .flow, .tips .wrap, .ads .box { grid-template-columns: 1fr; }
+    .tips .sticky { position: static; }
+    body { font-size: 17px; }
+  }
+  @media (max-width: 480px) {
+    .btn { padding: 0 18px; font-size: 16px; }
+    .nav .btn { display: none; }
+    th { white-space: normal; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="mark" href="./"><img src="icon-512.png" alt="" width="32" height="32">SLOGSTOP</a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="#how">How to play</a></li>
+        <li><a href="#tips">Tips</a></li>
+        <li><a href="#faq">Questions</a></li>
+        <li><a href="/privacy-policies/slogstop-privacy-policy.html">Privacy</a></li>
+      </ul>
+    </nav>
+    <a class="btn primary small" href="play/">Play in your browser</a>
+  </div>
+</header>
+
+<main>
+<section class="hero" aria-labelledby="h1">
+  <div class="wrap">
+    <div>
+      <h1 id="h1">The last over, on one phone.</h1>
+      <p class="lede">A turn based cricket duel for two friends face to face on one phone. Set the field, then outguess each other.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.mohdshayan.slogstop">Google Play</a>
+        <a class="btn ghost" href="play/">Play in your browser</a>
+      </div>
+    </div>
+    <div class="phone"><img src="shots/duel.jpg" width="720" height="1280" alt="Slogstop played face to face: the top half of the phone faces one player and the bottom half faces the other, with a floodlit cricket ground between them and a 2 showing in the count."></div>
+  </div>
+</section>
+
+<section class="modes" aria-labelledby="modes-h">
+  <div class="wrap">
+    <h2 id="modes-h">One ground, five ways to play it.</h2>
+    <p class="lede">Every mode uses the same rules. The field is always in view, and only the ball and the shot are hidden.</p>
+    <div class="bento">
+      <article class="tile t-duel">
+        <div>
+          <h3>Two players</h3>
+          <p>The phone lies flat between you. One over each, two wickets each, a Super Over if it ends level. The top half faces one player and the bottom half faces the other, so nobody hands the phone over.</p>
+        </div>
+        <img src="shots/field.jpg" width="720" height="1280" alt="The bowler's half of the screen, rotated to face the top player, showing six field shapes and the ground." loading="lazy">
+      </article>
+      <article class="tile t-daily">
+        <h3>The Daily Last Over</h3>
+        <p>The same over for everyone, new every day, with one try and a streak that counts the days you finish it.</p>
+        <img src="shots/daily.jpg" width="720" height="1280" alt="The Slogstop menu with Daily 17 and an 8 day streak, the 2 players button, the Ladder and the Defend and Chase buttons." loading="lazy">
+      </article>
+      <article class="tile t-defend">
+        <h3>Defend</h3>
+        <p>Protect a total off the last over. A heat map shows where the computer batter wants to hit.</p>
+      </article>
+      <article class="tile t-chase">
+        <h3>Chase</h3>
+        <p>Score the runs. The bowler's plan is drawn as four bars, and every zone shows its odds.</p>
+      </article>
+      <article class="tile t-ladder">
+        <div>
+          <h3>The Ladder</h3>
+          <p>Thirty handmade last overs, Defend and Chase in turn, with three stars on each. The first six teach you the chart. The last ten are hard, and the thirtieth is meant to be.</p>
+        </div>
+        <img src="shots/ladder.jpg" width="720" height="1280" alt="The ladder of thirty rungs, with stars earned on the first twelve." loading="lazy">
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ball" aria-labelledby="ball-h">
+  <div class="wrap">
+    <h2 id="ball-h">Every ball is a guess you can reason about.</h2>
+    <div class="cols">
+      <div>
+        <p class="lede">The bowler picks a delivery. The batter picks one of six scoring zones, or blocks. Both choices are hidden until the reveal, and the field is public the whole time.</p>
+        <p>Every delivery shuts three zones and leaves three open, and every zone is open to exactly two deliveries. That is the whole puzzle: there is no safe zone for the batter and no safe ball for the bowler.</p>
+        <p>An open zone is a good shot, and the fielders decide how good. An open zone with nobody near it goes for a boundary about 85 times in 100. With a deep fielder in it, about 40. A shut zone means the batter is beaten, and a beaten batter can be out.</p>
+        <p>After every ball one short line says why it went the way it did, such as "Slower ball to long on: open, nobody deep. Six."</p>
+      </div>
+      <table>
+        <caption>What each delivery opens and shuts</caption>
+        <thead><tr><th scope="col">Delivery</th><th scope="col">Open to the batter</th><th scope="col">Shut, out if beaten</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Yorker</th><td>Fine leg, midwicket, long on</td><td>Long off, cover, third man (22%)</td></tr>
+          <tr><th scope="row">Wide yorker</th><td>Long off, cover, third man</td><td>Fine leg, midwicket, long on (14%)</td></tr>
+          <tr><th scope="row">Slower ball</th><td>Long off, cover, long on</td><td>Third man, fine leg, midwicket (18%)</td></tr>
+          <tr><th scope="row">Bouncer</th><td>Third man, fine leg, midwicket</td><td>Long off, cover, long on (14%)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="gallery" aria-labelledby="gal-h">
+  <div class="wrap">
+    <h2 id="gal-h">From the first over to the thirtieth.</h2>
+  </div>
+  <div class="strip" role="region" aria-label="Screenshots" tabindex="0">
+    <figure><div class="phone"><img src="shots/first.jpg" width="720" height="1280" alt="The first over: pick a field shape, read the batter, and tap Bowl." loading="lazy"></div><figcaption>Pick a field, then bowl.</figcaption></figure>
+    <figure><div class="phone"><img src="shots/heat.jpg" width="720" height="1280" alt="A Defend over with a glowing heat map of where the batter will hit and the odds on each delivery." loading="lazy"></div><figcaption>Read where the batter will hit.</figcaption></figure>
+    <figure><div class="phone"><img src="shots/chase.jpg" width="720" height="1280" alt="A Chase with one run needed off four balls, the bowler's plan as bars, and the six scoring zones." loading="lazy"></div><figcaption>Chase the runs ball by ball.</figcaption></figure>
+    <figure><div class="phone"><img src="shots/stars.jpg" width="720" height="1280" alt="The result card for a defended over, with three stars." loading="lazy"></div><figcaption>Hold them for three stars.</figcaption></figure>
+    <figure><div class="phone"><img src="shots/field.jpg" width="720" height="1280" alt="The field being set in full view of the batter." loading="lazy"></div><figcaption>The bowler sets the field in view.</figcaption></figure>
+    <figure><div class="phone"><img src="shots/ladder.jpg" width="720" height="1280" alt="The ladder of thirty last overs." loading="lazy"></div><figcaption>Thirty last overs to climb.</figcaption></figure>
+  </div>
+</section>
+
+<section id="how" aria-labelledby="how-h">
+  <div class="wrap">
+    <h2 id="how-h">How to play.</h2>
+    <p class="lede">A first over takes about a minute. The game starts you on rung one of the ladder, with the field already set.</p>
+    <div class="flow">
+      <div>
+        <h3>Set the field</h3>
+        <p>Before each over the bowler chooses one of six field shapes and may drag one fielder to any empty place. The badge shows how many are in the ring and how many are out. At most five can be outside the ring. Numbers on the ground show the chance of a four or a six off a good hit in each zone.</p>
+      </div>
+      <div>
+        <h3>Pick your ball or your shot</h3>
+        <p>The bowler taps one of four deliveries, each showing its out chance and boundary chance. The batter taps one of six zones or the block in the middle. Block can never get you out, and gives a dot more often than a single.</p>
+      </div>
+      <div>
+        <h3>Play the 3, 2, 1 in a duel</h3>
+        <p>In a duel both players tap during a count of three, two, one, like a game of hand cricket. The first tap locks your pick and dims your buttons, so the other side cannot read it across the table. The reveal comes as soon as both have locked.</p>
+      </div>
+      <div>
+        <h3>Be on time</h3>
+        <p>Late taps follow cricket's own rules. A bowler with no pick when the throw closes bowls a no ball: one run, a full toss, and the next ball is a free hit that cannot get the batter out. A batter with no pick leaves the ball, which is a dot.</p>
+      </div>
+      <div>
+        <h3>Read the trace</h3>
+        <p>Every ball leaves an amber line from the bat to where it went. The six lines of an over build a wagon wheel on the ground. Amber lines are boundaries, paler lines are dots and singles, and a red mark shows a wicket.</p>
+      </div>
+      <div>
+        <h3>Win the over</h3>
+        <p>In Defend you win by holding the batter below the target. In Chase you win by reaching it before you run out of balls or wickets. In a duel the higher total wins, and a tie goes to a Super Over, up to three times.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tips" id="tips" aria-labelledby="tips-h">
+  <div class="wrap">
+    <div class="sticky">
+      <h2 id="tips-h">Tips from the nets.</h2>
+      <p class="lede">Nothing here needs luck. It needs a little reading.</p>
+    </div>
+    <div>
+      <article>
+        <h3>As the bowler, pick the field for the batter, not for the ball</h3>
+        <p>The batter's style is written on the start card. A leg side slogger loves midwicket and long on, so put your deep fielders there and shut the leg side with a wide yorker. A cutter wants the off side, so bring the yorker. Matching the field to the batter's glow costs nothing and often decides the over.</p>
+        <p>Five fielders outside the ring is the maximum, but you rarely need all five. A thin ring lets a single turn into two.</p>
+      </article>
+      <article>
+        <h3>Do not bowl the same ball twice</h3>
+        <p>The computer batter reads the over. Bowl three yorkers in a row and he will start leaning to the leg side before you release the fourth. Mix a yorker with a slower ball and a bouncer, and when you need a wicket, bowl the delivery that shuts the zone he likes most.</p>
+        <p>A yorker or a wide yorker slips into a full toss one ball in twelve, and a full toss opens every zone. The odds on the buttons already include that slip.</p>
+      </article>
+      <article>
+        <h3>As the batter, look at the field before the bowler</h3>
+        <p>A zone with nobody near it is worth about 85 boundary chances in 100, but only if the delivery leaves it open. Each zone is open to two deliveries, so ask which two, and which the bowler is more likely to pick. In Chase, the four bars show the computer bowler's plan, and the odds on each zone are already worked out against it.</p>
+        <p>When you need one run off the last ball, block is not a bad idea. It can never get you out, and a single comes 45 times in 100.</p>
+      </article>
+      <article>
+        <h3>Use wickets as a resource</h3>
+        <p>With two wickets in hand you can attack a shut zone, where the out chance is only 14 to 22 percent. With one wicket left, switch to the delivery or the zone with the lowest out number, even if the boundary chance is smaller. The first ladder star in Chase only asks you to get there. The third asks you to get there without losing a wicket.</p>
+      </article>
+      <article>
+        <h3>Make the Daily a habit</h3>
+        <p>The Daily is always a Defend, so everyone is solving the same over. It is built so that more than one field shape can win it. Try the shape the batter's glow suggests, and if you lose, the result line still counts toward your streak. A shared line such as "Slogstop #41: defended 11, W . 1 4 . W" tells your friends how your over went without telling them how to win it.</p>
+        <p>You can send any finished over as a Beat my over link. Your friend opens the same over in a browser, with your line shown first, and plays it for themselves.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ads" aria-labelledby="ads-h">
+  <div class="wrap">
+    <div class="box">
+      <div>
+        <h2 id="ads-h">Free, with ads, and an optional one-time purchase.</h2>
+      </div>
+      <div>
+        <p>Slogstop is free to play and supported by ads. There are no banner ads in the app. A full screen ad can appear only when you press Next after a finished over or duel, never in your first three, at most one for every two, and never around the Daily. Rewarded ads are always your choice, with the reward named on the button.</p>
+        <p>Remove ads and archive is a single purchase through Google Play. It removes the full screen ads for good, opens every past Daily Last Over and gives the rewarded bonuses without an ad. Restore it on any device signed in to the same Google account.</p>
+        <p>The browser version at <a href="play/">apps.mohdshayan.com/slogstop/play</a> shows Google AdSense ads beside the game on wide screens and has no purchases. Read the <a href="/privacy-policies/slogstop-privacy-policy.html">privacy policy</a> for the details.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq" aria-labelledby="faq-h">
+  <div class="wrap">
+    <h2 id="faq-h">Questions.</h2>
+    <div class="list">
+      <details><summary>Do I need an internet connection?</summary><p>No. The game runs from files on your phone and plays offline. Ads and purchases need a connection, and everything else works without one.</p></details>
+      <details><summary>Can two people play on a computer?</summary><p>Yes. In the browser version each player gets one row of keys. The top player uses Q W E R T Y U and the bottom player uses Z X C V B N M. Bowling uses the first four keys of the row, and batting uses all seven: six zones in wheel order, then block.</p></details>
+      <details><summary>Which languages does it speak?</summary><p>English, Hindi, Urdu, Bengali, Tamil, Telugu, Marathi and Sinhala. The game follows your device language, and Settings lets you choose another. Urdu is laid out right to left, while the ground and the two halves never mirror.</p></details>
+      <details><summary>Is the Daily the same for everyone?</summary><p>Yes, by your local date. Day one was 1 November 2026. The result for a given plan is always the same, so the same field and the same deliveries give the same over for every player.</p></details>
+      <details><summary>What does a second Daily try cost?</summary><p>One watched rewarded ad, once a day, and your shared line is marked R so friends know. With Remove ads and archive it is granted at once. A missed day can also be repaired once a week the same way.</p></details>
+      <details><summary>Are these real players or teams?</summary><p>No. Every batter and bowler is fictional, and the game uses no league, team, kit or player names.</p></details>
+      <details><summary>Who is it for?</summary><p>Slogstop is meant for players aged 16 and over, and it is not directed at children.</p></details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="mark" href="./"><img src="icon-512.png" alt="" width="32" height="32">SLOGSTOP</a>
+      <small>Made by SocialSure Private Limited. Archivo type under the SIL Open Font License (<a href="OFL-Archivo.txt">licence</a>).</small>
+    </div>
+    <div class="links">
+      <a href="/privacy-policies/slogstop-privacy-policy.html">Privacy policy</a>
+      <a href="play/">Play in your browser</a>
+      <a href="https://play.google.com/store/apps/details?id=com.mohdshayan.slogstop">Google Play</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
